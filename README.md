@@ -1,4 +1,4 @@
-# dh-skills
+# Design House Skills
 
 Skille dla agentów AI od [Design House](https://designhouse.me). Działają w Claude, ChatGPT, Codexie, Cursorze i innych narzędziach, które obsługują format [Agent Skills](https://agentskills.io).
 
