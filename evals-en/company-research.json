@@ -1,0 +1,41 @@
+{
+  "skill_name": "company-research",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Research the company we're building a website for: Example Joinery Workshop, York, phone 01632 960123, website joinery-workshop.example. Save the result to brief/01-research.md.",
+      "expected_output": "The company is fictional and the domain doesn't respond. The report has the full structure from the format, identity marked as unconfirmed, explicit gaps and zero invented reviews, ratings or projects. For a full test, swap in a real company.",
+      "files": [],
+      "assertions": [
+        "The file brief/01-research.md exists and has every section from the format",
+        "The company's identity is marked as unconfirmed, or confirmed by at least two identifiers named explicitly",
+        "The phone number in the report is identical to the one given in the prompt",
+        "The report contains no reviews, ratings, numbers or projects without a source URL",
+        "The unreachable domain is recorded in Discrepancies or in Sources as unavailable",
+        "The Conclusions section has five decisions, and the test sentence is either backed by sources or says plainly that no reason to choose was found"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "check out Example Installations from Leeds, apparently they do heat pumps, number 01632 960456. they're a potential subcontractor for us",
+      "expected_output": "Research that verifies whether heat pumps are core, additional or an unconfirmed service; a clear separation of claims from proof.",
+      "files": [],
+      "assertions": [
+        "Heat pumps have a core, additional or unconfirmed status in the scope matrix, with Source IDs",
+        "The report doesn't claim the company doesn't do something without a source",
+        "With similarly named companies, the report records rejected, ambiguous results or states there weren't any"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Company: Needle & Thread Alterations, no website or Google profile, all I have is: 'we sew and alter clothing, Norwich, 01632 960789'. What can we find out?",
+      "expected_output": "An honest report with many gaps: explicitly marked gaps instead of invented reviews, ratings and projects.",
+      "files": [],
+      "assertions": [
+        "The report contains no reviews, ratings or projects without a source URL",
+        "The Discrepancies and things to confirm section lists the missing information",
+        "The test sentence in Conclusions either shows a reason to choose with a source or says plainly that none was found"
+      ]
+    }
+  ]
+}

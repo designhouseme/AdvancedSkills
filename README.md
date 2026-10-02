@@ -1,5 +1,7 @@
 # Skille Design House
 
+[English version](README.en.md): te same skille po angielsku, w folderze `skills-en/`.
+
 Otwarte skille dla agentów AI od [Design House](https://designhouse.me). Robimy strony, automatyzacje, wideo i aplikacje dla polskich firm, a te skille to uproszczona wersja procesu, którym budujemy strony w [Żywej Stronie](https://zywastrona.designhouse.me): od researchu firmy, przez plan i teksty, po kod i niezależny przegląd.
 
 Działają w Claude, ChatGPT/Codex, Cursorze, Copilocie, Gemini CLI i innych narzędziach zgodnych ze standardem [Agent Skills](https://agentskills.io).
@@ -99,7 +101,7 @@ Ewaluacje z 2 października 2026 (Claude Opus 5.5, po jednym przebiegu ze skille
 
 ## Bezpieczeństwo
 
-Skill to instrukcje, które agent wykonuje, więc przed instalacją przeczytaj pliki, tak jak czytasz cudzy kod. Jedyny skrypt w repo, [`sprawdz_plan.py`](skills/plan-strony/scripts/sprawdz_plan.py), używa tylko biblioteki standardowej Pythona, czyta dwa pliki Markdown i nie łączy się z siecią. Skille nie wdrażają niczego na serwer, nie kupują domen i nie wysyłają formularzy bez wyraźnej prośby.
+Skill to instrukcje, które agent wykonuje, więc przed instalacją przeczytaj pliki, tak jak czytasz cudzy kod. Jedyne skrypty w repo, [`sprawdz_plan.py`](skills/plan-strony/scripts/sprawdz_plan.py) i jego angielska wersja [`check_plan.py`](skills-en/website-plan/scripts/check_plan.py), używają tylko biblioteki standardowej Pythona, czytają dwa pliki Markdown i nie łączą się z siecią. Skille nie wdrażają niczego na serwer, nie kupują domen i nie wysyłają formularzy bez wyraźnej prośby.
 
 ## Zasady, na których to stoi
 

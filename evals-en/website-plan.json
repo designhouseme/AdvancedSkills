@@ -1,0 +1,52 @@
+{
+  "skill_name": "website-plan",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Based on the research in brief/01-research.md, prepare the website plan and all the copy. Save it to brief/02-plan.md.",
+      "expected_output": "A plan in the skill's format that avoids the traps in the research: doesn't quote F003, doesn't give the F004 price as a fact and doesn't build a section on the F005 years in business.",
+      "files": ["evals-en/fixtures/01-research-joinery.md -> brief/01-research.md"],
+      "assertions": [
+        "python3 scripts/check_plan.py brief/02-plan.md brief/01-research.md exits with code 0",
+        "The plan contains no promise of a 10-year guarantee (F003 has status do-not-use)",
+        "The £120 price doesn't appear as a certain fact; if present, it's marked for confirmation",
+        "No H2 or hero is based on '20 years' or '12 employees' (F005 is a proxy)",
+        "Three hero directions are scored (service-led, outcome-led, proof-led)",
+        "Contact is the second-to-last section and FAQ the last",
+        "The phone number in the plan is 01632 960123"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I don't have research, just notes: 'Example Tailoring Studio, Norwich, tel 01632 960789, clothing alterations, made-to-measure tailoring, customers praise punctuality'. write the website copy, without doing any research online",
+      "expected_output": "A plan with the user's notes as the only source, marked as done without research, and with no invented reviews.",
+      "files": [],
+      "assertions": [
+        "The F/V/P identifiers are marked 'material from the user'",
+        "The plan states that no research was done",
+        "The plan contains no review quotes with names that weren't in the notes"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "rewrite only the hero in brief/02-plan.md, the H1 'Professional joinery services' is too generic",
+      "expected_output": "A new hero with three scored directions, without changing the other sections.",
+      "files": ["evals-en/fixtures/01-research-joinery.md -> brief/01-research.md"],
+      "assertions": [
+        "The new H1 isn't the company name or a slogan without information",
+        "The other sections of the plan didn't change order"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "notes for a website plan, no research needed: 'Example Bakery, Poznań, Poland, tel 123 456 789, sourdough bread and cakes to order, local customers, orders by phone'. write the plan and the copy",
+      "expected_output": "The site copy is in Polish, the language of the bakery's customers, while the plan's working notes may stay in English; the language choice is recorded as an assumption or decision.",
+      "files": [],
+      "assertions": [
+        "The H1, section copy, CTAs and FAQ are written in Polish",
+        "The plan records the site language as an assumption or a decision for the user",
+        "The visible copy contains no em dash (—)"
+      ]
+    }
+  ]
+}
