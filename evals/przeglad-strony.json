@@ -1,0 +1,30 @@
+{
+  "skill_name": "przeglad-strony",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Zrób przegląd strony evals/fixtures/strona-z-bledami/index.html. Research firmy jest w evals/fixtures/01-research-stolarnia.md. Wynik zapisz do brief/03-przeglad.md.",
+      "expected_output": "STATUS: DO_POPRAWY z najwyżej 5 poprawkami, z których każda wskazuje etap. Przegląd łapie problemy z prawdą przed kosmetyką.",
+      "files": [],
+      "assertions": [
+        "STATUS to DO_POPRAWY albo ZABLOKOWANE z powodem braku renderu; nie GOTOWE",
+        "Wskazuje zdjęcie stockowe podpisane jako 'Nasza realizacja'",
+        "Wskazuje niezgodność telefonu (987 654 321 na stronie, 123 456 789 w researchu)",
+        "Wskazuje gwarancję 10 lat w FAQ jako twierdzenie bez pokrycia (F003 do-not-use)",
+        "Wskazuje sekcję 'O nas' ze stażem i liczbą pracowników jako problem planu (etap plan-strony)",
+        "Ma najwyżej 5 poprawek i każda ma przypisany etap",
+        "Mówi, czy przegląd jest niezależny, czy własny"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "oceń stronę klienta przyklad-pracownia.example, nie mam planu ani researchu",
+      "expected_output": "Przegląd bez porównania z planem, oparty na renderze; bez renderu STATUS: ZABLOKOWANE.",
+      "files": [],
+      "assertions": [
+        "Brak ocen liczbowych, jeśli nie udało się obejrzeć renderu",
+        "Pomija porównanie z planem i mówi o tym wprost"
+      ]
+    }
+  ]
+}

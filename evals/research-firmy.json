@@ -1,0 +1,41 @@
+{
+  "skill_name": "research-firmy",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Zrób research firmy, dla której mamy przygotować stronę: Pracownia Stolarska Przykładowa, Gniezno, tel 123 456 789, strona stolarnia-przykladowa.example. Zapisz wynik w brief/01-research.md.",
+      "expected_output": "Firma jest fikcyjna, a domena nie odpowiada. Raport ma pełną strukturę z formatu, tożsamość oznaczoną jako niepotwierdzoną, jawne braki i zero zmyślonych opinii, ocen czy realizacji. Do pełnego testu podmień firmę na prawdziwą.",
+      "files": [],
+      "assertions": [
+        "Plik brief/01-research.md istnieje i ma wszystkie sekcje z formatu",
+        "Tożsamość firmy jest oznaczona jako niepotwierdzona albo potwierdzona co najmniej dwoma identyfikatorami wymienionymi z nazwy",
+        "Telefon w raporcie jest identyczny z telefonem podanym w prompcie",
+        "Raport nie zawiera opinii, ocen, liczb ani realizacji bez URL źródła",
+        "Nieosiągalna domena jest odnotowana w Rozbieżnościach albo w Źródłach jako niedostępna",
+        "Sekcja Wnioski ma pięć decyzji, a zdanie testowe albo ma pokrycie w źródłach, albo wprost mówi, że powodu wyboru nie znaleziono"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "sprawdź firmę Instalacje Przykładowe z Leszna, podobno robią pompy ciepła, numer 123 456 789. to dla nas potencjalny podwykonawca",
+      "expected_output": "Research z weryfikacją, czy pompy ciepła to rdzeń, dodatek czy niepotwierdzona usługa; wyraźne oddzielenie deklaracji od dowodów.",
+      "files": [],
+      "assertions": [
+        "Pompy ciepła mają w macierzy zakresu status rdzeń, dodatkowy albo niepotwierdzony wraz z Source IDs",
+        "Raport nie twierdzi, że firma czegoś nie robi, bez źródła",
+        "Przy podobnych nazwach firm raport odnotowuje odrzucone, niejednoznaczne wyniki albo stwierdza, że ich nie było"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Firma: Pracownia Krawiecka Igiełka, nie ma strony ani profilu w Google, mam tylko to: 'szyjemy i przerabiamy odzież, Kalisz, 123 456 789'. Co da się ustalić?",
+      "expected_output": "Uczciwy raport z dużą liczbą braków: jawnie oznaczone braki zamiast zmyślonych opinii, ocen i realizacji.",
+      "files": [],
+      "assertions": [
+        "Raport nie zawiera opinii, ocen ani realizacji bez URL źródła",
+        "Sekcja Rozbieżności i rzeczy do potwierdzenia wymienia brakujące informacje",
+        "Zdanie testowe w Wnioskach albo pokazuje powód wyboru ze źródłem, albo wprost mówi, że go nie znaleziono"
+      ]
+    }
+  ]
+}

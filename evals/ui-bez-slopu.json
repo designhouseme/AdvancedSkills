@@ -1,0 +1,41 @@
+{
+  "skill_name": "ui-bez-slopu",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "ta strona wygląda jak z AI, kropki wszędzie, gradient w nagłówku. popraw evals/fixtures/strona-z-bledami/index.html, treści nie ruszaj",
+      "expected_output": "Ta sama treść i kontakt, bez dekoracyjnej kropki, pigułki, gradientowego tekstu, rozmycia, Inter, z długą pauzą zgłoszoną jako decyzja (treść jest nietykalna), z zapisanymi trzema odrzuconymi domyślnymi wyborami i sygnaturą.",
+      "files": [],
+      "assertions": [
+        "W pliku nie ma elementu .dot ani kropki przed 'Przyjmujemy zlecenia' (albo jest zastąpiona samym tekstem)",
+        "Nie ma background-clip: text ani backdrop-filter",
+        "font-family nie zaczyna się od Inter",
+        "Długa pauza w H1 jest zgłoszona jako decyzja dla użytkownika, bo polecenie zabrania zmian treści",
+        "Link tel: i numer telefonu są bez zmian",
+        "Odpowiedź wymienia trzy odrzucone domyślne wybory i jeden element-sygnaturę",
+        "Grep z punktu 4 skilla na poprawionym pliku nie zwraca trafień, które nie mają w odpowiedzi uzasadnienia"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "dodaj do panelu wskaźnik, czy serwer jest online, dane przychodzą z /api/health co 10 sekund",
+      "expected_output": "Wskaźnik stanu zostaje, bo niesie prawdziwy stan: statyczny, z etykietą tekstową, ze zmianą wyglądu tylko przy zmianie stanu.",
+      "files": [],
+      "assertions": [
+        "Wskaźnik ma etykietę tekstową (np. 'Online' / 'Offline'), a nie samą kolorową kropkę",
+        "Brak animacji pulsowania w stanie spoczynku"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "zrób sekcję z trzema zaletami usługi na landing page biura rachunkowego",
+      "expected_output": "Sekcja bez trzech identycznych kart z ikoną w kolorowym kwadracie, bez eyebrowa i bez gradientu.",
+      "files": [],
+      "assertions": [
+        "Nie są to trzy karty o identycznym układzie ikona w kwadracie + tytuł + zdanie",
+        "Nad nagłówkiem sekcji nie ma etykiety wersalikami",
+        "Nie ma fioletowego ani indygo gradientu"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "description": "Test wyzwalania. Firmy, numery i adresy są fikcyjne. expected_skill = skill, który powinien się uruchomić; null = żaden z tych skilli. Dla pojedynczego skilla: should_trigger = (expected_skill == nazwa skilla). Uruchom każde zapytanie 3 razy.",
+  "queries": [
+    {
+      "query": "sprawdź mi firmę Stolarnia Nowak z Gniezna, tel 123 456 789, bo mamy z nimi spotkanie w czwartek i chcę wiedzieć, czym się naprawdę zajmują i co mówią klienci",
+      "expected_skill": "research-firmy"
+    },
+    {
+      "query": "co wiemy o firmie Hydro-Przykład Kraków? NIP 0000000000, rozważamy ich jako podwykonawcę",
+      "expected_skill": "research-firmy"
+    },
+    {
+      "query": "zanim wyślę ofertę, zrób research kwiaciarni Róża na Mokotowie, opinie, realizacje, czy mają stronę",
+      "expected_skill": "research-firmy"
+    },
+    {
+      "query": "Pracownia ceramiki Glina, Toruń, ul. Szeroka 12, tel 123 456 789. Robią warsztaty i zamówienia firmowe. Zrób im stronę, żeby ludzie zapisywali się na warsztaty",
+      "expected_skill": "strona-dla-firmy"
+    },
+    {
+      "query": "potrzebuję prostej wizytówki online dla mojego warsztatu samochodowego, wklejam co mam: Auto-Serwis Kowalski, Piła, 00 000 00 00, naprawy, opony, klima",
+      "expected_skill": "strona-dla-firmy"
+    },
+    {
+      "query": "wróćmy do strony dla stolarni, klient przysłał nowe zdjęcia schodów i chce je pokazać wyżej",
+      "expected_skill": "strona-dla-firmy"
+    },
+    {
+      "query": "mam gotowy research w brief/01-research.md, rozpisz sekcje strony i napisz teksty, H1 ma być mocniejsze niż 'Profesjonalne usługi stolarskie'",
+      "expected_skill": "plan-strony"
+    },
+    {
+      "query": "napisz copy na landing page dla gabinetu fizjoterapii na podstawie tych notatek o firmie i opinii klientów",
+      "expected_skill": "plan-strony"
+    },
+    {
+      "query": "plan w brief/02-plan.md zaakceptowany, zakoduj stronę, folder jest pusty",
+      "expected_skill": "budowa-strony"
+    },
+    {
+      "query": "przegląd wskazał: hero na mobile ucina zdjęcie i CTA jest pod linią przewijania, popraw to w kodzie",
+      "expected_skill": "budowa-strony"
+    },
+    {
+      "query": "strona dla kwiaciarni już stoi na localhost:3000, oceń ją uczciwie zanim pokażę właścicielce",
+      "expected_skill": "przeglad-strony"
+    },
+    {
+      "query": "zerknij na stronę naszego klienta przyklad-pracownia.example i powiedz, co w niej nie działa z punktu widzenia klienta",
+      "expected_skill": "przeglad-strony"
+    },
+    {
+      "query": "zrób analizę konkurencji dla branży stolarskiej w Wielkopolsce, kto ma najlepsze strony",
+      "expected_skill": null
+    },
+    {
+      "query": "zbuduj sklep internetowy na Shopify dla producenta świec",
+      "expected_skill": null
+    },
+    {
+      "query": "zrób audyt SEO strony firmowej, meta tagi, szybkość, indeksacja",
+      "expected_skill": null
+    },
+    {
+      "query": "napisz post na Facebooka dla stolarni o nowych schodach",
+      "expected_skill": null
+    },
+    {
+      "query": "jaki jest NIP firmy Orlen",
+      "expected_skill": null
+    },
+    {
+      "query": "przetłumacz tę stronę firmową na angielski",
+      "expected_skill": null
+    },
+    {
+      "query": "napraw błąd w moim komponencie React: hydration mismatch w headerze",
+      "expected_skill": null
+    },
+    {
+      "query": "zrób research rynku hydrauliki w Polsce: wielkość, trendy, ceny",
+      "expected_skill": null
+    },
+    {
+      "query": "usuń te kropki z przycisków i tagów, wszędzie mi je wstawia",
+      "expected_skill": "ui-bez-slopu"
+    },
+    {
+      "query": "dashboard wygląda jak z Claude'a: fiolet, pigułki, gradientowy tekst. zrób to po ludzku",
+      "expected_skill": "ui-bez-slopu"
+    },
+    {
+      "query": "za dużo badge'y i eyebrowów nad nagłówkami w komponentach landing page, posprzątaj",
+      "expected_skill": "ui-bez-slopu"
+    },
+    {
+      "query": "zmień kolor głównego przycisku na zielony",
+      "expected_skill": null
+    },
+    {
+      "query": "zrób audyt dostępności formularza kontaktowego: etykiety, kontrast, focus",
+      "expected_skill": null
+    }
+  ]
+}

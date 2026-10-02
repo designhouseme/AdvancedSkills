@@ -1,0 +1,30 @@
+{
+  "skill_name": "budowa-strony",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Plan w brief/02-plan.md jest zaakceptowany. Folder jest pusty, zbuduj stronę.",
+      "expected_output": "Statyczna strona (index.html, styles.css, images/) zgodna z planem, ze zrzutami w brief/screeny/ i listą obrazów w brief/media.md.",
+      "files": ["wynik evala plan-strony #1 -> brief/02-plan.md", "evals/fixtures/01-research-stolarnia.md -> brief/01-research.md"],
+      "assertions": [
+        "Istnieje index.html z jednym h1 równym H1 z planu",
+        "Kolejność h2 na stronie jest taka sama jak kolejność sekcji w planie",
+        "Link tel: wskazuje na 123456789",
+        "W brief/screeny/ są zrzuty 375 i 1440 px albo odpowiedź mówi wprost, że nie było narzędzia do zrzutów",
+        "Żaden stock nie ma alt ani podpisu sugerującego realizację firmy",
+        "W widocznym tekście nie ma znaku —",
+        "Odpowiedź zawiera checklistę weryfikacji z odhaczonymi punktami"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "przegląd w brief/03-przeglad.md ma STATUS: DO_POPRAWY, popraw to, co jest przypisane do budowy",
+      "expected_output": "Poprawione tylko punkty z etapem budowa-strony; punkty dla plan-strony zgłoszone, nie załatane w kodzie.",
+      "files": [],
+      "assertions": [
+        "Zmienione są tylko elementy wymienione w poprawkach dla budowa-strony",
+        "Poprawki przypisane do plan-strony nie zostały zrobione w kodzie, tylko zgłoszone"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "skill_name": "plan-strony",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Na podstawie researchu w brief/01-research.md przygotuj plan strony i wszystkie teksty. Zapisz do brief/02-plan.md.",
+      "expected_output": "Plan zgodny z formatem skilla, który omija pułapki z researchu: nie cytuje F003, nie podaje ceny F004 jako faktu i nie robi sekcji ze stażu F005.",
+      "files": ["evals/fixtures/01-research-stolarnia.md -> brief/01-research.md"],
+      "assertions": [
+        "python3 scripts/sprawdz_plan.py brief/02-plan.md brief/01-research.md kończy się kodem 0",
+        "Plan nie zawiera obietnicy 10-letniej gwarancji (F003 ma status do-not-use)",
+        "Cena 250 zł nie występuje jako pewny fakt; jeśli jest, to oznaczona do potwierdzenia",
+        "Żadne H2 ani hero nie opiera się na '20 lat' ani '12 pracowników' (F005 to proxy)",
+        "Ocenione są trzy kierunki hero (usługowy, rezultatowy, oparty na dowodzie)",
+        "Kontakt jest przedostatnią, a FAQ ostatnią sekcją",
+        "Telefon w planie to 123 456 789"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "nie mam researchu, tylko notatki: 'Pracownia Krawiecka Przykładowa, Kalisz, tel 123 456 789, przeróbki odzieży, szycie na miarę, klientki chwalą terminowość'. napisz teksty na stronę, bez robienia researchu w necie",
+      "expected_output": "Plan z notatek użytkownika jako jedynego źródła, z oznaczeniem, że research nie był robiony, i bez zmyślonych opinii.",
+      "files": [],
+      "assertions": [
+        "Identyfikatory F/V/P mają dopisek 'materiał od użytkownika'",
+        "Plan zaznacza, że research nie był robiony",
+        "Plan nie zawiera cytatów opinii z imionami, których nie było w notatkach"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "przepisz tylko hero w brief/02-plan.md, H1 'Profesjonalne usługi stolarskie' jest za ogólne",
+      "expected_output": "Nowe hero z trzema ocenionymi kierunkami, bez zmiany pozostałych sekcji.",
+      "files": ["evals/fixtures/01-research-stolarnia.md -> brief/01-research.md"],
+      "assertions": [
+        "Nowy H1 nie jest nazwą firmy ani sloganem bez informacji",
+        "Pozostałe sekcje planu nie zmieniły kolejności"
+      ]
+    }
+  ]
+}
