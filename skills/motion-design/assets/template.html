@@ -7,7 +7,9 @@
   Opened in a browser, it plays live: space = pause, ←/→ = ±1 s, click on the bar = seek.
   Parameters: ?t=2.5 (still), ?speed=0.75 (pace), ?name=Name, ?w=1080&h=1920 (format).
 
-  Replace with the project's own: the :root block (colours), @font-face + FAMILY (brand font), the scenes.
+  The grey :root palette and the Urbanist font are demo placeholders, not a style. Replace them with the
+  brand's colours and font, or with a decision from references/look.md (check_film.py warns while they're
+  still here), then replace the scenes.
 -->
 <html lang="en">
   <head>
@@ -15,7 +17,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Composition</title>
     <style>
-      /* BRAND FONT: replace the files and the family name (the FAMILY variable in the script must match). */
+      /* BRAND FONT: Urbanist is only a demo placeholder. Replace the files and the family name with the brand's
+         font or one chosen for the subject (references/look.md); the FAMILY variable in the script must match. */
       @font-face {
         font-family: "Urbanist";
         src: url(fonts/urbanist-latin.woff2) format("woff2");
@@ -29,15 +32,16 @@
         unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
       }
 
-      /* BRAND TOKENS: replace with the values from the project's CSS. */
+      /* BRAND TOKENS: the demo is grey on purpose, so nothing here passes for a style.
+         Replace with the values from the project's CSS, or with the palette decided in references/look.md. */
       :root {
-        --bg: #f1f0ee;
-        --wash: #f8ddcc;
-        --ink: #1c1b1a;
-        --ink-2: #6c6863;
-        --line: #e8e5e1;
-        --accent: #ff6a2b;
-        --accent-dark: #ec5717;
+        --bg: #ececec;
+        --wash: #e2e2e2; /* soft light behind the intro: the background's hue, not the accent */
+        --ink: #161616;
+        --ink-2: #6e6e6e;
+        --line: #dcdcdc;
+        --accent: #8a8a8a;
+        --accent-dark: #727272;
       }
 
       * { box-sizing: border-box; }
@@ -54,7 +58,7 @@
       .word { position: absolute; left: 0; top: 0; white-space: pre; }
       svg { overflow: visible; }
       #grain { position: absolute; inset: -64px; pointer-events: none; opacity: 0.045; }
-      #vignette { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(120% 120% at 50% 45%, transparent 55%, rgb(70 40 20 / 0.14) 100%); }
+      #vignette { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(120% 120% at 50% 45%, transparent 55%, rgb(0 0 0 / 0.12) 100%); }
       #hud { position: fixed; left: 0; right: 0; bottom: 0; height: 26px; cursor: pointer; background: rgb(255 255 255 / 0.06); }
       #hud i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent); }
       #hud span { position: absolute; right: 10px; top: 4px; color: #bbb; font: 12px/1 ui-monospace, monospace; }
@@ -71,7 +75,7 @@
       // ------------------------------------------------------------------
       const Q = new URLSearchParams(location.search);
       const CAPTURE = Q.has("capture");
-      const FAMILY = "Urbanist"; // must match @font-face
+      const FAMILY = "Urbanist"; // demo placeholder; must match @font-face
       const NAME = Q.get("name") || "Motion"; // NAME: a single parameter; a spelling fix is one change, not a rewrite of the scenes
       // FORMAT: set it here for good (e.g. 1080 × 1920 for a reel), so it cannot be forgotten at render time.
       // ?w=…&h=… overrides it only for a test.

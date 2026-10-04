@@ -144,6 +144,14 @@
     {
       "query": "record my app's screen and add captions to the recording",
       "expected_skill": null
+    },
+    {
+      "query": "the colours and fonts in our promo video look like AI slop, can you redo the look but keep the scenes",
+      "expected_skill": "motion-design"
+    },
+    {
+      "query": "our landing page looks AI-generated, purple gradient and Inter everywhere, fix the colours and fonts",
+      "expected_skill": "ui-without-slop"
     }
   ]
 }

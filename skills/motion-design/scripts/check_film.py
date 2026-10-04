@@ -10,7 +10,9 @@ Usage (every part is optional; only what you pass gets checked):
 
 Composition: things that break frame repeatability (Math.random, Date.now, CSS animations
 and transitions, setInterval, will-change), resources from the internet, missing font files,
-em dashes, and a missing window.__render / __ready / __DURATION.
+em dashes, and a missing window.__render / __ready / __DURATION. As warnings, the look
+(references/look.md): the template's demo palette and font, default typefaces, gradient text,
+backdrop-filter, default purples and emoji.
 Film: length, dimensions, fps, frame count, yuv420p, an audio track as agreed,
 a first frame with content (not a flat patch of colour).
 Small file: size under the limit and the same length as the master. WebP: that it is an animation with frames.
@@ -93,6 +95,32 @@ def check_composition(path):
         font = p.parent / m.group(1)
         if not font.is_file():
             error(f"{p.name}:{line_of(text, m.start())}: font file {m.group(1)} not found; the film will render in a fallback font")
+    check_look(p, text)
+
+
+def check_look(p, text):
+    """Warnings, not errors: the brand takes precedence, so a warning is fixed or explained in the reply."""
+    if re.search(r"--bg\s*:\s*#ececec\b", text, re.I) and re.search(r"--accent\s*:\s*#8a8a8a\b", text, re.I):
+        warn(f"{p.name}: the template's grey demo palette is still in :root; set the brand's colours or a palette you decided on (references/look.md)")
+    if re.search(r"urbanist-latin|FAMILY\s*=\s*[\"']Urbanist", text):
+        warn(f"{p.name}: the template's demo font (Urbanist) is still in use; use the brand's font or choose one for the subject and write down why (references/look.md)")
+    families = [(m.start(), m.group(1)) for m in re.finditer(r"font-family\s*:\s*([^;{}]+)", text, re.I)]
+    families += [(m.start(), m.group(1)) for m in re.finditer(r"FAMILY\s*=\s*[\"']([^\"']+)", text)]
+    seen = set()
+    for at, value in families:
+        for m in re.finditer(r"\b(Inter|Space Grotesk|Geist|Fraunces|Instrument Serif|Poppins|Montserrat)\b", value, re.I):
+            if m.group(1).lower() not in seen:
+                seen.add(m.group(1).lower())
+                warn(f"{p.name}:{line_of(text, at)}: {m.group(1)} is a default model choice; keep it only if it's the brand's font and say so, otherwise choose a typeface for the subject (references/look.md)")
+    rules = [
+        (r"background-clip\s*:\s*text|backgroundClip\s*=\s*[\"']text", "gradient text; use a solid colour, emphasis through weight, size or motion"),
+        (r"backdrop-filter|backdropFilter", "glassmorphism (backdrop-filter); use solid surfaces separated by tone, it also slows every frame"),
+        (r"#(?:667eea|764ba2|4f46e5|8b5cf6)\b", "a default purple or indigo; use one accent from the brand's world"),
+        (r"[\U0001F300-\U0001FAFF\u2728]", "an emoji as an icon; draw the icon as SVG in one style"),
+    ]
+    for pattern, msg in rules:
+        for m in re.finditer(pattern, text, re.I):
+            warn(f"{p.name}:{line_of(text, m.start())}: {msg} (references/look.md)")
 
 
 def probe(path):

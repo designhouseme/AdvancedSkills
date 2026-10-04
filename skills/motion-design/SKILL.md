@@ -17,7 +17,8 @@ Goal: a video with an idea nobody else would have had, in the brand's real colou
 - **Truth about the product before effect.** Show features that exist and work the way they do on screen; for every scene, establish who does what. In the ReviewLink showreel the scene "we text your customers" was untrue (the business sends the link itself) and had to be rebuilt. A QR code leads to a working address, you don't invent domains, and you don't draw other companies' logos.
 - **No added storyline.** "Change to X, new name" means: show X. Make the story of the change only on explicit request. Write your reading of the brief in one sentence before you build scenes: fixing a storyboard costs a minute, fixing a render costs a dozen.
 - **The name is one parameter, and you flag a suspicious spelling straight away.** Use it exactly as in the brief (`NAME`), but if it looks like a typo ("RewievLink" instead of "ReviewLink"), ask in your first message. A late question cost a full render.
-- **The brand comes from the project's files, not from memory.** Colours from the CSS, the font from local files, the logo from the original SVG, app screens rebuilt from the app's CSS (no `iframe`, because a live app has its own timers). When the brand has no logo or font, keep the template's font or pick one that fits the subject (as a local file), and build the mark from the name plus one shape from the product's verb; record this as an assumption.
+- **The brand comes from the project's files, not from memory.** Colours from the CSS, the font from local files, the logo from the original SVG, app screens rebuilt from the app's CSS (no `iframe`, because a live app has its own timers). When the brand has no logo, build the mark from the name plus one shape from the product's verb; record this as an assumption.
+- **Colour and type are decisions, not defaults.** The model's usual look (Inter or its substitutes, a purple gradient, a neon glow, cream with a serif and terracotta, black with an acid accent) makes a video look generated before anything moves. Use the brand's values; without them, choose the palette and typeface with `references/look.md` and write down why. The template's grey palette and Urbanist only let the demo render.
 - **Every frame is a pure function of time.** `window.__render(t)` sets the whole state; no CSS animations, `setTimeout`, `Date.now()` or `Math.random()`. Only then do rendering in several browsers at once, a still from any second and a change of pace give the same frames.
 - **Frames first, then the render.** A still costs a second, a full render several minutes.
 - **No sound unless someone asks.** You can't hear the result, so you can't judge it. Sound is best supplied by the user (`--audio`).
@@ -30,11 +31,12 @@ Unless told otherwise: 16:9, 1920×1080, 60 fps (other formats: `references/tech
 
 ### 2. Concept
 
-Read `references/concept.md` and write down:
+Read `references/concept.md` and `references/look.md` and write down:
 
 1. the product's verb (what it does for the customer, as a motion),
 2. three obvious ideas you reject, each with a replacement,
-3. three clearly different directions: idea, world, signature, transitions.
+3. three clearly different directions: idea, world, look, signature, transitions,
+4. for the chosen one, the palette as named values and the typeface with the reason, or where they come from in the brand.
 
 Pick the boldest direction that is true to the product and can be built in reasonable time. The swap test: if another model would make almost the same thing from a similar brief, the direction is too safe.
 
@@ -52,7 +54,7 @@ mkdir -p $F && cp $SK/assets/template.html $F/index.html && cp -r $SK/assets/fon
   && cp $SK/scripts/render.mjs $SK/scripts/export.sh $SK/scripts/check_film.py $F/
 ```
 
-Requirements: Node 22+, ffmpeg, Python 3 and Chromium or Chrome; no npm packages. In `index.html` set for good: `W` and `H` (format), `TIMELINE` (length in seconds), `NAME`, the `:root` block with the brand's tokens, `@font-face` and `FAMILY`. The demo scenes show moves from the concept file; delete them or rework them. Check `.gitignore`: if the film folder is ignored, the sources won't reach the repo, so tell the user.
+Requirements: Node 22+, ffmpeg, Python 3 and Chromium or Chrome; no npm packages. In `index.html` set for good: `W` and `H` (format), `TIMELINE` (length in seconds), `NAME`, the `:root` block with the brand's tokens, `@font-face` and `FAMILY`. The grey palette and Urbanist are placeholders; `check_film.py` warns while they're still there. The demo scenes show moves from the concept file; delete them or rework them. Check `.gitignore`: if the film folder is ignored, the sources won't reach the repo, so tell the user.
 
 ### 5. Scenes
 
@@ -91,6 +93,7 @@ Fix every `ERROR`. Fix every `WARNING` or explain it in the reply. Then copy thi
 
 ```md
 - [ ] concept: verb, three rejected obvious ideas, the chosen direction passes the swap test
+- [ ] look: the brand's colours and font, or a palette and typeface chosen with a written reason; no look warning left unexplained
 - [ ] contact sheet of the finished MP4 (one frame per second) viewed in full, 2–3 key frames at full resolution
 - [ ] the brand font visible on a frame with accented letters; no clipped letters, overlaps or empty frames
 - [ ] every piece of text stays on screen for at least words × 0.3 s + 1 s
@@ -115,6 +118,7 @@ python3 check_film.py --film out/film.mp4 --small out/film-to-send.mp4 --max-mb 
 | "cut that thread" | delete the scene and set `shift` to the length of the cut before the later scenes, instead of rewriting every time |
 | "change the name" | `NAME` (or `--name` for a one-off); the letters measure themselves, look at a still with the logo |
 | "not creative enough" | go back to the concept: a different verb or a different world, not more effects in the same scene |
+| "looks generic", "the colours and fonts are slop" | go back to `references/look.md`: three rejected looks, then a palette and typeface with a reason; change the tokens and the font before touching the scenes |
 | "different format" | `W` and `H` in `index.html`; layout computed from `W`, `H`, `CX`, `CY` |
 | "smaller file", "for the README" | `export.sh mp4 … MB`, `export.sh webp …` and commit the file |
 | "that's not how it works" | fix the scene and recheck every claim on screen |
@@ -133,4 +137,4 @@ python3 check_film.py --film out/film.mp4 --small out/film-to-send.mp4 --max-mb 
 
 - The film folder (e.g. `design/film/`): `index.html`, which also plays in a browser, `fonts/` and the scripts.
 - `out/film.mp4` (master at 60 fps, crf 17), the requested derived versions and `out/sheet.png`.
-- In the reply: the chosen direction and why; the list of scenes, one sentence each; the readings you assumed (storyline, pace, spelling of the name); length and file sizes; what wasn't checked (e.g. nobody listened to the sound); one command to render again; what needs committing.
+- In the reply: the chosen direction and why; the palette and typeface and where they come from; the list of scenes, one sentence each; the readings you assumed (storyline, pace, spelling of the name); length and file sizes; what wasn't checked (e.g. nobody listened to the sound); one command to render again; what needs committing.

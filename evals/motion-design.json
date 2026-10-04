@@ -4,7 +4,7 @@
     {
       "id": 1,
       "prompt": "make a 12-second 9:16 instagram reel for Bean, a café in York. colours: coffee #2b1d14, cream #f3e6d3, accent #c8743a. line: “Coffee that takes its time”. we don't have a logo, make one from the name. no sound. and a version under 10 MB for WhatsApp",
-      "expected_output": "A film folder with the composition (index.html, fonts/, render.mjs, export.sh, check_film.py), a 1080×1920 master MP4 of about 12 s at 60 fps without an audio track, a version under 10 MB, a contact sheet and a summary with the chosen direction, the list of scenes and the assumptions made.",
+      "expected_output": "A film folder with the composition (index.html, fonts/, render.mjs, export.sh, check_film.py), a 1080×1920 master MP4 of about 12 s at 60 fps without an audio track, a version under 10 MB, a contact sheet and a summary with the chosen direction, the palette and typeface with the reason for them, the list of scenes and the assumptions made.",
       "files": [],
       "assertions": [
         "There is an MP4 at 1080×1920, 60 fps, 11–13 s long, without an audio stream (check_film.py without errors)",
@@ -16,6 +16,8 @@
         "The frames show the name “Bean” and the line “Coffee that takes its time” spelled correctly, each on screen for at least words × 0.3 s + 1 s",
         "Text sits outside the top ~250 px and bottom ~400 px of the frame (areas covered by Instagram's interface)",
         "The :root block has the colours #2b1d14, #f3e6d3 and #c8743a",
+        "The typeface comes from a local file, the reply says why it fits, and it isn't one of the defaults (Inter, Space Grotesk, Geist, Fraunces, Instrument Serif, Poppins, Montserrat, Urbanist)",
+        "check_film.py gives no warning about the template's demo palette or font, and the frames have no gradient text, glassmorphism or neon glow",
         "There is no dot with a label above a heading and no — character on screen",
         "The summary contains the chosen direction, the list of scenes, the assumptions made (e.g. the font) and a command to render again"
       ]
@@ -44,8 +46,25 @@
         "Before the first render the reply flags a possible typo (RewievLink instead of ReviewLink)",
         "The video shows the new name, not an animation of the old name changing into the new one (caret, deleting letters, a “New name” label)",
         "The name is set in one place (NAME)",
+        "The :root block has #f1f0ee, #1c1b1a and #ff6a2b, and check_film.py gives no warning about the template's demo palette",
         "The reply contains a one-sentence reading of the brief and three directions to choose from or a recorded choice of direction",
         "The video is 5.5–6.5 s long and has no audio track"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "the video in evals/fixtures/film-demo looks generic, the colours and fonts are slop. it's for Kiln, a pottery studio in Leeds, we don't have a brand guide",
+      "expected_output": "The look changes, not the scenes: three rejected default looks with replacements, a palette as named values and a typeface with a reason (a local file with its licence), the demo palette and Urbanist replaced, check_film.py without look warnings, stills before and after.",
+      "files": [
+        "evals/fixtures/film-demo/ -> film/"
+      ],
+      "assertions": [
+        "The reply lists three default looks it rejects, each with a replacement",
+        "The new palette is written as named values with roles, and the :root block uses them",
+        "The typeface isn't one of the defaults (Inter, Space Grotesk, Geist, Fraunces, Instrument Serif, Poppins, Montserrat, Urbanist), comes from a local file with its licence, and the reply says why it fits",
+        "The look doesn't fall into the second wave (cream with a serif in italics and a terracotta accent, black with a single acid accent) without a stated reason",
+        "check_film.py --composition gives no warning about the template's demo palette or font",
+        "The scenes and their timing are unchanged"
       ]
     }
   ]

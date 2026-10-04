@@ -144,7 +144,7 @@ col.style.transform = `translateY(${-E.outExpo(prog(t, 28.5, 29.25)) * 29 * h}px
 
 **Typewriter.** `typewriter(text, t, from, to)` returns HTML with a caret that blinks from time. 25–40 characters per second reads naturally.
 
-**Counter.** `counter(n, t, from, to)` with `outExpo`; digits with `font-variant-numeric: tabular-nums`, otherwise the number jumps sideways. Large, thin digits (weight 200–300) look premium.
+**Counter.** `counter(n, t, from, to)` with `outExpo`; digits with `font-variant-numeric: tabular-nums`, otherwise the number jumps sideways. Set the digits in the display typeface; a thin weight only at large sizes (`references/look.md`).
 
 **Letters as windows.** The next scene is visible only through the letters of a short, heavy word (weight 700–900), and then a zoom into the middle of a letter opens the window onto the whole frame. Both scenes run at once: the lower one is the background colour, the upper one is clipped by the letters.
 
@@ -256,10 +256,10 @@ Morph shapes that aren't star-shaped (letters, logos with holes) another way: by
 ## 8. Texture and accents
 
 - **Grain:** a 512×512 canvas filled from `hash()`, shifted every 1/24 s of output time, opacity 0.04–0.05. Grain raises the bitrate: for a small file to send, check that it doesn't turn into blotches.
-- **Vignette:** a radial gradient to a colour about 15% darker than the background at the edges.
+- **Vignette:** a radial gradient to a colour about 15% darker than the background at the edges, in the background's hue.
 - **Punch:** `1 + sin((t - hit) * 26) * exp(-(t - hit) * 7) * 0.025` multiplied into the camera scale when an important element lands.
 - **Shockwave:** a ring with an accent-colour border, scale 0.9 → 4.5 (`outExpo`), border 5 → 0.6 px, opacity 0.55 → 0.
-- **Background glow:** a radial gradient in the brand colour whose centre slowly circles (`sin(t * 0.35)`). The background is alive, but nothing jumps.
+- **Background light:** a radial gradient a little lighter than the background, in its own hue, whose centre slowly circles (`sin(t * 0.35)`). The background is alive, but nothing jumps. A glow in the accent colour is a template look (`references/look.md`).
 - **Camera focus:** the end card's background with `filter: blur()` from 18 to 0 px over 0.8–1 s (`out3`), then without the filter, because blur costs render time.
 - **Push-in on the background:** a background image (e.g. a 3D render of the brand) scales 1.18 → 1 and straightens from -3° over the whole scene (`out3`). The motion is barely visible, and the frame never stands still.
 - **Illustrations:** enter from 300 px below with a -10° rotation (`outExpo` 0.75 s), then only float `sin(t * 2) * 6` px. An illustration that moves all the time pulls attention away from the text.

@@ -37,16 +37,18 @@ Before you propose a direction, write down the three ideas that came first. They
 | every line of text slides up from the bottom the same way | typography as architecture: words are windows, a floor or the camera's path |
 | particles, flares, glitch | motion that comes from the product's verb |
 | a dissolve between scenes | a cut on a shape, colour, direction or an object that carries over |
+| the usual look: Inter, a purple gradient, a neon glow, cream with a serif and terracotta | the brand's colours and font, or a palette and typeface decided with `references/look.md` |
 | counters like "10,000+ customers" | real numbers or none; numbers as choreography, not decoration |
 
 ## 3. Three clearly different directions
 
-Propose three directions that differ in world, not in colour. Each in four lines:
+Propose three directions that differ in world, not in colour. Each in five lines:
 
 ```md
 **Direction: <name>**
 Idea: <one sentence, with the product's verb>
-World: <material, camera, typography, colour>
+World: <material, camera, space>
+Look: <palette as named values, typeface and why; references/look.md>
 Signature: <one move only this brand has>
 Transitions: <the language of the cuts>
 ```

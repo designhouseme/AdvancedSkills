@@ -17,7 +17,7 @@ Read before building scenes. The concept says what to do; this file says how to 
 | Time on screen | at least words × 0.3 s + 1 s; one thought per shot, at most 7 words |
 | First and last frame | the first already has content (thumbnail, autoplay); the end card stays 2–3 s |
 | Motion blur | 5 subframes, shutter 0.5; 2 subframes give a double image |
-| Texture | grain at 4–5% opacity, a vignette, a slowly circling glow in the brand colour |
+| Texture | only when it belongs to the world: grain at 4–5% and a neutral vignette for film or print, flat for interfaces; no glow in the accent colour (`references/look.md`) |
 
 ## Rules
 
@@ -28,7 +28,7 @@ Read before building scenes. The concept says what to do; this file says how to 
 - **Depth from layers.** The background drifts more slowly than the foreground, and interface cards have long, soft shadows (e.g. `0 40px 80px -50px`). A blurred background with a sharp foreground gives depth without 3D.
 - **Overshoot only on small objects.** A springy block of text or a whole scene looks like jelly.
 - **Every transition has a reason:** a shared shape, colour, direction or continuity object. A dissolve without a reason is the last resort.
-- **Premium is restraint:** one accent, large thin numerals, 1–1.5 px borders in the line colour, plenty of empty space, grain. The brand's illustrations come in once and then only float slightly in place.
+- **Premium is restraint:** one accent with one meaning, 1–1.5 px borders in the line colour, plenty of empty space. The brand's illustrations come in once and then only float slightly in place. Thin numerals and grain are a look, not a rule: use them when they fit the brand.
 - **A circle from the first frame.** A rectangle turning into a circle (growing `border-radius`) looks cheap.
 - **Elements outside the camera need their own exit.** A caption attached to the scene rather than the camera container stayed on screen during the zoom into the dot.
 
@@ -43,4 +43,5 @@ A ban alone isn't enough: the model escapes to the next habit. Every pattern has
 | particles, flares, glitch | motion that comes from the product's verb (`references/concept.md`, section 1) |
 | a dot with a label above a heading ("● Price"), pills, eyebrows | the brand's mark (e.g. the squares from the logo) or nothing; the full list is in the ui-without-slop skill |
 | a logo with a glow at the end | a logo assembled from its own shapes or from a motif that ran through the whole video |
+| the usual look: the template's grey and Urbanist, Inter, a purple gradient, cream with a serif and terracotta, black with an acid accent | the brand's colours and font, or a palette and typeface decided with `references/look.md` |
 | em dashes in on-screen text | a full stop, comma, colon or en dash |
