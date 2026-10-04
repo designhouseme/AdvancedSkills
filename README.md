@@ -29,7 +29,7 @@ In Codex and Cursor, use `~/.agents/skills` instead of `~/.claude/skills`.
 - `website-plan` - the site's section plan and copy
 - `website-build` - codes the site from the plan
 - `website-review` - a review of the finished site
-- `ui-without-slop` - removes the typical decorations of sites made by AI
+- `ui-without-slop` - removes the typical decorations of sites made by AI and replaces reflex fonts, Lucide icons and stock shadcn components with decisions
 - `motion-design` - motion design videos from code: showreel, product promo, logo intro, 9:16 reels; a render to MP4, a version small enough to send and an animated WebP for a README
 
 Tests are in the `evals/` folder.

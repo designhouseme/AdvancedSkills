@@ -152,6 +152,18 @@
     {
       "query": "our landing page looks AI-generated, purple gradient and Inter everywhere, fix the colours and fonts",
       "expected_skill": "ui-without-slop"
+    },
+    {
+      "query": "every shadcn site looks the same and ours does too. make the components look like ours without breaking them",
+      "expected_skill": "ui-without-slop"
+    },
+    {
+      "query": "Inter and Lucide again... find a more interesting typeface that has Polish letters, and icons that aren't Lucide",
+      "expected_skill": "ui-without-slop"
+    },
+    {
+      "query": "add a shadcn date picker to the booking form",
+      "expected_skill": null
     }
   ]
 }

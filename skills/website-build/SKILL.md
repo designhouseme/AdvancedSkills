@@ -4,7 +4,7 @@ description: Codes a short business website from the approved plan in brief/02-p
 license: CC-BY-4.0
 metadata:
   author: Design House
-  version: "1.2"
+  version: "1.3"
 ---
 
 # Website build
@@ -34,7 +34,7 @@ The hero accounts for most of the first impression. Build it first, take screens
 - **One plan section is one `section` with one `h2`**, in the plan's order. Menu anchors offset for the sticky header.
 - **CTAs are real links** (`tel:`, `mailto:`, booking). A form only when the plan sets it as the main channel.
 - **Design mobile separately**, don't just collapse desktop into one column: the order, image size and CTA placement may differ.
-- **Typography and colours follow the visual direction in the plan.** Icons from Lucide, unless the project already has its own set. Never hand-drawn or Unicode characters.
+- **Typography and colours follow the visual direction in the plan.** Fonts self-hosted as WOFF2 with the language's accented letters, not loaded from Google's servers at runtime. Icons: the project's own set if it has one; otherwise first check whether the place needs an icon at all, then choose the set as the ui-without-slop skill describes, not Lucide by reflex. Never hand-drawn or Unicode characters.
 - **Photos stored locally in the project**, no hotlinking. Record origin and licences in `brief/media.md`, not on the site. The logo always comes from the company's original file, never recreated with a font.
 - **Motion only where it explains something** or guides the eye, not the same fade-up on every section. Content and CTAs are visible without JavaScript.
 - **JSON-LD `LocalBusiness` with data 1:1 from the user.** Opening hours only if you know them.
@@ -55,7 +55,7 @@ Copy this list into your reply and tick it off:
 - [ ] text contrast at least 4.5:1; visible focus; form fields have labels
 - [ ] lang, title and meta description from the plan; Open Graph
 - [ ] no em dash (—) in visible copy
-- [ ] run the ui-without-slop skill: no decorative dots, pills above headings, eyebrows, gradient text or identical cards
+- [ ] run the ui-without-slop skill: no decorative dots, pills above headings, eyebrows, gradient text, identical cards, decorative icons or a component kit at its default theme
 - [ ] LCP and CLS without obvious problems (if you have a measuring tool)
 ```
 

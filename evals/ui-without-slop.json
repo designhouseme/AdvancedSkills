@@ -36,6 +36,34 @@
         "There's no uppercase label above the section heading",
         "There's no purple or indigo gradient"
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "choose fonts and icons for the landing page of a bicycle repair shop in Kraków, the site is in Polish. not Inter and not Lucide again",
+      "expected_output": "A typeface chosen by the method in references/typefaces.md (voice, genre, a shortlist from at least two sources), not from the reflex list, with its reason, source and licence and the Polish letters checked; icons only where they help, from a set matched to the typeface.",
+      "files": [],
+      "assertions": [
+        "None of the chosen typefaces is on the reflex list in references/typefaces.md",
+        "The reply shows a shortlist of at least four candidates from at least two sources before the choice",
+        "For each chosen typeface the reply gives a reason tied to the subject, the source and the licence",
+        "The reply confirms the Polish letters (ą ć ę ł ń ó ś ź ż) in the weights used, e.g. with a rendered test line",
+        "The reply says where the page has no icons and why; the set for the rest isn't Lucide, Heroicons or Feather, and the choice is justified by its stroke or terminals matching the typeface",
+        "The fonts are self-hosted or loaded at build time, with no runtime request to fonts.googleapis.com"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "make the hero and the pricing section for our SaaS landing page in Next.js with shadcn/ui. I don't want it to look like every other shadcn site, but the dialogs and the dropdown menu have to keep working",
+      "expected_output": "shadcn primitives kept, the theme rewritten from a written decision, no stock card structure everywhere, no animated-kit effects without a reason, keyboard behaviour intact.",
+      "files": [],
+      "assertions": [
+        "globals.css doesn't keep shadcn's default grey neutrals and its single default --radius; the colours come from named values written down in the reply",
+        "The hero isn't a Card, and not every block is a Card with CardTitle and a grey CardDescription",
+        "There's no BorderBeam, ShimmerButton, Spotlight, Meteors, Marquee, NumberTicker or dot or grid background, or the single kept effect is justified by what it shows about the product",
+        "Dialog and DropdownMenu still use the Radix (or Base UI) primitives and work with the keyboard (Tab, Esc, arrows)",
+        "Utility icons inside components (close, chevron) stay; there are no decorative icons in tinted squares",
+        "The reply lists three rejected defaults and one signature element"
+      ]
     }
   ]
 }

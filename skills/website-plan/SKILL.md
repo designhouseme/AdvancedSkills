@@ -4,7 +4,7 @@ description: Turns company research into a plan for a short website, that is the
 license: CC-BY-4.0
 metadata:
   author: Design House
-  version: "1.2"
+  version: "1.3"
 ---
 
 # Website plan and copy
@@ -73,7 +73,7 @@ Before writing, read `references/copy-style.md`: tone, sentence length, the offe
 
 Plan 3–6 image slots. Each has a function and a truth status. Order of sourcing: the company's own project photos, real photos of people, premises or process, licensed stock with a specific subject as atmosphere, generated images as atmosphere. **Stock or generated images never pose as the company's projects, team, premises or clients.** A real, imperfect photo is often better proof than perfect stock.
 
-Visual direction: propose 3 clearly different directions that fit the company, not the competition (background, accent, typeface and one idea that sticks in memory), choose one and justify it in one sentence. Avoid the patterns listed in the ui-without-slop skill, including its "second wave" (cream background with a serif and terracotta, mono labels, "·" separators).
+Visual direction: propose 3 clearly different directions that fit the company, not the competition (background, accent, typeface and one idea that sticks in memory), choose one and justify it in one sentence. Choose typefaces as the ui-without-slop skill describes: not from its reflex list, with the reason, the licence and the language's accented letters checked. Avoid the patterns listed in the ui-without-slop skill, including its "second wave" (cream background with a serif and terracotta, mono labels, "·" separators).
 
 ## 8. Gate before handoff
 
