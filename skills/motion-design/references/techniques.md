@@ -14,6 +14,7 @@ The snippets come from a working showreel (ReviewLink, Design House) and from th
 8. [Texture and accents](#8-texture-and-accents)
 9. [Rhythm and sound](#9-rhythm-and-sound)
 10. [Formats](#10-formats)
+11. [Many objects](#11-many-objects)
 
 ---
 
@@ -67,7 +68,7 @@ Every transition needs a reason: a shared shape, colour, direction, or an object
 **Iris and shrinking into a point.** A circle covers the frame when its radius reaches the farthest corner; `iris()` in the template computes this, also for a circle growing from outside the centre, and `feather` softens the edge during fast growth:
 
 ```js
-iris(shut, E.io4(prog(t, 9.1, 9.7)), { cx: beanX, cy: beanY, color: "var(--bg)", feather: 40 });
+iris(shut, E.io4(prog(t, 9.1, 9.7)), { cx: dotX, cy: dotY, color: "var(--bg)", feather: 40 });
 ```
 
 Shrinking to a target: the centre moves from the middle of the screen to the target and the diameter shrinks to the target's size.
@@ -136,9 +137,9 @@ col.style.transform = `translateY(${-E.outExpo(prog(t, 28.5, 29.25)) * 29 * h}px
 
 **Letters with kerning.** Splitting a word into spans destroys kerning. `measure()` measures the position of every letter in the unsplit string (a Range per character), and `letters()` places the spans exactly there. Letter entrance: `outExpo` 0.75 s, 45 ms stagger, starting 1.15 heights lower, 9° rotation, the container has `overflow:hidden` only during the entrance.
 
-**Words from masks.** `wordRow()` gives every word a mask 1.24 em tall plus 12% headroom (descenders and accents). `animRow()` enters from below and exits upwards by 1.5 heights. A shorter travel with rotation leaves the corner of a long rotated word inside the mask, and a sliver of a letter stays on screen.
+**Words from masks.** `wordRow()` gives every word a mask 1.24 em tall plus 12% headroom (descenders and accents); with tight leading, lower `maskEm` towards the line spacing, otherwise a word rising into its mask shows over the line above. `y` is the top of the line box, and the result's `base` is the baseline. Weight and italics: `weight` and `style: "italic"`, for the row or per word. `animRow()` enters from below and exits upwards by 1.5 heights. A shorter travel with rotation leaves the corner of a long rotated word inside the mask, and a sliver of a letter stays on screen.
 
-**The dot over the "i".** Write the word with "ı" (U+0131, dotless i) and draw the dot as your own element. `tittle()` finds its position and radius from the pixel difference between "i" and "ı" on a canvas, measured from the baseline (measuring from the top of the canvas put the dot 0.13 em too high). This gives you a dot that drops in with a spring as the logo's last accent, a zoom into the dot as a cut, a dot in the accent colour. The font needs "ı": check `unicode-range`; the template returns `null` when it's missing.
+**The dot over the "i".** Write the word with "ı" (U+0131, dotless i) and draw the dot as your own element. `tittle()` finds its position and radius from the pixel difference between "i" and "ı" on a canvas, measured from the baseline (measuring from the top of the canvas put the dot 0.13 em too high). This gives you a dot that drops in with a spring as the logo's last accent, a zoom into the dot as a cut, a dot in the accent colour. The font needs "ı": check `unicode-range`; the template returns `null` when it's missing. On a canvas use `cx` and `dy`: the dot's position relative to the glyph's origin on the baseline.
 
 **Words and colours in a lockup.** Different weights within one name (e.g. "Review" at 300 + "Link" at 600 in the accent colour): measure them separately and place the second part at `x = width of the first + 0.02 em`.
 
@@ -283,4 +284,14 @@ Morph shapes that aren't star-shaped (letters, logos with holes) another way: by
 
 Set the format for good in `W` and `H` in `index.html`; the `?w=…&h=…` parameter (`render.mjs --params "w=1080&h=1920"`) is only for a try-out, because if you forget it at render time you silently get a 16:9 video. Lay things out from `W`, `H`, `CX`, `CY` and `Math.min(W, H)`, not fixed pixels: then one composition yields several formats, and only the scenes that really need it get a separate layout.
 
-60 fps is the default for UI motion and typography. 30 fps gives a smaller file, but fast moves lose smoothness. Motion blur: 5 subframes, shutter 0.5 (180°).
+60 fps is the default for UI motion and typography. 30 fps gives a smaller file, but fast moves lose smoothness. Motion blur: 5 subframes, shutter 0.5 (180°); 8–10 subframes for a large object turning fast.
+
+## 11. Many objects
+
+Hundreds or thousands of elements (grains, letters made of particles, a field of dots) are too slow as DOM nodes. Draw them on one canvas:
+
+- **State from time:** each object's position is a function of `t` and its index (`hash(i)` for variety), never a simulation stepped from frame to frame; otherwise a still and the render give different frames.
+- **Sprites:** draw each kind of object once into a small offscreen canvas at 2–3× its largest size on screen, then place it with `drawImage`. Paths and shadows drawn per object are what makes a frame slow.
+- **A canvas the size of the frame, outside the camera:** a canvas inside a zooming container is scaled as a bitmap and goes soft. Keep it at `W × H` and apply the same scale and offset you give the camera with `ctx.setTransform()` in the same `update(t)`.
+- **Shapes from text:** draw the word on an offscreen canvas and sample its pixels to place objects inside the letters (as `inkPoint` does), after the fonts have loaded.
+- **Cost:** about 3,600 sprites ran at roughly 280 ms per frame with 5 subframes. Measure the passage before the full render.

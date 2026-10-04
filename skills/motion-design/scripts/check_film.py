@@ -91,7 +91,7 @@ def check_composition(path):
     for name in ("window.__render", "window.__ready", "window.__DURATION"):
         if name not in text:
             error(f"{p.name}: missing {name}; render.mjs needs it")
-    for m in re.finditer(r"url\(\s*([^)\s'\"]+\.(?:woff2?|ttf|otf))\s*\)", text):
+    for m in re.finditer(r"url\(\s*['\"]?([^)\s'\"]+\.(?:woff2?|ttf|otf))['\"]?\s*\)", text):
         font = p.parent / m.group(1)
         if not font.is_file():
             error(f"{p.name}:{line_of(text, m.start())}: font file {m.group(1)} not found; the film will render in a fallback font")

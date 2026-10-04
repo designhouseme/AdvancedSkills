@@ -5,7 +5,7 @@
   so render.mjs captures frames deterministically and in many browsers at once.
 
   Opened in a browser, it plays live: space = pause, ←/→ = ±1 s, click on the bar = seek.
-  Parameters: ?t=2.5 (still), ?speed=0.75 (pace), ?name=Name, ?w=1080&h=1920 (format).
+  Parameters: ?t=2.5 (still), ?speed=0.75 (pace), ?name=Name, ?w=1080&h=1920 (format, only for a try-out: set W and H for good).
 
   The grey :root palette and the Urbanist font are demo placeholders, not a style. Replace them with the
   brand's colours and font, or with a decision from references/look.md (check_film.py warns while they're
@@ -161,7 +161,7 @@
         e.style.transform = tr;
         if (o.o !== undefined) e.style.opacity = clamp(o.o);
       };
-      const FONT = (weight, px) => `${weight} ${px}px "${FAMILY}"`;
+      const FONT = (weight, px, style = "") => `${style ? style + " " : ""}${weight} ${px}px "${FAMILY}"`;
 
       // ------------------------------------------------------------------
       // Typography
@@ -196,8 +196,9 @@
         });
       }
       // The dot over "i": the pixel difference between "i" and "ı" on a canvas. You write the word with "ı" (U+0131) and draw the dot yourself.
-      // The result is relative to the left and top edges of the letter's span in the DOM (the way letters() places them):
+      // cx, cy: relative to the left and top edges of the letter's span in the DOM (the way letters() places them);
       // the canvas draws on the baseline, and a zero-height inline-block probe measures the span's baseline.
+      // cx, dy: relative to the glyph's origin on the baseline, for drawing on a canvas.
       // Measuring from the "top" of the canvas put the dot about 0.13 em too high.
       function tittle(font, size) {
         const c = document.createElement("canvas");
@@ -229,23 +230,35 @@
         probe.style.cssText = "display:inline-block;width:0;height:0";
         const baseline = probe.getBoundingClientRect().top - span.getBoundingClientRect().top;
         span.remove();
-        return { cx: (x0 + x1 + 1) / 2 - bx, cy: baseline + (y0 + y1 + 1) / 2 - by, r: (x1 - x0 + 1) / 2 };
+        const dy = (y0 + y1 + 1) / 2 - by;
+        return { cx: (x0 + x1 + 1) / 2 - bx, cy: baseline + dy, dy, r: (x1 - x0 + 1) / 2 };
       }
-      // A row of words, each in its own mask. A 1.24 em mask plus padding leaves room for descenders and accents.
-      function wordRow(parent, words, { x, y, size, ls = "-0.03em", align = "left", color = "" }) {
+      // A row of words, each in its own mask. A 1.24 em mask plus padding leaves room for descenders and accents;
+      // with tight leading, lower maskEm towards the line spacing, so a word rising into its mask isn't seen over the line above.
+      // y is the top of the line box; the result's `base` is the baseline, for aligning rows of different sizes.
+      // Per word: { text, w (weight), style ("italic"), color }.
+      function wordRow(parent, words, { x, y, size, weight = 400, style = "", ls = "-0.03em", align = "left", color = "", maskEm = 1.24, padEm = 0.12 }) {
         const items = words.map((w) => {
-          const f = FONT(w.w || 300, size);
+          const f = FONT(w.w || weight, size, w.style ?? style);
           return { ...w, f, mw: measure(w.text, f, ls).w, sp: measure("a a", f, ls).w - measure("aa", f, ls).w };
         });
         const total = items.reduce((a, it, i) => a + it.mw + (i < items.length - 1 ? it.sp : 0), 0);
         let cx = align === "center" ? x - total / 2 : x;
-        const pad = size * 0.12;
+        const pad = size * padEm;
+        const probe = el("span", null, document.body);
+        probe.style.cssText = `position:absolute;left:0;top:0;font:${items[0].f};line-height:1.24;visibility:hidden`;
+        probe.textContent = "x";
+        const dot = el("span", null, probe);
+        dot.style.cssText = "display:inline-block;width:0;height:0";
+        const base = y + dot.getBoundingClientRect().top - probe.getBoundingClientRect().top;
+        probe.remove();
         return {
           size,
           total,
+          base,
           items: items.map((it) => {
             const mask = el("div", "mask", parent);
-            mask.style.cssText += `left:${cx - pad}px;top:${y - pad}px;width:${it.mw + pad * 2}px;height:${size * 1.24 + pad}px`;
+            mask.style.cssText += `left:${cx - pad}px;top:${y - pad}px;width:${it.mw + pad * 2}px;height:${size * maskEm + pad}px`;
             const s = el("span", "word", mask);
             s.textContent = it.text;
             s.style.cssText += `font:${it.f};letter-spacing:${ls};line-height:1.24;left:${pad}px;top:${pad}px;color:${it.color || color}`;
@@ -566,16 +579,20 @@
       function makeGrain() {
         grain = el("canvas", null, stage);
         grain.id = "grain";
-        grain.width = grain.height = 512;
+        // square grain pixels in every format: the canvas has the proportions of the frame plus the jitter margin
+        const px = Math.max(2, Math.round(Math.min(W, H) / 400));
+        const gw = Math.ceil((W + 128) / px), gh = Math.ceil((H + 128) / px);
+        grain.width = gw;
+        grain.height = gh;
         const g = grain.getContext("2d");
-        const img = g.createImageData(512, 512);
-        for (let i = 0; i < 512 * 512; i++) {
+        const img = g.createImageData(gw, gh);
+        for (let i = 0; i < gw * gh; i++) {
           const v = hash(i * 1.37) * 255;
           img.data[i * 4] = img.data[i * 4 + 1] = img.data[i * 4 + 2] = v;
           img.data[i * 4 + 3] = 255;
         }
         g.putImageData(img, 0, 0);
-        grain.style.cssText = `width:${W + 128}px;height:${H + 128}px;image-rendering:pixelated`;
+        grain.style.cssText = `width:${gw * px}px;height:${gh * px}px;image-rendering:pixelated`;
         el("div", null, stage).id = "vignette";
       }
 
@@ -598,16 +615,24 @@
       window.__render = render;
       // Scenes are built only after the font has loaded, because they measure letters.
       window.__ready = (async () => {
-        for (const w of [200, 300, 400, 500, 600, 700]) await document.fonts.load(FONT(w, 100), "AaĄąĘęŁłŚśŻżŹźĆćŃńÓó ı");
+        // Every face declared in @font-face (all weights, styles and subsets), not a guessed list of weights:
+        // a Black or an italic that never loaded renders in a fallback font without a warning.
+        const declared = [...document.fonts];
+        await Promise.all(declared.map((f) => f.load().catch(() => {})));
         await document.fonts.ready;
-        const faces = [...document.fonts].filter((f) => f.family.replace(/["']/g, "") === FAMILY);
-        if (!faces.some((f) => f.status === "loaded"))
-          console.error(`Font "${FAMILY}" did not load: the film will render in a fallback font. Check @font-face and the files in fonts/.`);
+        for (const f of declared.filter((f) => f.status !== "loaded"))
+          console.error(`Font "${f.family}" ${f.weight} ${f.style} did not load: text in it will render in a fallback font. Check @font-face and the files in fonts/.`);
+        if (!declared.some((f) => f.family.replace(/["']/g, "") === FAMILY))
+          console.error(`No @font-face for "${FAMILY}" (FAMILY): the film will render in a fallback font.`);
         for (const d of defs) {
           const root = el("div", "scene", stage);
           root.id = d.name;
           building = d.shift;
+          root.style.display = "block"; // laid out but invisible while building: with display: none every measurement is 0
+          root.style.visibility = "hidden";
           const update = d.build(root);
+          root.style.display = "none";
+          root.style.visibility = "";
           scenes.push({ ...d, root, update: (t) => update(t + d.shift) });
         }
         building = 0;

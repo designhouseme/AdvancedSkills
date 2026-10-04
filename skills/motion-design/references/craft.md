@@ -16,7 +16,7 @@ Read before building scenes. The concept says what to do; this file says how to 
 | Text size (1080 px tall) | headline 8–20% of the frame height; body at least 40 px, in 9:16 reels at least 48 px |
 | Time on screen | at least words × 0.3 s + 1 s; one thought per shot, at most 7 words |
 | First and last frame | the first already has content (thumbnail, autoplay); the end card stays 2–3 s |
-| Motion blur | 5 subframes, shutter 0.5; 2 subframes give a double image |
+| Motion blur | 5 subframes, shutter 0.5; 2 subframes give a double image; 8–10 for a large object turning fast |
 | Texture | only when it belongs to the world: grain at 4–5% and a neutral vignette for film or print, flat for interfaces; no glow in the accent colour (`references/look.md`) |
 
 ## Rules

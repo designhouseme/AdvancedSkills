@@ -18,7 +18,7 @@ Describe what the product does for the customer with one physical verb, not an a
 | Product | Verb | What it means on screen |
 |---|---|---|
 | ReviewLink (a link for reviews) | leads, splits | a dot that leads the viewer through the whole video; one line that branches into two paths |
-| a café, "Coffee that takes its time" | slows down | the video races like a morning, and at the coffee time stretches: a drop falls in slow motion, the text stays longer |
+| a laundry with pick-up and delivery | folds | each scene folds into the next like a sheet; the logo is folded from one piece of fabric |
 | an appointment booking app | arranges | the scattered blocks of a day arrange themselves into a calendar |
 | an accounting office | puts in order | a chaos of sheets, numbers and arrows turns into one even line |
 | a paint shop | floods | colour spreads across the frame and becomes the background of the next scene |

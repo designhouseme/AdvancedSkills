@@ -9,7 +9,7 @@
 //   node render.mjs --src index.html --from 4 --to 6    # a passage, e.g. to measure ms/frame
 //   node render.mjs --src index.html --out film.mp4     # the whole film
 //
-// Options: --sub 5 (subframes per frame, motion blur), --shutter 0.5, --fps 60,
+// Options: --sub 5 (subframes per frame, motion blur; 8–10 for fast turns), --shutter 0.5, --fps 60,
 // --workers N, --outdir out, --speed 0.75, --name Name, --params "w=1080&h=1920",
 // --audio track.wav (only a supplied track; by default the film is silent),
 // --chrome /path/to/chromium.
@@ -197,14 +197,18 @@ async function preparePage(c) {
   const target = targetInfos.find((t) => t.type === "page") ?? (await c.send("Target.createTarget", { url: "about:blank" }));
   const { sessionId } = await c.send("Target.attachToTarget", { targetId: target.targetId, flatten: true });
   const s = (method, params) => c.send(method, params, sessionId);
+  let logged = 0;
   c.listeners.add((msg) => {
     if (msg.sessionId !== sessionId) return;
     if (msg.method === "Runtime.exceptionThrown") {
       const d = msg.params.exceptionDetails;
       console.error("[page]", d?.exception?.description ?? d?.text);
     }
-    if (msg.method === "Runtime.consoleAPICalled" && msg.params.type === "error") {
-      console.error("[console]", msg.params.args.map((a) => a.value ?? a.description).join(" "));
+    if (msg.method === "Runtime.consoleAPICalled") {
+      const text = msg.params.args.map((a) => a.value ?? a.description).join(" ");
+      if (msg.params.type === "error") console.error("[console]", text);
+      // console.log and the like: at most 50 per browser, so a log inside update(t) can't flood the log
+      else if (logged < 50) console.error(`[console.${msg.params.type}]`, text, ++logged === 50 ? "(further messages from this browser are not shown)" : "");
     }
   });
   const evaluate = async (expression) => {

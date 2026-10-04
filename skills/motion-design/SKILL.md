@@ -49,16 +49,16 @@ Show the user the three directions, your choice, the storyboard in a few lines a
 ### 4. Project skeleton
 
 ```bash
-SK=<this skill's folder>; F=design/film
+SK=<this skill's folder>; F=<the film's folder, e.g. design/film in the project's repository>
 mkdir -p $F && cp $SK/assets/template.html $F/index.html && cp -r $SK/assets/fonts $F/ \
   && cp $SK/scripts/render.mjs $SK/scripts/export.sh $SK/scripts/check_film.py $F/
 ```
 
-Requirements: Node 22+, ffmpeg, Python 3 and Chromium or Chrome; no npm packages. In `index.html` set for good: `W` and `H` (format), `TIMELINE` (length in seconds), `NAME`, the `:root` block with the brand's tokens, `@font-face` and `FAMILY`. The grey palette and Urbanist are placeholders; `check_film.py` warns while they're still there. The demo scenes show moves from the concept file; delete them or rework them. Check `.gitignore`: if the film folder is ignored, the sources won't reach the repo, so tell the user.
+Requirements: Node 22+, ffmpeg, Python 3 and Chromium or Chrome; no npm packages. In `index.html` set for good: `W` and `H` (format), `TIMELINE` (length in seconds), `NAME`, the `:root` block with the brand's tokens, `@font-face` and `FAMILY`. The grey palette and Urbanist are placeholders; `check_film.py` warns while they're still there. With the brand's font, put its files and licence in `fonts/` and delete `urbanist-*.woff2` and the demo's `OFL.txt`. The demo scenes show moves from the concept file; delete them or rework them. In a repository, check `.gitignore`: if the film folder is ignored, the sources won't reach the repo, so tell the user.
 
 ### 5. Scenes
 
-Before building, read `references/craft.md` (starting values and rules of motion). The code for the moves lives in the template and in `references/techniques.md`; read only the section you need. A scene is `scene(name, from, to, build)`: `build(root)` creates the DOM after the font has loaded and returns `update(t)`; scenes may overlap, and a later one sits on top.
+Before building, read `references/craft.md` (starting values and rules of motion). The code for the moves lives in the template and in `references/techniques.md`; read only the section you need. A scene is `scene(name, from, to, build)`: `build(root)` creates the DOM after the font has loaded and returns `update(t)`; scenes may overlap, and a later one sits on top. For hundreds or thousands of objects (grains, particles of the brand's material), draw on a canvas: `references/techniques.md`, section 11.
 
 After each scene, make stills, including the middle of transitions, and look at them in one image:
 
@@ -71,10 +71,14 @@ Offer a live preview: `index.html` opened in a browser plays the video (space, a
 
 ### 6. Review and render
 
-Go through "Review before the render" (`references/storyboard.md`, section 3) on the stills. Then measure 2 s of the heaviest part with the default number of workers and look at 1–2 of its frames, because motion blur and stepping only show in the video:
+Go through "Review before the render" (`references/storyboard.md`, section 3) on the stills. Then render two short passages with the default number of workers and look at 1–2 frames of each, because motion blur and stepping only show in the video:
+
+- the most expensive passage (the most elements, blur, shadows): its ms/frame gives the render time;
+- the fastest motion, often somewhere else: find it with `vel()` (px per frame). Above about 60 px per frame, and when a large object turns, edges step at 5 subframes: use `--sub 8–10` (the render takes proportionally longer) or a gentler curve, and pass the same `--sub` to the full render.
 
 ```bash
 node render.mjs --src index.html --from 4 --to 6               # at the end: ms/frame overall
+node render.mjs --src index.html --from 7 --to 8 --sub 10      # the fastest motion, if it stepped at --sub 5
 rm -f out/render.log
 setsid nohup sh -c 'node render.mjs --src index.html --out film.mp4 > out/render.log 2>&1; echo "exit $?" >> out/render.log' >/dev/null 2>&1 < /dev/null &
 until grep -q '^exit' out/render.log 2>/dev/null; do sleep 3; done; tail -3 out/render.log
@@ -85,7 +89,7 @@ The full render runs as a separate process because it survives the end of the se
 ### 7. Checks
 
 ```bash
-python3 check_film.py --composition index.html --film out/film.mp4 --length 12 --format 1080x1920 --audio no
+python3 check_film.py --composition index.html --film out/film.mp4 --length 30 --format 1920x1080 --audio no
 ./export.sh sheet out/film.mp4 out/sheet.png
 ```
 
@@ -105,7 +109,7 @@ Fix every `ERROR`. Fix every `WARNING` or explain it in the reply. Then copy thi
 ### 8. Derived versions
 
 ```bash
-./export.sh mp4  out/film.mp4 out/film-to-send.mp4 22          # limit minus about 10% (here: a 25 MB limit)
+./export.sh mp4  out/film.mp4 out/film-to-send.mp4 25          # the limit itself: the script keeps 5% headroom
 ./export.sh webp out/film.mp4 ../../docs/film.webp 800 15 55   # for a README; the file must be committed
 python3 check_film.py --film out/film.mp4 --small out/film-to-send.mp4 --max-mb 25 --webp ../../docs/film.webp
 ```
@@ -129,7 +133,7 @@ python3 check_film.py --film out/film.mp4 --small out/film-to-send.mp4 --max-mb 
 - **A sliver of a letter at the edge of a mask.** A long rotated word catches the mask with a corner on its way out; the exit must travel at least 1.5 heights (as `animRow` does).
 - **A fallback font without a warning.** The template logs an error in the console and `check_film.py` catches a missing file, but still look at a frame with accented letters. Characters the font doesn't have (arrows, stars) should be drawn as SVG.
 - **The dot over the "i" too high.** Compute it with `tittle()` from the template; measuring from the top of the canvas instead of the baseline gave a 0.13 em error you don't see without comparing to a real "i".
-- **Stepping on fast edges.** 5 subframes smooth motion up to about 60 px per frame; soften a faster iris (`feather`) and blur a whip pan directionally.
+- **Stepping on fast edges.** 5 subframes smooth motion up to about 60 px per frame; soften a faster iris (`feather`), blur a whip pan directionally, and for a large object turning fast raise `--sub` to 8–10. In a test, the most expensive passage wasn't the one that stepped, and that cost a second full render.
 - **Elements outside the camera stay in shot.** A caption attached to the scene rather than the camera stayed on screen while the camera zoomed into the dot.
 - **Three costly mistakes from the ReviewLink showreel:** an added rebranding storyline, a typo in the name and a feature the product doesn't have. Each needed a full render; the rules at the top are there to catch them before the first one.
 
