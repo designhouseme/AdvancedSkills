@@ -48,12 +48,14 @@ camera(cam, { fx, fy, s }); // transform: translate(C) scale(s) translate(-F)
 const f = E.io3(prog(t, 2.55, 3.25));
 camera(cam, {
   fx: lerp(CX, dotX, f), fy: lerp(CY, dotY, f),
-  s: zoom(t, 2.7, 3.55, 1, 140, E.in3) * (1 + t * 0.008 + punch), // + slow drift and a punch
+  s: zoom(t, 2.7, 3.55, 1, ZMAX, E.in3) * (1 + t * 0.008 + punch), // + slow drift and a punch
 });
 // the scene in the dot's colour starts exactly at 3.55
 ```
 
-Coverage condition: object radius × final scale > half the screen diagonal (1101 px at 1920×1080). Check the frame just before the cut.
+Coverage condition: object radius × final scale > half the screen diagonal (1101 px at 1920×1080); the template sets `ZMAX` to 1.35 times that, enough for the soft edge, and no deeper, because every extra step of scale makes the end of the zoom faster. Check the frame just before the cut.
+
+At the end of an `in3` zoom the object's edge moves hundreds of px per frame, and 5 subframes show it as rings. Soften the edge in proportion to its speed on screen, as `iris()` does (the template's dot: `0.6 · |vel|`), and let text near the object fade before the fast part, because text edges can't be softened. A grey palette hides these rings: check the zoom again after changing colours.
 
 **Infinite zoom.** Every scene sits in a small object of the previous one: a star on the phone screen contains the next scene, which holds another object. Technically it's a chain of zooms into objects: in the last frame of each zoom the object has the next scene's background colour and covers the screen. Two or three links are enough; a longer chain gets tiring.
 
@@ -137,7 +139,7 @@ col.style.transform = `translateY(${-E.outExpo(prog(t, 28.5, 29.25)) * 29 * h}px
 
 **Letters with kerning.** Splitting a word into spans destroys kerning. `measure()` measures the position of every letter in the unsplit string (a Range per character), and `letters()` places the spans exactly there. Letter entrance: `outExpo` 0.75 s, 45 ms stagger, starting 1.15 heights lower, 9° rotation, the container has `overflow:hidden` only during the entrance.
 
-**Words from masks.** `wordRow()` gives every word a mask 1.24 em tall plus 12% headroom (descenders and accents); with tight leading, lower `maskEm` towards the line spacing, otherwise a word rising into its mask shows over the line above. `y` is the top of the line box, and the result's `base` is the baseline. Weight and italics: `weight` and `style: "italic"`, for the row or per word. `animRow()` enters from below and exits upwards by 1.5 heights. A shorter travel with rotation leaves the corner of a long rotated word inside the mask, and a sliver of a letter stays on screen.
+**Words from masks.** `wordRow()` gives every word a mask 1.24 em tall plus 12% headroom (descenders and accents); with tight leading, lower `maskEm` towards the line spacing, otherwise a word rising into its mask shows over the line above. `y` is the top of the line box, and the result's `base` is the baseline. Weight and italics: `weight` and `style: "italic"`, for the row or per word. `animRow()` enters from below and exits upwards by 1.5 heights; `dir: -1` turns both round (in from above, out downwards) for falling and sinking. A shorter travel with rotation leaves the corner of a long rotated word inside the mask, and a sliver of a letter stays on screen.
 
 **The dot over the "i".** Write the word with "ı" (U+0131, dotless i) and draw the dot as your own element. `tittle()` finds its position and radius from the pixel difference between "i" and "ı" on a canvas, measured from the baseline (measuring from the top of the canvas put the dot 0.13 em too high). This gives you a dot that drops in with a spring as the logo's last accent, a zoom into the dot as a cut, a dot in the accent colour. The font needs "ı": check `unicode-range`; the template returns `null` when it's missing. On a canvas use `cx` and `dy`: the dot's position relative to the glyph's origin on the baseline.
 
@@ -278,7 +280,7 @@ Morph shapes that aren't star-shaped (letters, logos with holes) another way: by
 | Format | Size | Notes |
 |---|---|---|
 | 16:9 | 1920×1080 | showreel, YouTube, presentations, README |
-| 9:16 | 1080×1920 | Reels, TikTok, Shorts. The app UI covers the top (about 250 px), the bottom (about 400 px) and a strip on the right (about 120 px): keep text and the logo in the middle |
+| 9:16 | 1080×1920 | Reels, TikTok, Shorts. The app UI covers the top (about 250 px), the bottom (about 400 px) and a strip on the right (about 120 px): keep text and the logo in the middle. The profile grid shows a 3:4 crop from the centre, so the first frame has to work there as the thumbnail |
 | 1:1 | 1080×1080 | feed posts |
 | 4:5 | 1080×1350 | Instagram feed, more vertical room than 1:1 |
 

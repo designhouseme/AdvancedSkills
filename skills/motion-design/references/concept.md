@@ -97,7 +97,7 @@ A video has a curve of energy, not a list of scenes:
 4. **Climax (about 70–80% of the video):** the biggest move, often the world changing colour or the signature.
 5. **Rest:** a calm end card that stays for 2–3 s and closes the motif from the opening.
 
-Rough lengths: logo intro 4–8 s, reel 10–20 s, showreel and promo 35–50 s, explainer up to 90 s.
+Rough lengths: logo intro 4–8 s, reel 10–20 s, showreel and promo 35–50 s, explainer up to 90 s. In a reel under 15 s the curve shrinks to a hook, one build-up, the climax and the end card; one surprise is enough.
 
 ## 6. An honest review of the ReviewLink showreel
 

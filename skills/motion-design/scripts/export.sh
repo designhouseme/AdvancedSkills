@@ -24,6 +24,15 @@ fps_of() { ffprobe -v error -select_streams v:0 -show_entries stream=r_frame_rat
 case "$cmd" in
   mp4)
     src="$1"; out="$2"; mb="${3:-24}"
+    # A master that already fits is sent as it is: a second encode at the same size only costs quality.
+    size=$(wc -c < "$src" | tr -d ' ')
+    if awk -v s="$size" -v mb="$mb" 'BEGIN { exit !(s <= mb * 1e6 * 0.95) }'; then
+      echo "the master already fits under ${mb} MB: copied without re-encoding"
+      cp "$src" "$tmp/out.mp4"
+      mv "$tmp/out.mp4" "$out"
+      ls -la "$out"
+      exit 0
+    fi
     # Size in MB (10^6 bytes) with 5% headroom for the container; audio, if present, gets 128 kb/s.
     has_audio=$(ffprobe -v error -select_streams a -show_entries stream=index -of csv=p=0 "$src" | head -1)
     audio_k=0; audio_args=(-an)

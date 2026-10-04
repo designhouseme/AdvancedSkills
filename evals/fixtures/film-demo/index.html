@@ -58,7 +58,7 @@
       .word { position: absolute; left: 0; top: 0; white-space: pre; }
       svg { overflow: visible; }
       #grain { position: absolute; inset: -64px; pointer-events: none; opacity: 0.045; }
-      #vignette { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(120% 120% at 50% 45%, transparent 55%, rgb(0 0 0 / 0.12) 100%); }
+      #vignette { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(120% 120% at 50% 45%, transparent 55%, color-mix(in srgb, var(--ink) 14%, transparent) 100%); } /* the edges darken in the ink's hue, not in black */
       #hud { position: fixed; left: 0; right: 0; bottom: 0; height: 26px; cursor: pointer; background: rgb(255 255 255 / 0.06); }
       #hud i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent); }
       #hud span { position: absolute; right: 10px; top: 4px; color: #bbb; font: 12px/1 ui-monospace, monospace; }
@@ -84,7 +84,10 @@
       const CX = W / 2, CY = H / 2;
       // LENGTH: the scenes are laid out in "project time" up to TIMELINE (s). SPEED stretches the whole film evenly
       // (0.75 = 25% slower), so the film lasts TIMELINE / SPEED.
-      const TIMELINE = 11.8;
+      const TIMELINE = 13;
+      // Subframes per frame for the render (motion blur). render.mjs reads it, so a re-render keeps the value the film was
+      // checked with: raise it to 8–10 when the fastest passage steps (references/render.md).
+      const SUB = 5;
       const SPEED = Number(Q.get("speed") || 1);
       const DURATION = TIMELINE / SPEED;
       if (CAPTURE) document.documentElement.classList.add("capture");
@@ -161,7 +164,11 @@
         e.style.transform = tr;
         if (o.o !== undefined) e.style.opacity = clamp(o.o);
       };
-      const FONT = (weight, px, style = "") => `${style ? style + " " : ""}${weight} ${px}px "${FAMILY}"`;
+      // Weights by role. A static family has only the weights its @font-face blocks declare, and the browser fakes the rest:
+      // set these to the declared ones. FONT() records what the scenes ask for, and __ready warns about anything undeclared.
+      const WT = { numeral: 200, display: 300, text: 400, label: 600, heavy: 800 };
+      const requested = new Set();
+      const FONT = (weight, px, style = "") => (requested.add(`${weight} ${style || "normal"}`), `${style ? style + " " : ""}${weight} ${px}px "${FAMILY}"`);
 
       // ------------------------------------------------------------------
       // Typography
@@ -270,11 +277,12 @@
       }
       // Entry from below (outExpo) and exit upwards (in3). The exit travels 1.5 heights, because otherwise
       // a long rotated word catches the mask with a corner and leaves a sliver of a letter on screen.
-      function animRow(row, t, tin, tout, { st = 0.05, dur = 0.8, od = 0.36, rot = 5 } = {}) {
+      // dir = 1: in from below, out upwards; dir = -1: in from above, out downwards (falling, sinking).
+      function animRow(row, t, tin, tout, { st = 0.05, dur = 0.8, od = 0.36, rot = 5, dir = 1 } = {}) {
         row.items.forEach((w, i) => {
           const p = E.outExpo(prog(t, tin + i * st, tin + i * st + dur));
           const q = tout == null ? 0 : E.in3(prog(t, tout + i * st * 0.5, tout + i * st * 0.5 + od));
-          T(w.s, { y: ((1 - p) * 1.1 - q * 1.5) * row.size * 1.24, r: (1 - p) * rot - q * rot * 0.6 });
+          T(w.s, { y: dir * ((1 - p) * 1.1 - q * 1.5) * row.size * 1.24, r: dir * ((1 - p) * rot - q * rot * 0.6) });
         });
       }
 
@@ -317,7 +325,7 @@
       // ------------------------------------------------------------------
       const esc = (v) => String(v).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
       // Typewriter. The caret blinks from time (t), not from CSS, so frames are repeatable.
-      const typewriter = (text, t, a, b, caret = "var(--accent)") => {
+      const typewriter = (text, t, a, b, caret = "currentColor") => {
         const n = Math.round(text.length * prog(t, a, b));
         const on = t > a - 0.3 && t < b + 0.8 && (t < b || Math.floor(t * 3) % 2 === 0);
         return esc(text.slice(0, n)) + (on ? `<i style="display:inline-block;width:.07em;height:1em;margin-left:.05em;vertical-align:-.14em;background:${caret}"></i>` : "");
@@ -366,8 +374,9 @@
       // update(enter 0..1, zoom 0..1): at zoom = 1 the window covers the whole frame and the clipping goes away.
       // text-rendering: geometricPrecision, because Chrome caps text at 10,000 px on screen: without it
       // the letters jump during a big zoom instead of growing smoothly.
+      let clipIds = 0;
       function letterWindow(target, text, { size, weight = 800, x = CX, y = CY, ls = "-0.02em", maxScale = 60 }) {
-        const id = `window-${defs.length}-${text.length}`;
+        const id = `window-${++clipIds}`; // one clipPath per window, also for two words of the same length
         const clip = svgEl("clipPath", { id, clipPathUnits: "userSpaceOnUse" }, svgDefs);
         const tx = svgEl("text", { x, y, "text-anchor": "middle", "dominant-baseline": "central", "font-family": FAMILY, "font-weight": weight, "font-size": size, "letter-spacing": ls, "text-rendering": "geometricPrecision" }, clip);
         tx.textContent = text;
@@ -384,9 +393,22 @@
       // shapes: [{ x, y, size, radius }] in px; radius as a fraction of the side (0.19 ≈ the mark's corner rounding).
       function shapeWipe(parent, shapes, color) {
         const items = shapes.map((sh) => {
-          const cover = 2.3 * Math.max(sh.x, W - sh.x, sh.y, H - sh.y); // side length at which the shape covers the frame
+          // the side at which the shape covers all four corners of the frame, found by bisection: exact for any corner radius
+          const rr = Math.min(sh.radius ?? 0.19, 0.5);
+          const inside = (side, dx, dy) => {
+            const h = side / 2, rc = rr * side, ex = Math.max(dx - (h - rc), 0), ey = Math.max(dy - (h - rc), 0);
+            return dx <= h && dy <= h && ex * ex + ey * ey <= rc * rc;
+          };
+          const corners = [[sh.x, sh.y], [W - sh.x, sh.y], [sh.x, H - sh.y], [W - sh.x, H - sh.y]];
+          let lo = 0, hi = 4 * Math.hypot(W, H);
+          for (let k = 0; k < 40; k++) {
+            const mid = (lo + hi) / 2;
+            if (corners.every(([dx, dy]) => inside(mid, dx, dy))) hi = mid;
+            else lo = mid;
+          }
+          const cover = hi * 1.01;
           const e = el("div", "abs", parent);
-          e.style.cssText += `width:${cover}px;height:${cover}px;left:${sh.x - cover / 2}px;top:${sh.y - cover / 2}px;border-radius:${cover * (sh.radius ?? 0.19)}px;background:${color}`;
+          e.style.cssText += `width:${cover}px;height:${cover}px;left:${sh.x - cover / 2}px;top:${sh.y - cover / 2}px;border-radius:${cover * rr}px;background:${color}`;
           return { e, s0: sh.size / cover };
         });
         return (t, at) =>
@@ -444,7 +466,7 @@
         const bg = el("div", "fill", root);
         const cam = el("div", "fill o0", root);
         const FS = Math.round(Math.min(W, H) * 0.22);
-        const font = FONT(300, FS);
+        const font = FONT(WT.display, FS);
         const i = NAME.indexOf("i");
         const tt = i >= 0 ? tittle(font, FS) : null;
         const text = tt ? NAME.slice(0, i) + "ı" + NAME.slice(i + 1) : NAME;
@@ -456,7 +478,10 @@
         const dot = el("div", "abs", cam); // outside the word container: the jump arc must not be clipped
         const dotX = tt ? x0 + ls[i].x + tt.cx - tt.r : CX, dotY = tt ? tt.cy - tt.r : 0;
         if (tt) dot.style.cssText += `width:${tt.r * 2}px;height:${tt.r * 2}px;border-radius:50%;background:var(--accent);transform-origin:50% 100%`;
-        const tag = wordRow(cam, "Every frame is a function of time.".split(" ").map((t) => ({ text: t })), { x: CX, y: top + FS * 1.15, size: Math.round(FS * 0.24), align: "center", color: css("--ink-2") });
+        const tag = wordRow(cam, "Frame by frame.".split(" ").map((t) => ({ text: t })), { x: CX, y: top + FS * 1.15, size: Math.round(FS * 0.24), align: "center", color: css("--ink-2") });
+        // zoom only as deep as needed: the dot's solid core covers the frame at the cut, with room for its soft edge
+        const ZMAX = tt ? (1.35 * Math.hypot(W / 2, H / 2)) / tt.r : 140;
+        const Z = (u) => zoom(u, 2.7, 3.55, 1, ZMAX, E.in3);
         const HIT = 1.55;
         cue(0.4, "rise"); cue(HIT, "impact"); cue(2.75, "riser", { d: 0.8 }); cue(3.55, "boom");
 
@@ -467,10 +492,14 @@
           camera(cam, {
             fx: lerp(CX, dotX + (tt?.r ?? 0), f),
             fy: lerp(CY, top + dotY + (tt?.r ?? 0), f),
-            s: zoom(t, 2.7, 3.55, 1, 140, E.in3) * (1 + t * 0.008 + punch),
+            s: Z(t) * (1 + t * 0.008 + punch),
           });
           T(word, { y: top });
           word.style.overflow = t < 1.4 ? "hidden" : "visible"; // the letters rise from below the edge
+          // as the zoom speeds up, the words give way to the dot: text edges can't be softened, and 5 subframes would step them
+          const giveWay = 1 - E.in2(prog(t, 3.0, 3.3));
+          word.style.opacity = giveWay;
+          for (const it of tag.items) it.mask.style.opacity = giveWay;
           ls.forEach((L, k) => {
             const p = E.outExpo(prog(t, 0.35 + k * 0.05, 1.1 + k * 0.05));
             T(L.e, { x: x0 + L.x, y: (1 - p) * FS * 1.15, r: (1 - p) * 9 });
@@ -488,8 +517,11 @@
               s: lerp(2.6, 1, E.out3(jump)) * breathe * (t < 0.05 ? 0.9 + t * 2 : 1),
               sx: 1 + land, sy: 1 - land,
             });
+            // a soft edge in proportion to its speed on screen (as iris() does), so the fast zoom doesn't step into rings
+            const soft = clamp((0.6 * Math.abs(vel((u) => tt.r * Z(u), t))) / Z(t) / tt.r, 0, 0.6);
+            dot.style.background = soft > 0.01 ? `radial-gradient(circle closest-side, var(--accent) ${(1 - soft) * 100}%, transparent 100%)` : "var(--accent)";
           }
-          animRow(tag, t, 1.75, null, { st: 0.06, rot: 0 });
+          animRow(tag, t, 1.2, null, { st: 0.06, rot: 0 });
         };
       });
 
@@ -517,13 +549,13 @@
         grid.style.cssText += `inset:-200px;background-image:linear-gradient(var(--line) 2px,transparent 2px),linear-gradient(90deg,var(--line) 2px,transparent 2px);background-size:120px 120px`;
         const size = Math.round(Math.min(W, H) * 0.34);
         const num = el("div", "abs", root);
-        num.style.cssText += `left:0;width:${W}px;top:${CY - size * 0.62}px;text-align:center;font:200 ${size}px/1 "${FAMILY}";letter-spacing:-0.05em;font-variant-numeric:tabular-nums;color:var(--ink)`;
+        num.style.cssText += `left:0;width:${W}px;top:${CY - size * 0.62}px;text-align:center;font:${FONT(WT.numeral, size)};line-height:1;letter-spacing:-0.05em;font-variant-numeric:tabular-nums;color:var(--ink)`;
         const unit = el("div", "abs", root);
-        unit.style.cssText += `left:0;width:${W}px;top:${CY + size * 0.46}px;text-align:center;font:600 ${Math.round(size * 0.16)}px "${FAMILY}";color:var(--accent)`;
+        unit.style.cssText += `left:0;width:${W}px;top:${CY + size * 0.46}px;text-align:center;font:${FONT(WT.label, Math.round(size * 0.16))};color:var(--ink-2)`;
         unit.textContent = "frames per second";
         const line = el("div", "abs", root);
-        line.style.cssText += `left:0;width:${W}px;top:${CY + size * 0.72}px;text-align:center;font:400 ${Math.round(size * 0.11)}px "${FAMILY}";color:var(--ink-2)`;
-        windowFor = letterWindow(root, "MOVE", { size: Math.round(Math.min(W, H) * 0.42), weight: 800 });
+        line.style.cssText += `left:0;width:${W}px;top:${CY + size * 0.72}px;text-align:center;font:${FONT(WT.text, Math.round(size * 0.11))};color:var(--ink-2)`;
+        windowFor = letterWindow(root, "MOVE", { size: Math.round(Math.min(W, H) * 0.42), weight: WT.heavy });
         const m = Math.min(W, H);
         const wipe = shapeWipe(root, [
           { x: CX - m * 0.16, y: CY + m * 0.1, size: m * 0.3 },
@@ -537,7 +569,7 @@
           T(grid, { x: -(t * 40) % 120, y: -(t * 25) % 120 });
           num.textContent = counter(60, t, 4.0, 6.4);
           T(unit, { y: (1 - E.outExpo(prog(t, 6.0, 6.7))) * 30, o: prog(t, 6.0, 6.25) });
-          line.innerHTML = typewriter("Each one with motion blur.", t, 6.5, 7.4);
+          line.innerHTML = typewriter("With motion blur.", t, 6.2, 6.7);
           wipe(t, 7.7);
         };
       });
@@ -553,10 +585,10 @@
         const R = Math.min(W, H) * 0.13;
         const size = Math.round(Math.min(W, H) * 0.15);
         // lockup: mark and name centred together; the mark moves left, the name slides in beside it
-        const nameW = measure(NAME, FONT(300, size), "-0.03em").w;
+        const nameW = measure(NAME, FONT(WT.display, size), "-0.03em").w;
         const left = CX - (2.35 * R + nameW) / 2;
         const XS = left + R;
-        const name = wordRow(root, [{ text: NAME, w: 300 }], { x: left + 2.35 * R, y: CY - size * 0.68, size, color: "#fff" });
+        const name = wordRow(root, [{ text: NAME, w: WT.display }], { x: left + 2.35 * R, y: CY - size * 0.68, size, color: "var(--bg)" });
         const circle = SHAPE.circle(), star = SHAPE.star(5, 0.48), sq = SHAPE.squircle(5, 0.84);
         cue(8.7, "pop"); cue(9.55, "pop"); cue(10.25, "rise");
 
@@ -611,6 +643,7 @@
       }
 
       window.__DURATION = DURATION;
+      window.__SUB = SUB;
       window.__SIZE = { w: W, h: H };
       window.__render = render;
       // Scenes are built only after the font has loaded, because they measure letters.
@@ -636,6 +669,13 @@
           scenes.push({ ...d, root, update: (t) => update(t + d.shift) });
         }
         building = 0;
+        const num = (v) => (v === "normal" ? 400 : v === "bold" ? 700 : Number(v));
+        const covers = (range, w) => { const [a, b = a] = String(range).split(" ").map(num); return w >= a && w <= b; };
+        for (const key of requested) {
+          const [w, st] = key.split(" ");
+          if (!declared.some((f) => f.family.replace(/["']/g, "") === FAMILY && f.style === st && covers(f.weight, Number(w))))
+            console.error(`"${FAMILY}" ${w}${st === "normal" ? "" : " " + st} has no @font-face: the browser fakes it or uses another face. Declare it or use a weight from WT.`);
+        }
         makeGrain();
         window.__CUES = CUES.map((c) => ({ ...c, t: c.t / SPEED, ...(c.d ? { d: c.d / SPEED } : {}) }));
         // decode() can hang under load, so each image gets at most 8 s.

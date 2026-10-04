@@ -98,17 +98,37 @@ def check_composition(path):
     check_look(p, text)
 
 
+# The reflex list from references/look.md (the same as the ui-without-slop skill's): fonts models pick without a reason.
+# Urbanist is caught separately, as the template's demo font.
+REFLEX_FONTS = (r"\b(Inter|Roboto|Open Sans|Lato|Montserrat|Poppins|Nunito|Raleway|Work Sans|Geist|Space Grotesk|DM Sans|Manrope"
+                r"|Plus Jakarta Sans|Outfit|Sora|Figtree|Lexend|Satoshi|General Sans|Cabinet Grotesk|Clash Display"
+                r"|Bricolage Grotesque|Syne|Unbounded|PP Neue Montreal|Bebas Neue|Anton|Oswald|Fraunces|Instrument Serif"
+                r"|Playfair Display|Cormorant|DM Serif Display|Lora|PP Editorial New|JetBrains Mono|IBM Plex Mono|Space Mono"
+                r"|Geist Mono|Fira Code)\b")
+
+
 def check_look(p, text):
     """Warnings, not errors: the brand takes precedence, so a warning is fixed or explained in the reply."""
-    if re.search(r"--bg\s*:\s*#ececec\b", text, re.I) and re.search(r"--accent\s*:\s*#8a8a8a\b", text, re.I):
+    accent = re.search(r"--accent\s*:\s*#([0-9a-f]{6}|[0-9a-f]{3})\b", text, re.I)
+    if re.search(r"--bg\s*:\s*#ececec\b", text, re.I) and accent and accent.group(1).lower() == "8a8a8a":
         warn(f"{p.name}: the template's grey demo palette is still in :root; set the brand's colours or a palette you decided on (references/look.md)")
+    elif accent:
+        h = accent.group(1) if len(accent.group(1)) == 6 else "".join(c * 2 for c in accent.group(1))
+        rgb = [int(h[i:i + 2], 16) for i in (0, 2, 4)]
+        if max(rgb) - min(rgb) <= 8:
+            warn(f"{p.name}: --accent is a neutral grey; fine for a monochrome brand, otherwise it's still a placeholder (references/look.md)")
+    if re.search(r"""\|\|\s*["']Motion["']""", text):
+        warn(f"{p.name}: NAME is still the template's \"Motion\"; set the product's name")
+    demo = [s for s in ("Frame by frame", "frames per second", "With motion blur", '"MOVE"') if s in text]
+    if demo:
+        warn(f"{p.name}: the template's demo copy is still on screen ({', '.join(demo)}); replace it with the product's lines, or keep it and say so; never invent facts to fill it")
     if re.search(r"urbanist-latin|FAMILY\s*=\s*[\"']Urbanist", text):
         warn(f"{p.name}: the template's demo font (Urbanist) is still in use; use the brand's font or choose one for the subject and write down why (references/look.md)")
     families = [(m.start(), m.group(1)) for m in re.finditer(r"font-family\s*:\s*([^;{}]+)", text, re.I)]
     families += [(m.start(), m.group(1)) for m in re.finditer(r"FAMILY\s*=\s*[\"']([^\"']+)", text)]
     seen = set()
     for at, value in families:
-        for m in re.finditer(r"\b(Inter|Space Grotesk|Geist|Fraunces|Instrument Serif|Poppins|Montserrat)\b", value, re.I):
+        for m in re.finditer(REFLEX_FONTS, value, re.I):
             if m.group(1).lower() not in seen:
                 seen.add(m.group(1).lower())
                 warn(f"{p.name}:{line_of(text, at)}: {m.group(1)} is a default model choice; keep it only if it's the brand's font and say so, otherwise choose a typeface for the subject (references/look.md)")
