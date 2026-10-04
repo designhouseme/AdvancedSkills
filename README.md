@@ -9,15 +9,15 @@ How we wrote them: [Skills for AI. How to teach Claude and ChatGPT your job](htt
 ## Installation
 
 ```bash
-npx skills add designhouse-me/dh-skills
+npx skills add designhouseme/AdvancedSkills
 ```
 
 Manually:
 
 ```bash
-git clone https://github.com/designhouse-me/dh-skills.git
+git clone https://github.com/designhouseme/AdvancedSkills.git
 mkdir -p ~/.claude/skills
-cp -r dh-skills/skills/* ~/.claude/skills/
+cp -r AdvancedSkills/skills/* ~/.claude/skills/
 ```
 
 In Codex and Cursor, use `~/.agents/skills` instead of `~/.claude/skills`.
@@ -36,7 +36,7 @@ Tests are in the `evals/` folder.
 
 ## License
 
-[CC BY 4.0](LICENSE). When you use them, credit the author: Design House, https://github.com/designhouse-me/dh-skills.
+[CC BY 4.0](LICENSE). When you use them, credit the author: Design House, https://github.com/designhouseme/AdvancedSkills.
 
 Exceptions: the Urbanist font in `skills/motion-design/assets/fonts/` is under the SIL Open Font License 1.1 (`OFL.txt` next to it), and the license doesn't cover the Design House name, mark and logo.
 
