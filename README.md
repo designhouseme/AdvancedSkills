@@ -24,13 +24,45 @@ In Codex and Cursor, use `~/.agents/skills` instead of `~/.claude/skills`.
 
 ## Skills
 
-- `company-research` - research on a specific company, every fact with a source and a date
-- `business-website` - takes you from a company description to a finished website
-- `website-plan` - the site's section plan and copy
-- `website-build` - codes the site from the plan
-- `website-review` - a review of the finished site
-- `ui-without-slop` - removes the typical decorations of sites made by AI and replaces reflex fonts, Lucide icons and stock shadcn components with decisions
-- `motion-design` - motion design videos from code: showreel, product promo, logo intro, 9:16 reels; a render to MP4, a version small enough to send and an animated WebP for a README
+You don't have to name a skill. Describe the task and the agent picks the right one.
+
+| You want to | Say, for example | Skill |
+|---|---|---|
+| get a whole website for a local business | "make a website for Nowak Joinery from York, tel. …" | `business-website` |
+| know a company before a meeting or a proposal | "research Nowak Joinery, we meet them on Thursday" | `company-research` |
+| plan a site's sections and write its copy | "plan the website from this research" | `website-plan` |
+| code a site from an approved plan | "build the site from the plan" | `website-build` |
+| get an honest score for a finished site | "review this site before we show it to the client" | `website-review` |
+| make an interface stop looking AI-made | "it looks generated: dots everywhere, Inter and Lucide again" | `ui-without-slop` |
+| make a video or an animation from code | "a 20-second promo for our app, also as a 9:16 reel" | `motion-design` |
+
+### A website: four stages in one request
+
+`business-website` doesn't do the work itself. It runs the four skills below in order and keeps their results in the `brief/` folder, so you can stop at any point and pick up in a new session.
+
+| Step | Skill | Result |
+|---|---|---|
+| 1. Research: what the company really does and what its customers say, every fact with a source and a date | `company-research` | `brief/01-research.md` |
+| 2. Plan: 4–7 sections built around the customer's decision, finished copy, the visual direction | `website-plan` | `brief/02-plan.md` |
+| You approve the headline and the sections (skipped if you ask for no questions) | | |
+| 3. Build: the site in your project's stack or as static HTML, screenshots on mobile and desktop | `website-build` | the site, `brief/screenshots/` |
+| 4. Review: an independent score and at most five fixes, then at most two rounds of fixes | `website-review` | `brief/03-review.md` |
+
+Each stage also works on its own, e.g. research before a sales meeting or a review of a client's current site.
+
+### Interfaces: `ui-without-slop`
+
+Removes the look of AI-made interfaces and replaces each pattern with a design decision. It works on any interface, not only on sites from the chain above (`website-build` runs it before handing over). It covers:
+
+- **decorations:** dots, pills above headings, eyebrows, gradient text, purple gradients, glassmorphism, identical cards;
+- **typefaces:** the fonts models reach for by reflex, and how to choose instead, with the licence and accented letters checked;
+- **text hierarchy:** reading order, jumps in size and weight, a headline set as one lockup;
+- **icons:** when a place needs one at all, and how to choose a set instead of Lucide by default;
+- **component kits:** shadcn/ui and Magic UI restyled, with their keyboard behaviour kept.
+
+### Video: `motion-design`
+
+Motion design from code in the brand's colours, fonts and logo: a showreel, a product promo, a logo intro, 9:16 reels. You get an MP4, a version small enough to send and an animated WebP for a README. It needs Node 22+, Python 3, ffmpeg and Chromium or Chrome on your machine.
 
 Tests are in the `evals/` folder.
 

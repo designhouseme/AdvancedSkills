@@ -64,6 +64,21 @@
         "Utility icons inside components (close, chevron) stay; there are no decorative icons in tinted squares",
         "The reply lists three rejected defaults and one signature element"
       ]
+    },
+    {
+      "id": 6,
+      "prompt": "the hero headline on our electrician's site is flat, same weight, centred, the H1 barely bigger than the line under it. make the text look designed, but don't change the words: \"Electrical installations in Gdańsk, from the first socket to the inspection certificate\"",
+      "expected_output": "The same words ranked by importance and set as a lockup with 2–3 levels that differ in size and weight, all in one h1, working at 375 px, without an eyebrow.",
+      "files": [],
+      "assertions": [
+        "The words of the headline are unchanged",
+        "The whole headline is one h1, with spans for the levels rather than separate elements or <br> chains",
+        "The reply ranks the words (what is read first, second, third) before the code",
+        "The word or phrase ranked first differs from the rest in both size (a clear jump) and weight",
+        "The small part is a piece of the same sentence, not a category label, and there's no uppercase letter-spaced label above the heading",
+        "At 375 px there's no horizontal overflow and no line with a single short word",
+        "No part of the headline is rendered as an image or as SVG outlines"
+      ]
     }
   ]
 }

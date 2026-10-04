@@ -162,6 +162,10 @@
       "expected_skill": "ui-without-slop"
     },
     {
+      "query": "the headline on the landing page looks flat, everything the same weight and centred. give the text a proper hierarchy",
+      "expected_skill": "ui-without-slop"
+    },
+    {
       "query": "add a shadcn date picker to the booking form",
       "expected_skill": null
     }
