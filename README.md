@@ -1,16 +1,18 @@
+<a href="https://designhouse.me"><img src=".github/banner.svg" alt="Design House. Skills for AI agents: research, websites, motion design." width="100%"></a>
+
 # Design House Skills
 
-Skille dla agentów AI od [Design House](https://designhouse.me). Działają w Claude, ChatGPT, Codexie, Cursorze i innych narzędziach, które obsługują format [Agent Skills](https://agentskills.io).
+Skills for AI agents from [Design House](https://designhouse.me). They work in Claude, ChatGPT, Codex, Cursor and other tools that support the [Agent Skills](https://agentskills.io) format.
 
-O tym, jak je pisaliśmy: [Skille dla AI. Jak nauczyć Claude'a i ChatGPT swojej roboty](https://designhouse.me/wiedza/skille-dla-ai-jak-pisac).
+How we wrote them: [Skills for AI. How to teach Claude and ChatGPT your job](https://designhouse.me/wiedza/skille-dla-ai-jak-pisac) (in Polish).
 
-## Instalacja
+## Installation
 
 ```bash
 npx skills add designhouse-me/dh-skills
 ```
 
-Ręcznie:
+Manually:
 
 ```bash
 git clone https://github.com/designhouse-me/dh-skills.git
@@ -18,19 +20,33 @@ mkdir -p ~/.claude/skills
 cp -r dh-skills/skills/* ~/.claude/skills/
 ```
 
-W Codexie i Cursorze zamiast `~/.claude/skills` użyj `~/.agents/skills`.
+In Codex and Cursor, use `~/.agents/skills` instead of `~/.claude/skills`.
 
-## Skille
+## Skills
 
-- `research-firmy` - research konkretnej firmy, każdy fakt ze źródłem i datą
-- `strona-dla-firmy` - prowadzi od opisu firmy do gotowej strony
-- `plan-strony` - plan sekcji i teksty strony
-- `budowa-strony` - kod strony według planu
-- `przeglad-strony` - przegląd gotowej strony
-- `ui-bez-slopu` - usuwa typowe ozdobniki stron robionych przez AI
+- `company-research` - research on a specific company, every fact with a source and a date
+- `business-website` - takes you from a company description to a finished website
+- `website-plan` - the site's section plan and copy
+- `website-build` - codes the site from the plan
+- `website-review` - a review of the finished site
+- `ui-without-slop` - removes the typical decorations of sites made by AI
+- `motion-design` - motion design videos from code: showreel, product promo, logo intro, 9:16 reels; a render to MP4, a version small enough to send and an animated WebP for a README
 
-Testy są w katalogu `evals/`.
+Tests are in the `evals/` folder.
 
-## Licencja
+## License
 
-[CC BY 4.0](LICENSE). Przy użyciu podaj autora: Design House, https://github.com/designhouse-me/dh-skills.
+[CC BY 4.0](LICENSE). When you use them, credit the author: Design House, https://github.com/designhouse-me/dh-skills.
+
+Exceptions: the Urbanist font in `skills/motion-design/assets/fonts/` is under the SIL Open Font License 1.1 (`OFL.txt` next to it), and the license doesn't cover the Design House name, mark and logo.
+
+<br>
+
+<p align="center">
+  <a href="https://designhouse.me">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset=".github/logo-white.svg">
+      <img src=".github/logo-dark.svg" alt="Design House" height="28">
+    </picture>
+  </a>
+</p>

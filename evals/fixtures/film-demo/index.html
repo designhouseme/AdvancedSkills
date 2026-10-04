@@ -1,0 +1,646 @@
+<!doctype html>
+<!--
+  Motion design composition template. Every frame is a pure function of time: window.__render(t).
+  No CSS animations, transition, setTimeout, Date.now() or Math.random() in the scenes,
+  so render.mjs captures frames deterministically and in many browsers at once.
+
+  Opened in a browser, it plays live: space = pause, ←/→ = ±1 s, click on the bar = seek.
+  Parameters: ?t=2.5 (still), ?speed=0.75 (pace), ?name=Name, ?w=1080&h=1920 (format).
+
+  Replace with the project's own: the :root block (colours), @font-face + FAMILY (brand font), the scenes.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Composition</title>
+    <style>
+      /* BRAND FONT: replace the files and the family name (the FAMILY variable in the script must match). */
+      @font-face {
+        font-family: "Urbanist";
+        src: url(fonts/urbanist-latin.woff2) format("woff2");
+        font-weight: 100 900;
+        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+      }
+      @font-face {
+        font-family: "Urbanist";
+        src: url(fonts/urbanist-latin-ext.woff2) format("woff2");
+        font-weight: 100 900;
+        unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+      }
+
+      /* BRAND TOKENS: replace with the values from the project's CSS. */
+      :root {
+        --bg: #f1f0ee;
+        --wash: #f8ddcc;
+        --ink: #1c1b1a;
+        --ink-2: #6c6863;
+        --line: #e8e5e1;
+        --accent: #ff6a2b;
+        --accent-dark: #ec5717;
+      }
+
+      * { box-sizing: border-box; }
+      html, body { margin: 0; height: 100%; background: #0d0d0c; overflow: hidden; }
+      body { display: grid; place-items: center; }
+      #stage { position: relative; flex: none; overflow: hidden; background: var(--bg); color: var(--ink); -webkit-font-smoothing: antialiased; transform-origin: 50% 50%; }
+      .capture body { display: block; }
+      .capture #stage { transform: none !important; }
+      .scene { position: absolute; inset: 0; display: none; overflow: hidden; }
+      .abs { position: absolute; left: 0; top: 0; }
+      .fill { position: absolute; inset: 0; }
+      .o0 { transform-origin: 0 0; }
+      .mask { position: absolute; overflow: hidden; }
+      .word { position: absolute; left: 0; top: 0; white-space: pre; }
+      svg { overflow: visible; }
+      #grain { position: absolute; inset: -64px; pointer-events: none; opacity: 0.045; }
+      #vignette { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(120% 120% at 50% 45%, transparent 55%, rgb(70 40 20 / 0.14) 100%); }
+      #hud { position: fixed; left: 0; right: 0; bottom: 0; height: 26px; cursor: pointer; background: rgb(255 255 255 / 0.06); }
+      #hud i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent); }
+      #hud span { position: absolute; right: 10px; top: 4px; color: #bbb; font: 12px/1 ui-monospace, monospace; }
+      .capture #hud { display: none; }
+    </style>
+  </head>
+  <body>
+    <div id="stage"></div>
+    <div id="hud"><i></i><span></span></div>
+
+    <script>
+      // ------------------------------------------------------------------
+      // Parameters
+      // ------------------------------------------------------------------
+      const Q = new URLSearchParams(location.search);
+      const CAPTURE = Q.has("capture");
+      const FAMILY = "Urbanist"; // must match @font-face
+      const NAME = Q.get("name") || "Motion"; // NAME: a single parameter; a spelling fix is one change, not a rewrite of the scenes
+      // FORMAT: set it here for good (e.g. 1080 × 1920 for a reel), so it cannot be forgotten at render time.
+      // ?w=…&h=… overrides it only for a test.
+      const W = Number(Q.get("w")) || 1920;
+      const H = Number(Q.get("h")) || 1080;
+      const CX = W / 2, CY = H / 2;
+      // LENGTH: the scenes are laid out in "project time" up to TIMELINE (s). SPEED stretches the whole film evenly
+      // (0.75 = 25% slower), so the film lasts TIMELINE / SPEED.
+      const TIMELINE = 11.8;
+      const SPEED = Number(Q.get("speed") || 1);
+      const DURATION = TIMELINE / SPEED;
+      if (CAPTURE) document.documentElement.classList.add("capture");
+      const stage = document.getElementById("stage");
+      stage.style.width = `${W}px`;
+      stage.style.height = `${H}px`;
+      stage.style.fontFamily = `"${FAMILY}", sans-serif`;
+      const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+      // ------------------------------------------------------------------
+      // Engine: interpolation, easings, spring
+      // ------------------------------------------------------------------
+      const clamp = (x, a = 0, b = 1) => (x < a ? a : x > b ? b : x);
+      const lerp = (a, b, p) => a + (b - a) * p;
+      const prog = (t, a, b) => clamp((t - a) / (b - a));
+      const E = {
+        lin: (x) => x,
+        in2: (x) => x * x,
+        out2: (x) => 1 - (1 - x) ** 2,
+        io2: (x) => (x < 0.5 ? 2 * x * x : 1 - (-2 * x + 2) ** 2 / 2),
+        in3: (x) => x ** 3,
+        out3: (x) => 1 - (1 - x) ** 3,
+        io3: (x) => (x < 0.5 ? 4 * x ** 3 : 1 - (-2 * x + 2) ** 3 / 2),
+        in4: (x) => x ** 4,
+        out4: (x) => 1 - (1 - x) ** 4,
+        io4: (x) => (x < 0.5 ? 8 * x ** 4 : 1 - (-2 * x + 2) ** 4 / 2),
+        inExpo: (x) => (x <= 0 ? 0 : 2 ** (10 * x - 10)),
+        outExpo: (x) => (x >= 1 ? 1 : 1 - 2 ** (-10 * x)),
+        ioExpo: (x) => (x <= 0 ? 0 : x >= 1 ? 1 : x < 0.5 ? 2 ** (20 * x - 10) / 2 : (2 - 2 ** (-20 * x + 10)) / 2),
+        outBack: (x) => 1 + 2.70158 * (x - 1) ** 3 + 1.70158 * (x - 1) ** 2,
+        inBack: (x) => 2.70158 * x ** 3 - 1.70158 * x * x,
+      };
+      // Damped spring: progress 0 → 1 with overshoot, s seconds after the start. f = frequency, z = damping.
+      const spring = (s, f = 2, z = 0.42) => {
+        if (s <= 0) return 0;
+        const w = 2 * Math.PI * f;
+        if (z >= 1) return 1 - Math.exp(-w * s) * (1 + w * s);
+        const wd = w * Math.sqrt(1 - z * z);
+        return 1 - Math.exp(-z * w * s) * (Math.cos(wd * s) + ((z * w) / wd) * Math.sin(wd * s));
+      };
+      const tw = (t, a, b, from, to, ease = E.out3) => lerp(from, to, ease(prog(t, a, b)));
+      // Geometric zoom: interpolation on a log scale, so the eye sees an even pace.
+      const zoom = (t, a, b, s0, s1, ease = E.io3) => Math.exp(lerp(Math.log(s0), Math.log(s1), ease(prog(t, a, b))));
+      // Deterministic "randomness" instead of Math.random().
+      const hash = (n) => {
+        const x = Math.sin(n * 127.1 + 311.7) * 43758.5453;
+        return x - Math.floor(x);
+      };
+
+      // ------------------------------------------------------------------
+      // DOM
+      // ------------------------------------------------------------------
+      const el = (tag, cls, parent, html) => {
+        const e = document.createElement(tag);
+        if (cls) e.className = cls;
+        if (html != null) e.innerHTML = html;
+        if (parent) parent.appendChild(e);
+        return e;
+      };
+      const svgEl = (tag, attrs, parent) => {
+        const e = document.createElementNS("http://www.w3.org/2000/svg", tag);
+        for (const k in attrs) e.setAttribute(k, attrs[k]);
+        if (parent) parent.appendChild(e);
+        return e;
+      };
+      // Transform in one call: x, y, z, rx, ry, r (deg), s, sx, sy, o (opacity).
+      const T = (e, o) => {
+        let tr = o.z != null || o.rx || o.ry ? `translate3d(${o.x || 0}px,${o.y || 0}px,${o.z || 0}px)` : `translate(${o.x || 0}px,${o.y || 0}px)`;
+        if (o.rx) tr += ` rotateX(${o.rx}deg)`;
+        if (o.ry) tr += ` rotateY(${o.ry}deg)`;
+        if (o.r) tr += ` rotate(${o.r}deg)`;
+        const sx = (o.sx ?? 1) * (o.s ?? 1), sy = (o.sy ?? 1) * (o.s ?? 1);
+        if (sx !== 1 || sy !== 1) tr += ` scale(${sx},${sy})`;
+        e.style.transform = tr;
+        if (o.o !== undefined) e.style.opacity = clamp(o.o);
+      };
+      const FONT = (weight, px) => `${weight} ${px}px "${FAMILY}"`;
+
+      // ------------------------------------------------------------------
+      // Typography
+      // ------------------------------------------------------------------
+      // Letter positions come from one unbroken string (a Range per character), so kerning is kept.
+      function measure(text, font, ls = "0px") {
+        const s = el("span", null, document.body);
+        s.style.cssText = `position:absolute;left:0;top:0;white-space:pre;font:${font};letter-spacing:${ls};visibility:hidden`;
+        s.textContent = text;
+        const base = s.getBoundingClientRect();
+        const r = document.createRange();
+        const xs = [];
+        for (let i = 0; i < text.length; i++) {
+          r.setStart(s.firstChild, i);
+          r.setEnd(s.firstChild, i + 1);
+          const b = r.getBoundingClientRect();
+          xs.push({ x: b.left - base.left, w: b.width });
+        }
+        s.remove();
+        return { xs, w: base.width, h: base.height };
+      }
+      function letters(parent, text, font, ls = "0px", color = "") {
+        const m = measure(text, font, ls);
+        return [...text].map((ch, i) => {
+          const s = el("span", "word", parent);
+          s.textContent = ch;
+          s.style.font = font;
+          s.style.letterSpacing = ls;
+          if (color) s.style.color = color;
+          s.style.transformOrigin = "50% 70%";
+          return { e: s, ch, x: m.xs[i].x, w: m.xs[i].w };
+        });
+      }
+      // The dot over "i": the pixel difference between "i" and "ı" on a canvas. You write the word with "ı" (U+0131) and draw the dot yourself.
+      // The result is relative to the left and top edges of the letter's span in the DOM (the way letters() places them):
+      // the canvas draws on the baseline, and a zero-height inline-block probe measures the span's baseline.
+      // Measuring from the "top" of the canvas put the dot about 0.13 em too high.
+      function tittle(font, size) {
+        const c = document.createElement("canvas");
+        c.width = c.height = size * 2;
+        const g = c.getContext("2d", { willReadFrequently: true });
+        g.font = font;
+        g.textBaseline = "alphabetic";
+        const bx = size * 0.5, by = size * 1.4;
+        const draw = (ch) => {
+          g.clearRect(0, 0, c.width, c.height);
+          g.fillText(ch, bx, by);
+          return g.getImageData(0, 0, c.width, c.height).data;
+        };
+        const a = draw("i"), b = draw("ı");
+        let x0 = 1e9, y0 = 1e9, x1 = -1, y1 = -1;
+        for (let y = 0; y < c.height; y++)
+          for (let x = 0; x < c.width; x++) {
+            const k = (y * c.width + x) * 4 + 3;
+            if (a[k] > 128 && b[k] < 40) {
+              x0 = Math.min(x0, x); x1 = Math.max(x1, x);
+              y0 = Math.min(y0, y); y1 = Math.max(y1, y);
+            }
+          }
+        if (x1 < 0) return null; // the font has no "ı" or no dot: keep a plain "i"
+        const span = el("span", "word", document.body);
+        span.style.cssText += `font:${font};visibility:hidden`;
+        span.textContent = "ı";
+        const probe = el("span", null, span);
+        probe.style.cssText = "display:inline-block;width:0;height:0";
+        const baseline = probe.getBoundingClientRect().top - span.getBoundingClientRect().top;
+        span.remove();
+        return { cx: (x0 + x1 + 1) / 2 - bx, cy: baseline + (y0 + y1 + 1) / 2 - by, r: (x1 - x0 + 1) / 2 };
+      }
+      // A row of words, each in its own mask. A 1.24 em mask plus padding leaves room for descenders and accents.
+      function wordRow(parent, words, { x, y, size, ls = "-0.03em", align = "left", color = "" }) {
+        const items = words.map((w) => {
+          const f = FONT(w.w || 300, size);
+          return { ...w, f, mw: measure(w.text, f, ls).w, sp: measure("a a", f, ls).w - measure("aa", f, ls).w };
+        });
+        const total = items.reduce((a, it, i) => a + it.mw + (i < items.length - 1 ? it.sp : 0), 0);
+        let cx = align === "center" ? x - total / 2 : x;
+        const pad = size * 0.12;
+        return {
+          size,
+          total,
+          items: items.map((it) => {
+            const mask = el("div", "mask", parent);
+            mask.style.cssText += `left:${cx - pad}px;top:${y - pad}px;width:${it.mw + pad * 2}px;height:${size * 1.24 + pad}px`;
+            const s = el("span", "word", mask);
+            s.textContent = it.text;
+            s.style.cssText += `font:${it.f};letter-spacing:${ls};line-height:1.24;left:${pad}px;top:${pad}px;color:${it.color || color}`;
+            const o = { mask, s, x: cx, w: it.mw };
+            cx += it.mw + it.sp;
+            return o;
+          }),
+        };
+      }
+      // Entry from below (outExpo) and exit upwards (in3). The exit travels 1.5 heights, because otherwise
+      // a long rotated word catches the mask with a corner and leaves a sliver of a letter on screen.
+      function animRow(row, t, tin, tout, { st = 0.05, dur = 0.8, od = 0.36, rot = 5 } = {}) {
+        row.items.forEach((w, i) => {
+          const p = E.outExpo(prog(t, tin + i * st, tin + i * st + dur));
+          const q = tout == null ? 0 : E.in3(prog(t, tout + i * st * 0.5, tout + i * st * 0.5 + od));
+          T(w.s, { y: ((1 - p) * 1.1 - q * 1.5) * row.size * 1.24, r: (1 - p) * rot - q * rot * 0.6 });
+        });
+      }
+
+      // ------------------------------------------------------------------
+      // Transitions
+      // ------------------------------------------------------------------
+      // Directional blur for whip pans (subframes are not enough at 100+ px per frame).
+      const fx = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      fx.setAttribute("width", "0");
+      fx.setAttribute("height", "0");
+      fx.style.position = "absolute";
+      fx.innerHTML = `<filter id="mbx" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB"><feGaussianBlur id="mbxG" stdDeviation="0 0"/></filter>`;
+      document.body.appendChild(fx);
+      const mbG = fx.querySelector("#mbxG");
+      const whipBlur = (e, vx, vy) => {
+        if (Math.abs(vx) < 1.5 && Math.abs(vy) < 1.5) return void (e.style.filter = "");
+        mbG.setAttribute("stdDeviation", `${Math.min(48, Math.abs(vx))} ${Math.min(48, Math.abs(vy))}`);
+        e.style.filter = "url(#mbx)";
+      };
+      // Velocity of a position function: shift in px per frame at 60 fps.
+      // For directional blur, use a factor of about 0.15 (whipBlur caps at 48 px).
+      const vel = (f, t) => f(t + 1 / 120) - f(t - 1 / 120);
+      // Camera: world point F lands on screen point C, at scale s.
+      const camera = (e, { cx = CX, cy = CY, fx = CX, fy = CY, s = 1 }) =>
+        (e.style.transform = `translate(${cx}px,${cy}px) scale(${s}) translate(${-fx}px,${-fy}px)`);
+      // Iris: a circle in `color` around (cx, cy), radius from r0 to r1 at progress p.
+      // A circle from the first frame, because a rectangle turning into a circle looks cheap. The default r1 reaches
+      // the farthest corner, so the circle covers the frame even when it grows from off centre.
+      // `feather` (px) softens the edge: with fast growth (over ~60 px per frame), 5 motion blur subframes
+      // show steps; in that case pass feather ≈ 0.6 · |vel| of the radius.
+      const farthest = (cx, cy) => Math.max(Math.hypot(cx, cy), Math.hypot(W - cx, cy), Math.hypot(cx, H - cy), Math.hypot(W - cx, H - cy));
+      const iris = (e, p, { cx = CX, cy = CY, r0 = 0, r1 = farthest(cx, cy) * 1.02, color = "var(--accent)", feather = 1 } = {}) => {
+        const r = lerp(r0, r1, p);
+        e.style.cssText = `position:absolute;inset:0;pointer-events:none;display:${r > 0.5 ? "block" : "none"};` +
+          `background:radial-gradient(circle ${r + feather / 2}px at ${cx}px ${cy}px, ${color} ${Math.max(0, r - feather / 2)}px, transparent ${r + feather / 2}px)`;
+      };
+
+      // ------------------------------------------------------------------
+      // Content blocks
+      // ------------------------------------------------------------------
+      const esc = (v) => String(v).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+      // Typewriter. The caret blinks from time (t), not from CSS, so frames are repeatable.
+      const typewriter = (text, t, a, b, caret = "var(--accent)") => {
+        const n = Math.round(text.length * prog(t, a, b));
+        const on = t > a - 0.3 && t < b + 0.8 && (t < b || Math.floor(t * 3) % 2 === 0);
+        return esc(text.slice(0, n)) + (on ? `<i style="display:inline-block;width:.07em;height:1em;margin-left:.05em;vertical-align:-.14em;background:${caret}"></i>` : "");
+      };
+      // Counter from 0 to n that eases to a stop. Fixed-width digits: font-variant-numeric: tabular-nums.
+      const counter = (n, t, a, b, ease = E.outExpo) => Math.round(n * ease(prog(t, a, b)));
+      // Spring pop from the moment `at`: 0 → 1 with overshoot. For small objects, not for blocks of text.
+      const pop = (t, at, f = 2.6, z = 0.4) => (t < at ? 0 : spring(t - at, f, z));
+
+      // ------------------------------------------------------------------
+      // Creative moves (when to use them: references/concept.md, section 4)
+      // ------------------------------------------------------------------
+      const svgDefs = svgEl("svg", { width: 0, height: 0, style: "position:absolute" }, document.body);
+      // A point in the middle of a letter stroke, nearest to (x, y): a zoom around it fills the frame with the letter
+      // instead of falling into the gap between letters.
+      function inkPoint(text, font, x, y, ls = "-0.02em") {
+        const c = document.createElement("canvas");
+        c.width = W;
+        c.height = H;
+        const g = c.getContext("2d", { willReadFrequently: true });
+        g.font = font;
+        g.letterSpacing = ls;
+        g.textAlign = "center";
+        g.textBaseline = "middle";
+        g.fillText(text, x, y);
+        const px = g.getImageData(0, 0, W, H).data;
+        const ink = (i, j) => i >= 0 && j >= 0 && i < W && j < H && px[(j * W + i) * 4 + 3] > 128;
+        let best = null;
+        for (let r = 0; r < Math.max(W, H) && !best; r += 2)
+          for (let k = 0; k < 32 && !best; k++) {
+            const i = Math.round(x + r * Math.cos((k / 32) * 2 * Math.PI)), j = Math.round(y + r * Math.sin((k / 32) * 2 * Math.PI));
+            if (ink(i, j)) best = [i, j];
+          }
+        if (!best) return { x, y, r: 0 };
+        let [i, j] = best, l = i, rr = i, u = j, d = j; // middle of the stroke, horizontally and vertically
+        while (ink(l - 1, j)) l--;
+        while (ink(rr + 1, j)) rr++;
+        i = (l + rr) / 2;
+        while (ink(Math.round(i), u - 1)) u--;
+        while (ink(Math.round(i), d + 1)) d++;
+        // r: distance from the point to the edge of the stroke (exact for a straight stroke at any angle)
+        const hr = (rr - l + 1) / 2, vr = (d - u + 1) / 2;
+        return { x: i, y: (u + d) / 2, r: (hr * vr) / Math.hypot(hr, vr) };
+      }
+      // Letters as windows: the element (usually the next scene) shows only through the letters of the text.
+      // update(enter 0..1, zoom 0..1): at zoom = 1 the window covers the whole frame and the clipping goes away.
+      // text-rendering: geometricPrecision, because Chrome caps text at 10,000 px on screen: without it
+      // the letters jump during a big zoom instead of growing smoothly.
+      function letterWindow(target, text, { size, weight = 800, x = CX, y = CY, ls = "-0.02em", maxScale = 60 }) {
+        const id = `window-${defs.length}-${text.length}`;
+        const clip = svgEl("clipPath", { id, clipPathUnits: "userSpaceOnUse" }, svgDefs);
+        const tx = svgEl("text", { x, y, "text-anchor": "middle", "dominant-baseline": "central", "font-family": FAMILY, "font-weight": weight, "font-size": size, "letter-spacing": ls, "text-rendering": "geometricPrecision" }, clip);
+        tx.textContent = text;
+        const pv = inkPoint(text, FONT(weight, size), x, y, ls);
+        // zoom far enough for the stroke to cover the frame before the clipping goes away, thin strokes too
+        const top = Math.max(maxScale, pv.r ? (1.2 * farthest(pv.x, pv.y)) / pv.r : 0);
+        return (enter, z) => {
+          const s = lerp(0.82, 1, E.outExpo(enter)) * Math.exp(Math.log(top) * E.in3(z)); // geometric zoom
+          tx.setAttribute("transform", `translate(${pv.x} ${pv.y}) scale(${s}) translate(${-pv.x} ${-pv.y})`);
+          target.style.clipPath = z >= 1 ? "none" : enter <= 0 ? "inset(50%)" : `url(#${id})`;
+        };
+      }
+      // Transition in the shape of the mark: shapes pop up in place and grow until they cover the frame.
+      // shapes: [{ x, y, size, radius }] in px; radius as a fraction of the side (0.19 ≈ the mark's corner rounding).
+      function shapeWipe(parent, shapes, color) {
+        const items = shapes.map((sh) => {
+          const cover = 2.3 * Math.max(sh.x, W - sh.x, sh.y, H - sh.y); // side length at which the shape covers the frame
+          const e = el("div", "abs", parent);
+          e.style.cssText += `width:${cover}px;height:${cover}px;left:${sh.x - cover / 2}px;top:${sh.y - cover / 2}px;border-radius:${cover * (sh.radius ?? 0.19)}px;background:${color}`;
+          return { e, s0: sh.size / cover };
+        });
+        return (t, at) =>
+          items.forEach(({ e, s0 }, k) => {
+            const a = at + k * 0.08;
+            const grow = E.io4(prog(t, a + 0.18, a + 0.62));
+            T(e, { s: t < a ? 0 : s0 * clamp(spring(t - a, 2.6, 0.45), 0, 1.3) * (1 - grow) + grow, o: t < a ? 0 : 1 });
+          });
+      }
+      // Shape morphing: radius as a function of angle, mixed linearly between two shapes.
+      // Works for shapes that are "star-shaped" around the centre (circle, star, rounded square).
+      const SHAPE = {
+        circle: () => () => 1,
+        star: (points = 5, inner = 0.46) => {
+          const step = Math.PI / points;
+          return (a) => {
+            const rel = (((a + Math.PI / 2) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+            const k = Math.floor(rel / step);
+            const t0 = -Math.PI / 2 + k * step, t1 = t0 + step;
+            const r0 = k % 2 ? inner : 1, r1 = k % 2 ? 1 : inner;
+            const p1 = [r0 * Math.cos(t0), r0 * Math.sin(t0)], p2 = [r1 * Math.cos(t1), r1 * Math.sin(t1)];
+            const e = [p2[0] - p1[0], p2[1] - p1[1]], dir = [Math.cos(a), Math.sin(a)];
+            return (p1[0] * e[1] - p1[1] * e[0]) / (dir[0] * e[1] - dir[1] * e[0]);
+          };
+        },
+        squircle: (n = 5, k = 0.84) => (a) => k * Math.pow(Math.pow(Math.abs(Math.cos(a)), n) + Math.pow(Math.abs(Math.sin(a)), n), -1 / n),
+      };
+      const morphPath = (cx, cy, R, fa, fb, p, rot = 0, N = 240) => {
+        let d = "";
+        for (let i = 0; i < N; i++) {
+          const a = (i / N) * 2 * Math.PI - Math.PI / 2;
+          const r = R * lerp(fa(a - rot), fb(a - rot), p);
+          d += `${i ? "L" : "M"}${(cx + r * Math.cos(a)).toFixed(2)} ${(cy + r * Math.sin(a)).toFixed(2)}`;
+        }
+        return `${d}Z`;
+      };
+
+      // ------------------------------------------------------------------
+      // Scenes. scene(name, from, to, build): build creates the DOM and returns update(t).
+      // After cutting a passage, set `shift` before the following scenes instead of rewriting their times.
+      // cue(t, kind) collects moments for syncing sound (render.mjs writes out/cues.json).
+      // ------------------------------------------------------------------
+      const scenes = [];
+      const defs = [];
+      const CUES = [];
+      let shift = 0;
+      let building = 0;
+      const scene = (name, t0, t1, build) => defs.push({ name, t0: t0 - shift, t1: t1 - shift, shift, build });
+      const cue = (t, kind, opt = {}) => CUES.push({ t: +(t - building).toFixed(4), kind, ...opt });
+
+      // ==================================================================
+      // DEMO 1: kerned letters, the dot over the "i", a caption built from masks, a zoom into the dot
+      // ==================================================================
+      scene("intro", 0, 3.7, (root) => {
+        const bg = el("div", "fill", root);
+        const cam = el("div", "fill o0", root);
+        const FS = Math.round(Math.min(W, H) * 0.22);
+        const font = FONT(300, FS);
+        const i = NAME.indexOf("i");
+        const tt = i >= 0 ? tittle(font, FS) : null;
+        const text = tt ? NAME.slice(0, i) + "ı" + NAME.slice(i + 1) : NAME;
+        const m = measure(text, font, "-0.03em");
+        const x0 = CX - m.w / 2, top = CY - FS * 0.62;
+        const word = el("div", "abs", cam);
+        word.style.cssText += `width:${W}px;height:${FS * 1.3}px`;
+        const ls = letters(word, text, font, "-0.03em");
+        const dot = el("div", "abs", cam); // outside the word container: the jump arc must not be clipped
+        const dotX = tt ? x0 + ls[i].x + tt.cx - tt.r : CX, dotY = tt ? tt.cy - tt.r : 0;
+        if (tt) dot.style.cssText += `width:${tt.r * 2}px;height:${tt.r * 2}px;border-radius:50%;background:var(--accent);transform-origin:50% 100%`;
+        const tag = wordRow(cam, "Every frame is a function of time.".split(" ").map((t) => ({ text: t })), { x: CX, y: top + FS * 1.15, size: Math.round(FS * 0.24), align: "center", color: css("--ink-2") });
+        const HIT = 1.55;
+        cue(0.4, "rise"); cue(HIT, "impact"); cue(2.75, "riser", { d: 0.8 }); cue(3.55, "boom");
+
+        return (t) => {
+          bg.style.background = `radial-gradient(70% 80% at ${12 + Math.sin(t * 0.4) * 8}% -10%, ${css("--wash")} 0%, transparent 62%), ${css("--bg")}`;
+          const punch = t > HIT ? Math.sin((t - HIT) * 26) * Math.exp(-(t - HIT) * 7) * 0.025 : 0;
+          const f = E.io3(prog(t, 2.55, 3.25));
+          camera(cam, {
+            fx: lerp(CX, dotX + (tt?.r ?? 0), f),
+            fy: lerp(CY, top + dotY + (tt?.r ?? 0), f),
+            s: zoom(t, 2.7, 3.55, 1, 140, E.in3) * (1 + t * 0.008 + punch),
+          });
+          T(word, { y: top });
+          word.style.overflow = t < 1.4 ? "hidden" : "visible"; // the letters rise from below the edge
+          ls.forEach((L, k) => {
+            const p = E.outExpo(prog(t, 0.35 + k * 0.05, 1.1 + k * 0.05));
+            T(L.e, { x: x0 + L.x, y: (1 - p) * FS * 1.15, r: (1 - p) * 9 });
+          });
+          if (tt) {
+            // The dot is the hero from the first frame (the thumbnail must not be empty): it waits in the middle,
+            // the letters rise around it, then it jumps in an arc over the "ı" and lands with a squash.
+            const jump = E.io3(prog(t, HIT - 0.5, HIT));
+            const startX = CX - tt.r, startY = CY - tt.r;
+            const breathe = 1 + Math.sin(t * 5) * 0.04 * (1 - jump);
+            const land = t > HIT ? Math.exp(-(t - HIT) * 9) * Math.sin((t - HIT) * 30) * 0.25 : 0;
+            T(dot, {
+              x: lerp(startX, dotX, jump),
+              y: lerp(startY, top + dotY, jump) - Math.sin(jump * Math.PI) * FS * 0.9,
+              s: lerp(2.6, 1, E.out3(jump)) * breathe * (t < 0.05 ? 0.9 + t * 2 : 1),
+              sx: 1 + land, sy: 1 - land,
+            });
+          }
+          animRow(tag, t, 1.75, null, { st: 0.06, rot: 0 });
+        };
+      });
+
+      // ==================================================================
+      // DEMO 2: letters as windows. A huge "MOVE" on the accent colour, and the next scene already
+      // shows through the letters. Then a zoom into the middle of a letter, and the window covers the frame.
+      // It starts when the enlarged dot from the intro covers the whole screen: the cut is invisible.
+      // ==================================================================
+      let windowFor = null; // scenes 2 and 3 share the window: scene 3 is clipped by the letters of scene 2; WINDOWS holds its timing
+      const WINDOWS = { enter: [3.62, 4.2], zoom: [5.15, 5.95] };
+      scene("windows", 3.55, WINDOWS.zoom[1], (root) => {
+        root.style.background = "var(--accent)";
+        cue(3.62, "whoosh"); cue(WINDOWS.zoom[0], "riser", { d: 0.8 });
+        return () => {};
+      });
+
+      // ==================================================================
+      // DEMO 3: a counter and a typewriter, at first visible only through the letters,
+      // and at the end a transition in the shape of the mark (three rounded squares).
+      // ==================================================================
+      scene("numbers", 3.55, 8.45, (root) => {
+        root.style.background = "var(--bg)";
+        // a moving background, so the windows show life rather than a flat patch
+        const grid = el("div", "fill", root);
+        grid.style.cssText += `inset:-200px;background-image:linear-gradient(var(--line) 2px,transparent 2px),linear-gradient(90deg,var(--line) 2px,transparent 2px);background-size:120px 120px`;
+        const size = Math.round(Math.min(W, H) * 0.34);
+        const num = el("div", "abs", root);
+        num.style.cssText += `left:0;width:${W}px;top:${CY - size * 0.62}px;text-align:center;font:200 ${size}px/1 "${FAMILY}";letter-spacing:-0.05em;font-variant-numeric:tabular-nums;color:var(--ink)`;
+        const unit = el("div", "abs", root);
+        unit.style.cssText += `left:0;width:${W}px;top:${CY + size * 0.46}px;text-align:center;font:600 ${Math.round(size * 0.16)}px "${FAMILY}";color:var(--accent)`;
+        unit.textContent = "frames per second";
+        const line = el("div", "abs", root);
+        line.style.cssText += `left:0;width:${W}px;top:${CY + size * 0.72}px;text-align:center;font:400 ${Math.round(size * 0.11)}px "${FAMILY}";color:var(--ink-2)`;
+        windowFor = letterWindow(root, "MOVE", { size: Math.round(Math.min(W, H) * 0.42), weight: 800 });
+        const m = Math.min(W, H);
+        const wipe = shapeWipe(root, [
+          { x: CX - m * 0.16, y: CY + m * 0.1, size: m * 0.3 },
+          { x: CX + m * 0.03, y: CY - m * 0.17, size: m * 0.13 },
+          { x: CX + m * 0.2, y: CY + m * 0.05, size: m * 0.19 },
+        ], "var(--ink)");
+        cue(4.0, "count", { d: 2.2 }); cue(7.75, "pop"); cue(7.95, "whoosh");
+
+        return (t) => {
+          windowFor(prog(t, ...WINDOWS.enter), prog(t, ...WINDOWS.zoom));
+          T(grid, { x: -(t * 40) % 120, y: -(t * 25) % 120 });
+          num.textContent = counter(60, t, 4.0, 6.4);
+          T(unit, { y: (1 - E.outExpo(prog(t, 6.0, 6.7))) * 30, o: prog(t, 6.0, 6.25) });
+          line.innerHTML = typewriter("Each one with motion blur.", t, 6.5, 7.4);
+          wipe(t, 7.7);
+        };
+      });
+
+      // ==================================================================
+      // DEMO 4: morphing. The dot becomes a star, the star a rounded square (the mark),
+      // and the name slides in beside it. The end card holds until the end.
+      // ==================================================================
+      scene("mark", 8.4, TIMELINE + 1, (root) => {
+        root.style.background = "var(--ink)";
+        const svg = svgEl("svg", { width: W, height: H, viewBox: `0 0 ${W} ${H}`, class: "abs" }, root);
+        const shape = svgEl("path", { fill: "var(--accent)" }, svg);
+        const R = Math.min(W, H) * 0.13;
+        const size = Math.round(Math.min(W, H) * 0.15);
+        // lockup: mark and name centred together; the mark moves left, the name slides in beside it
+        const nameW = measure(NAME, FONT(300, size), "-0.03em").w;
+        const left = CX - (2.35 * R + nameW) / 2;
+        const XS = left + R;
+        const name = wordRow(root, [{ text: NAME, w: 300 }], { x: left + 2.35 * R, y: CY - size * 0.68, size, color: "#fff" });
+        const circle = SHAPE.circle(), star = SHAPE.star(5, 0.48), sq = SHAPE.squircle(5, 0.84);
+        cue(8.7, "pop"); cue(9.55, "pop"); cue(10.25, "rise");
+
+        return (t) => {
+          const a = E.io3(prog(t, 8.7, 9.2)), b = E.io3(prog(t, 9.55, 10.05));
+          const grow = t < 8.45 ? 0 : clamp(spring(t - 8.45, 2.2, 0.5), 0, 1.2);
+          const cx = lerp(CX, XS, E.io4(prog(t, 10.0, 10.6)));
+          const [fa, fb, p] = b > 0 ? [star, sq, b] : [circle, star, a];
+          // rotate by 72° (the star's symmetry), then on to 90° (the square's symmetry): both shapes land upright
+          const rot = a * ((2 * Math.PI) / 5) + b * (Math.PI / 2 - (2 * Math.PI) / 5);
+          shape.setAttribute("d", morphPath(cx, CY, R * (0.35 + 0.65 * grow), fa, fb, p, rot));
+          animRow(name, t, 10.25, null, { st: 0.05, rot: 6 });
+        };
+      });
+
+      // ------------------------------------------------------------------
+      // Grain + vignette (the grain changes 24 times per second of output time)
+      // ------------------------------------------------------------------
+      let grain;
+      function makeGrain() {
+        grain = el("canvas", null, stage);
+        grain.id = "grain";
+        grain.width = grain.height = 512;
+        const g = grain.getContext("2d");
+        const img = g.createImageData(512, 512);
+        for (let i = 0; i < 512 * 512; i++) {
+          const v = hash(i * 1.37) * 255;
+          img.data[i * 4] = img.data[i * 4 + 1] = img.data[i * 4 + 2] = v;
+          img.data[i * 4 + 3] = 255;
+        }
+        g.putImageData(img, 0, 0);
+        grain.style.cssText = `width:${W + 128}px;height:${H + 128}px;image-rendering:pixelated`;
+        el("div", null, stage).id = "vignette";
+      }
+
+      // ------------------------------------------------------------------
+      // Render and readiness
+      // ------------------------------------------------------------------
+      function render(time) {
+        const t = time * SPEED;
+        for (const s of scenes) {
+          const on = t >= s.t0 && t < s.t1;
+          s.root.style.display = on ? "block" : "none";
+          if (on) s.update(t);
+        }
+        const gf = Math.floor(time * 24);
+        grain.style.transform = `translate(${-hash(gf) * 64}px,${-hash(gf + 99) * 64}px)`;
+      }
+
+      window.__DURATION = DURATION;
+      window.__SIZE = { w: W, h: H };
+      window.__render = render;
+      // Scenes are built only after the font has loaded, because they measure letters.
+      window.__ready = (async () => {
+        for (const w of [200, 300, 400, 500, 600, 700]) await document.fonts.load(FONT(w, 100), "AaĄąĘęŁłŚśŻżŹźĆćŃńÓó ı");
+        await document.fonts.ready;
+        const faces = [...document.fonts].filter((f) => f.family.replace(/["']/g, "") === FAMILY);
+        if (!faces.some((f) => f.status === "loaded"))
+          console.error(`Font "${FAMILY}" did not load: the film will render in a fallback font. Check @font-face and the files in fonts/.`);
+        for (const d of defs) {
+          const root = el("div", "scene", stage);
+          root.id = d.name;
+          building = d.shift;
+          const update = d.build(root);
+          scenes.push({ ...d, root, update: (t) => update(t + d.shift) });
+        }
+        building = 0;
+        makeGrain();
+        window.__CUES = CUES.map((c) => ({ ...c, t: c.t / SPEED, ...(c.d ? { d: c.d / SPEED } : {}) }));
+        // decode() can hang under load, so each image gets at most 8 s.
+        await Promise.all([...document.images].map((i) => Promise.race([i.decode().catch(() => {}), new Promise((r) => setTimeout(r, 8000))])));
+        if (!CAPTURE) live();
+      })();
+
+      // Live preview in the browser
+      function live() {
+        const hud = document.getElementById("hud");
+        const bar = hud.querySelector("i");
+        const label = hud.querySelector("span");
+        const fit = () => (stage.style.transform = `scale(${Math.min(innerWidth / W, (innerHeight - 26) / H)})`);
+        fit();
+        addEventListener("resize", fit);
+        let t = Q.has("t") ? Number(Q.get("t")) : 0;
+        let playing = !Q.has("t");
+        let last = performance.now();
+        addEventListener("keydown", (e) => {
+          if (e.code === "Space") playing = !playing;
+          if (e.code === "ArrowRight") t = Math.min(DURATION, t + 1);
+          if (e.code === "ArrowLeft") t = Math.max(0, t - 1);
+        });
+        hud.addEventListener("click", (e) => (t = (e.clientX / innerWidth) * DURATION));
+        const loop = (now) => {
+          if (playing) t = (t + (now - last) / 1000) % DURATION;
+          last = now;
+          render(t);
+          bar.style.width = `${(t / DURATION) * 100}%`;
+          label.textContent = `${t.toFixed(2)} s`;
+          requestAnimationFrame(loop);
+        };
+        requestAnimationFrame(loop);
+      }
+    </script>
+  </body>
+</html>

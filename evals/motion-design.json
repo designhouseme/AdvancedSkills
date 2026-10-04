@@ -1,0 +1,52 @@
+{
+  "skill_name": "motion-design",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "make a 12-second 9:16 instagram reel for Bean, a café in York. colours: coffee #2b1d14, cream #f3e6d3, accent #c8743a. line: “Coffee that takes its time”. we don't have a logo, make one from the name. no sound. and a version under 10 MB for WhatsApp",
+      "expected_output": "A film folder with the composition (index.html, fonts/, render.mjs, export.sh, check_film.py), a 1080×1920 master MP4 of about 12 s at 60 fps without an audio track, a version under 10 MB, a contact sheet and a summary with the chosen direction, the list of scenes and the assumptions made.",
+      "files": [],
+      "assertions": [
+        "There is an MP4 at 1080×1920, 60 fps, 11–13 s long, without an audio stream (check_film.py without errors)",
+        "There is a version under 10,000,000 bytes",
+        "The reply or a working file contains the product's verb, three rejected obvious ideas with replacements and three clearly different directions, and the choice is justified",
+        "The video has a signature moment built from an element of this brand (e.g. a coffee bean), not just text sliding up from the bottom",
+        "The first frame has content (check_film.py does not warn about an almost uniform first frame)",
+        "Something unexpected happens every 5–8 s (a change of scale, colour, perspective or direction), visible on the contact sheet",
+        "The frames show the name “Bean” and the line “Coffee that takes its time” spelled correctly, each on screen for at least words × 0.3 s + 1 s",
+        "Text sits outside the top ~250 px and bottom ~400 px of the frame (areas covered by Instagram's interface)",
+        "The :root block has the colours #2b1d14, #f3e6d3 and #c8743a",
+        "There is no dot with a label above a heading and no — character on screen",
+        "The summary contains the chosen direction, the list of scenes, the assumptions made (e.g. the font) and a command to render again"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "there's a finished video in evals/fixtures/film-demo. make it 25% slower and give me a version under 5 MB to send by email",
+      "expected_output": "A new render at speed 0.75 (the video gets a third longer, from 11.8 s to about 15.7 s), still at 60 fps, and a version under 5 MB. The reading of “25% slower” stated in the reply.",
+      "files": [
+        "evals/fixtures/film-demo/ -> film/"
+      ],
+      "assertions": [
+        "The pace was changed with the speed parameter (0.75) and a new render, not by stretching the finished video (setpts, minterpolate)",
+        "The new MP4 is 15.5–15.9 s long at 60 fps",
+        "The version to send is under 5,000,000 bytes",
+        "The reply states how “25% slower” was read (speed 0.75, the video a third longer)",
+        "Scenes and texts are unchanged apart from the pace"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "make a 6-second logo intro, change to RewievLink, new name. colours like ours: warm white #f1f0ee, black #1c1b1a, orange #ff6a2b",
+      "expected_output": "The first message asks about the spelling (RewievLink or ReviewLink) and states in one sentence the reading: we show the new name, without the story of the change. The name lives in one parameter, so fixing the spelling is one render.",
+      "files": [],
+      "assertions": [
+        "Before the first render the reply flags a possible typo (RewievLink instead of ReviewLink)",
+        "The video shows the new name, not an animation of the old name changing into the new one (caret, deleting letters, a “New name” label)",
+        "The name is set in one place (NAME)",
+        "The reply contains a one-sentence reading of the brief and three directions to choose from or a recorded choice of direction",
+        "The video is 5.5–6.5 s long and has no audio track"
+      ]
+    }
+  ]
+}

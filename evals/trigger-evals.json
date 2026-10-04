@@ -1,104 +1,148 @@
 {
-  "description": "Test wyzwalania. Firmy, numery i adresy są fikcyjne. expected_skill = skill, który powinien się uruchomić; null = żaden z tych skilli. Dla pojedynczego skilla: should_trigger = (expected_skill == nazwa skilla). Uruchom każde zapytanie 3 razy.",
+  "description": "Trigger test for the English skills. Companies, numbers and addresses are fictional. expected_skill = the skill that should trigger; null = none of these skills. For a single skill: should_trigger = (expected_skill == skill name). Run each query 3 times.",
   "queries": [
     {
-      "query": "sprawdź mi firmę Stolarnia Nowak z Gniezna, tel 123 456 789, bo mamy z nimi spotkanie w czwartek i chcę wiedzieć, czym się naprawdę zajmują i co mówią klienci",
-      "expected_skill": "research-firmy"
+      "query": "look into Nowak Joinery from York for me, tel 01632 960123, we have a meeting with them on Thursday and I want to know what they really do and what customers say",
+      "expected_skill": "company-research"
     },
     {
-      "query": "co wiemy o firmie Hydro-Przykład Kraków? NIP 0000000000, rozważamy ich jako podwykonawcę",
-      "expected_skill": "research-firmy"
+      "query": "what do we know about Example Plumbing Ltd in Manchester? company number 00000000, we're considering them as a subcontractor",
+      "expected_skill": "company-research"
     },
     {
-      "query": "zanim wyślę ofertę, zrób research kwiaciarni Róża na Mokotowie, opinie, realizacje, czy mają stronę",
-      "expected_skill": "research-firmy"
+      "query": "before I send the proposal, research the Rose florist in Islington: reviews, projects, whether they have a website",
+      "expected_skill": "company-research"
     },
     {
-      "query": "Pracownia ceramiki Glina, Toruń, ul. Szeroka 12, tel 123 456 789. Robią warsztaty i zamówienia firmowe. Zrób im stronę, żeby ludzie zapisywali się na warsztaty",
-      "expected_skill": "strona-dla-firmy"
+      "query": "Clay pottery studio, Bath, 12 High Street, tel 01632 960234. They run workshops and corporate orders. Make them a website so people sign up for the workshops",
+      "expected_skill": "business-website"
     },
     {
-      "query": "potrzebuję prostej wizytówki online dla mojego warsztatu samochodowego, wklejam co mam: Auto-Serwis Kowalski, Piła, 00 000 00 00, naprawy, opony, klima",
-      "expected_skill": "strona-dla-firmy"
+      "query": "I need a simple online business card for my car repair garage, pasting what I've got: Smith Auto Service, Leeds, 01632 960345, repairs, tyres, air con",
+      "expected_skill": "business-website"
     },
     {
-      "query": "wróćmy do strony dla stolarni, klient przysłał nowe zdjęcia schodów i chce je pokazać wyżej",
-      "expected_skill": "strona-dla-firmy"
+      "query": "let's get back to the joinery website, the client sent new photos of the staircases and wants them shown higher up",
+      "expected_skill": "business-website"
     },
     {
-      "query": "mam gotowy research w brief/01-research.md, rozpisz sekcje strony i napisz teksty, H1 ma być mocniejsze niż 'Profesjonalne usługi stolarskie'",
-      "expected_skill": "plan-strony"
+      "query": "I have finished research in brief/01-research.md, lay out the website sections and write the copy, the H1 needs to be stronger than 'Professional joinery services'",
+      "expected_skill": "website-plan"
     },
     {
-      "query": "napisz copy na landing page dla gabinetu fizjoterapii na podstawie tych notatek o firmie i opinii klientów",
-      "expected_skill": "plan-strony"
+      "query": "write landing page copy for a physiotherapy clinic based on these notes about the business and customer reviews",
+      "expected_skill": "website-plan"
     },
     {
-      "query": "plan w brief/02-plan.md zaakceptowany, zakoduj stronę, folder jest pusty",
-      "expected_skill": "budowa-strony"
+      "query": "plan in brief/02-plan.md is approved, code the site, the folder is empty",
+      "expected_skill": "website-build"
     },
     {
-      "query": "przegląd wskazał: hero na mobile ucina zdjęcie i CTA jest pod linią przewijania, popraw to w kodzie",
-      "expected_skill": "budowa-strony"
+      "query": "the review says the hero crops the photo on mobile and the CTA is below the fold, fix that in the code",
+      "expected_skill": "website-build"
     },
     {
-      "query": "strona dla kwiaciarni już stoi na localhost:3000, oceń ją uczciwie zanim pokażę właścicielce",
-      "expected_skill": "przeglad-strony"
+      "query": "the florist's website is up on localhost:3000, give me an honest assessment before I show it to the owner",
+      "expected_skill": "website-review"
     },
     {
-      "query": "zerknij na stronę naszego klienta przyklad-pracownia.example i powiedz, co w niej nie działa z punktu widzenia klienta",
-      "expected_skill": "przeglad-strony"
+      "query": "take a look at our client's website example-studio.example and tell me what isn't working from a customer's point of view",
+      "expected_skill": "website-review"
     },
     {
-      "query": "zrób analizę konkurencji dla branży stolarskiej w Wielkopolsce, kto ma najlepsze strony",
+      "query": "do a competitor analysis of joinery businesses in Yorkshire, who has the best websites",
       "expected_skill": null
     },
     {
-      "query": "zbuduj sklep internetowy na Shopify dla producenta świec",
+      "query": "build a Shopify online store for a candle maker",
       "expected_skill": null
     },
     {
-      "query": "zrób audyt SEO strony firmowej, meta tagi, szybkość, indeksacja",
+      "query": "do an SEO audit of the company website: meta tags, speed, indexing",
       "expected_skill": null
     },
     {
-      "query": "napisz post na Facebooka dla stolarni o nowych schodach",
+      "query": "write a Facebook post for the joinery about the new staircases",
       "expected_skill": null
     },
     {
-      "query": "jaki jest NIP firmy Orlen",
+      "query": "what's Tesco's VAT number",
       "expected_skill": null
     },
     {
-      "query": "przetłumacz tę stronę firmową na angielski",
+      "query": "translate this company website into German",
       "expected_skill": null
     },
     {
-      "query": "napraw błąd w moim komponencie React: hydration mismatch w headerze",
+      "query": "fix a bug in my React component: hydration mismatch in the header",
       "expected_skill": null
     },
     {
-      "query": "zrób research rynku hydrauliki w Polsce: wielkość, trendy, ceny",
+      "query": "research the UK plumbing market: size, trends, prices",
       "expected_skill": null
     },
     {
-      "query": "usuń te kropki z przycisków i tagów, wszędzie mi je wstawia",
-      "expected_skill": "ui-bez-slopu"
+      "query": "remove these dots from the buttons and tags, it keeps putting them everywhere",
+      "expected_skill": "ui-without-slop"
     },
     {
-      "query": "dashboard wygląda jak z Claude'a: fiolet, pigułki, gradientowy tekst. zrób to po ludzku",
-      "expected_skill": "ui-bez-slopu"
+      "query": "the dashboard looks like Claude made it: purple, pills, gradient text. make it look like a human did it",
+      "expected_skill": "ui-without-slop"
     },
     {
-      "query": "za dużo badge'y i eyebrowów nad nagłówkami w komponentach landing page, posprzątaj",
-      "expected_skill": "ui-bez-slopu"
+      "query": "too many badges and eyebrows above the headings in the landing page components, clean it up",
+      "expected_skill": "ui-without-slop"
     },
     {
-      "query": "zmień kolor głównego przycisku na zielony",
+      "query": "change the main button colour to green",
       "expected_skill": null
     },
     {
-      "query": "zrób audyt dostępności formularza kontaktowego: etykiety, kontrast, focus",
+      "query": "do an accessibility audit of the contact form: labels, contrast, focus",
+      "expected_skill": null
+    },
+    {
+      "query": "make a showreel of our app, about 40 seconds, something spectacular for the portfolio. colours and font are in src/styles/tokens.css",
+      "expected_skill": "motion-design"
+    },
+    {
+      "query": "I need an animated logo intro for our YouTube videos, 5 seconds, no music, the logo is in brand/logo.svg",
+      "expected_skill": "motion-design"
+    },
+    {
+      "query": "from the video in design/film make a version under 25 MB for email and a webp for the README",
+      "expected_skill": "motion-design"
+    },
+    {
+      "query": "kinetic typography with the campaign line “Renovation without stress”, vertical 9:16 for TikTok, 15 seconds",
+      "expected_skill": "motion-design"
+    },
+    {
+      "query": "in this promo video slow the pace down by 20% and change the product name to Tilely",
+      "expected_skill": "motion-design"
+    },
+    {
+      "query": "make a dynamic motion graphics video that shows what an incredible motion designer you are, like it's your showreel for a résumé. go all out with our app",
+      "expected_skill": "motion-design"
+    },
+    {
+      "query": "add a smooth hover animation to the product cards in the shop",
+      "expected_skill": null
+    },
+    {
+      "query": "edit the drone footage from the wedding into one video with music",
+      "expected_skill": null
+    },
+    {
+      "query": "generate an Instagram graphic with the promo line -20% on services",
+      "expected_skill": null
+    },
+    {
+      "query": "on the joinery site built from the plan, add an animated counter of finished projects to the hero",
+      "expected_skill": "website-build"
+    },
+    {
+      "query": "record my app's screen and add captions to the recording",
       "expected_skill": null
     }
   ]

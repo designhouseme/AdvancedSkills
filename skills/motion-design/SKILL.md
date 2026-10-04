@@ -1,0 +1,136 @@
+---
+name: motion-design
+description: Makes motion design videos and animations from code, in the brand's colours, fonts and logo, built on a clear idea instead of a template, plus a version small enough to send and an animation for a README. Use when someone asks for a video, an animation, "motion graphics", a showreel, a product or app promo, an intro or animated logo, kinetic typography, an Instagram or TikTok reel, a GIF or animated WebP, including changes to such a video (pace, name, scene, format, file size). Not for animation inside a website or app interface (for a site built from a plan, that's website-build), editing recorded footage, or generating images.
+license: CC-BY-4.0
+metadata:
+  author: Design House
+  version: "1.0"
+---
+
+# Motion design from code
+
+Goal: a video with an idea nobody else would have had, in the brand's real colours, that tells only the truth about the product and can be changed with one parameter. The video is an HTML page in which every frame is a function of time; a local Chromium and ffmpeg turn it into pictures through the scripts in `scripts/`.
+
+## Rules that always apply
+
+- **The first idea is the average.** A logo with a glow, a spinning phone and text sliding up from the bottom is what every model makes, and nobody remembers it. Before you write a scene, go through the concept stage (step 2).
+- **Truth about the product before effect.** Show features that exist and work the way they do on screen; for every scene, establish who does what. In the ReviewLink showreel the scene "we text your customers" was untrue (the business sends the link itself) and had to be rebuilt. A QR code leads to a working address, you don't invent domains, and you don't draw other companies' logos.
+- **No added storyline.** "Change to X, new name" means: show X. Make the story of the change only on explicit request. Write your reading of the brief in one sentence before you build scenes: fixing a storyboard costs a minute, fixing a render costs a dozen.
+- **The name is one parameter, and you flag a suspicious spelling straight away.** Use it exactly as in the brief (`NAME`), but if it looks like a typo ("RewievLink" instead of "ReviewLink"), ask in your first message. A late question cost a full render.
+- **The brand comes from the project's files, not from memory.** Colours from the CSS, the font from local files, the logo from the original SVG, app screens rebuilt from the app's CSS (no `iframe`, because a live app has its own timers). When the brand has no logo or font, keep the template's font or pick one that fits the subject (as a local file), and build the mark from the name plus one shape from the product's verb; record this as an assumption.
+- **Every frame is a pure function of time.** `window.__render(t)` sets the whole state; no CSS animations, `setTimeout`, `Date.now()` or `Math.random()`. Only then do rendering in several browsers at once, a still from any second and a change of pace give the same frames.
+- **Frames first, then the render.** A still costs a second, a full render several minutes.
+- **No sound unless someone asks.** You can't hear the result, so you can't judge it. Sound is best supplied by the user (`--audio`).
+
+## Workflow
+
+### 1. Brief
+
+Unless told otherwise: 16:9, 1920×1080, 60 fps (other formats: `references/techniques.md`, section 10); showreel 35–50 s, reel 10–20 s, logo intro 4–8 s; copy in the product's language, in the words of its interface; no sound; a master MP4, plus a version under the given size limit and a WebP for a README when they're needed. Collect the material: tokens from the CSS, the font (woff2), the logo (SVG), illustrations, the code or screenshots of the screens you'll show.
+
+### 2. Concept
+
+Read `references/concept.md` and write down:
+
+1. the product's verb (what it does for the customer, as a motion),
+2. three obvious ideas you reject, each with a replacement,
+3. three clearly different directions: idea, world, signature, transitions.
+
+Pick the boldest direction that is true to the product and can be built in reasonable time. The swap test: if another model would make almost the same thing from a similar brief, the direction is too safe.
+
+### 3. Storyboard and checkpoint
+
+Read `references/storyboard.md` and write the table: time, what's on screen, motion, how the scene ends, continuity object. Plan a hook in the first 2 s, a surprise every 5–8 s, a climax and a rest.
+
+Show the user the three directions, your choice, the storyboard in a few lines and your one-sentence reading of the brief (plus the spelling question if needed), and wait for approval. Skip this checkpoint when someone wrote "no questions" or isn't at the keyboard; then record your assumptions in the reply.
+
+### 4. Project skeleton
+
+```bash
+SK=<this skill's folder>; F=design/film
+mkdir -p $F && cp $SK/assets/template.html $F/index.html && cp -r $SK/assets/fonts $F/ \
+  && cp $SK/scripts/render.mjs $SK/scripts/export.sh $SK/scripts/check_film.py $F/
+```
+
+Requirements: Node 22+, ffmpeg, Python 3 and Chromium or Chrome; no npm packages. In `index.html` set for good: `W` and `H` (format), `TIMELINE` (length in seconds), `NAME`, the `:root` block with the brand's tokens, `@font-face` and `FAMILY`. The demo scenes show moves from the concept file; delete them or rework them. Check `.gitignore`: if the film folder is ignored, the sources won't reach the repo, so tell the user.
+
+### 5. Scenes
+
+Before building, read `references/craft.md` (starting values and rules of motion). The code for the moves lives in the template and in `references/techniques.md`; read only the section you need. A scene is `scene(name, from, to, build)`: `build(root)` creates the DOM after the font has loaded and returns `update(t)`; scenes may overlap, and a later one sits on top.
+
+After each scene, make stills, including the middle of transitions, and look at them in one image:
+
+```bash
+node render.mjs --src index.html --still 0,1.5,3.6,5.2     # out/stills/, cleared every round
+./export.sh stills out/stills out/stills.png
+```
+
+Offer a live preview: `index.html` opened in a browser plays the video (space, arrow keys, `?t=`). It's the cheapest round of feedback.
+
+### 6. Review and render
+
+Go through "Review before the render" (`references/storyboard.md`, section 3) on the stills. Then measure 2 s of the heaviest part with the default number of workers and look at 1–2 of its frames, because motion blur and stepping only show in the video:
+
+```bash
+node render.mjs --src index.html --from 4 --to 6               # at the end: ms/frame overall
+rm -f out/render.log
+setsid nohup sh -c 'node render.mjs --src index.html --out film.mp4 > out/render.log 2>&1; echo "exit $?" >> out/render.log' >/dev/null 2>&1 < /dev/null &
+until grep -q '^exit' out/render.log 2>/dev/null; do sleep 3; done; tail -3 out/render.log
+```
+
+The full render runs as a separate process because it survives the end of the session. When the render is slow, crashes or leaves processes behind: `references/render.md`.
+
+### 7. Checks
+
+```bash
+python3 check_film.py --composition index.html --film out/film.mp4 --length 12 --format 1080x1920 --audio no
+./export.sh sheet out/film.mp4 out/sheet.png
+```
+
+Fix every `ERROR`. Fix every `WARNING` or explain it in the reply. Then copy this into the reply and tick it off:
+
+```md
+- [ ] concept: verb, three rejected obvious ideas, the chosen direction passes the swap test
+- [ ] contact sheet of the finished MP4 (one frame per second) viewed in full, 2–3 key frames at full resolution
+- [ ] the brand font visible on a frame with accented letters; no clipped letters, overlaps or empty frames
+- [ ] every piece of text stays on screen for at least words × 0.3 s + 1 s
+- [ ] every sentence and number on screen is backed by the product or clearly marked as an example
+- [ ] the name in the spelling the user confirmed
+- [ ] check_film.py without errors
+```
+
+### 8. Derived versions
+
+```bash
+./export.sh mp4  out/film.mp4 out/film-to-send.mp4 22          # limit minus about 10% (here: a 25 MB limit)
+./export.sh webp out/film.mp4 ../../docs/film.webp 800 15 55   # for a README; the file must be committed
+python3 check_film.py --film out/film.mp4 --small out/film-to-send.mp4 --max-mb 25 --webp ../../docs/film.webp
+```
+
+## Changes after feedback
+
+| Request | Change |
+|---|---|
+| "25% slower" | `--speed 0.75` and a new render, not stretching the finished video; state your reading: speed 0.75, the video gets a third longer |
+| "cut that thread" | delete the scene and set `shift` to the length of the cut before the later scenes, instead of rewriting every time |
+| "change the name" | `NAME` (or `--name` for a one-off); the letters measure themselves, look at a still with the logo |
+| "not creative enough" | go back to the concept: a different verb or a different world, not more effects in the same scene |
+| "different format" | `W` and `H` in `index.html`; layout computed from `W`, `H`, `CX`, `CY` |
+| "smaller file", "for the README" | `export.sh mp4 … MB`, `export.sh webp …` and commit the file |
+| "that's not how it works" | fix the scene and recheck every claim on screen |
+
+## Pitfalls
+
+- **An empty frame in the middle of a transition.** The opaque background of the incoming scene stood still and covered the outgoing scene. Move the whole scene together with its background, or show the background only after the transition.
+- **A sliver of a letter at the edge of a mask.** A long rotated word catches the mask with a corner on its way out; the exit must travel at least 1.5 heights (as `animRow` does).
+- **A fallback font without a warning.** The template logs an error in the console and `check_film.py` catches a missing file, but still look at a frame with accented letters. Characters the font doesn't have (arrows, stars) should be drawn as SVG.
+- **The dot over the "i" too high.** Compute it with `tittle()` from the template; measuring from the top of the canvas instead of the baseline gave a 0.13 em error you don't see without comparing to a real "i".
+- **Stepping on fast edges.** 5 subframes smooth motion up to about 60 px per frame; soften a faster iris (`feather`) and blur a whip pan directionally.
+- **Elements outside the camera stay in shot.** A caption attached to the scene rather than the camera stayed on screen while the camera zoomed into the dot.
+- **Three costly mistakes from the ReviewLink showreel:** an added rebranding storyline, a typo in the name and a feature the product doesn't have. Each needed a full render; the rules at the top are there to catch them before the first one.
+
+## Output
+
+- The film folder (e.g. `design/film/`): `index.html`, which also plays in a browser, `fonts/` and the scripts.
+- `out/film.mp4` (master at 60 fps, crf 17), the requested derived versions and `out/sheet.png`.
+- In the reply: the chosen direction and why; the list of scenes, one sentence each; the readings you assumed (storyline, pace, spelling of the name); length and file sizes; what wasn't checked (e.g. nobody listened to the sound); one command to render again; what needs committing.

@@ -1,0 +1,41 @@
+{
+  "skill_name": "ui-without-slop",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "this site looks AI-made, dots everywhere, gradient in the heading. fix evals/fixtures/broken-site/index.html, don't touch the copy",
+      "expected_output": "The same copy and contact, without the decorative dot, pill, gradient text, blur or Inter, with the em dash reported as a decision (the copy is off limits), and with three rejected defaults and a signature written down.",
+      "files": [],
+      "assertions": [
+        "The file has no .dot element and no dot before 'Taking orders' (or it's replaced with text alone)",
+        "There's no background-clip: text and no backdrop-filter",
+        "font-family doesn't start with Inter",
+        "The em dash in the H1 is reported as a decision for the user, because the prompt forbids changes to the copy",
+        "The tel: link and the phone number are unchanged",
+        "The reply lists three rejected defaults and one signature element",
+        "The grep from point 4 of the skill on the fixed file returns no hits that lack a justification in the reply"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "add an indicator to the dashboard showing whether the server is online, the data comes from /api/health every 10 seconds",
+      "expected_output": "The status indicator stays because it carries a real state: static, with a text label, with its appearance changing only when the state changes.",
+      "files": [],
+      "assertions": [
+        "The indicator has a text label (e.g. 'Online' / 'Offline'), not just a coloured dot",
+        "No pulsing animation at rest"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "make a section with three benefits of the service on an accounting firm's landing page",
+      "expected_output": "A section without three identical cards with an icon in a coloured square, without an eyebrow and without a gradient.",
+      "files": [],
+      "assertions": [
+        "It isn't three cards with the identical layout icon in a square + title + sentence",
+        "There's no uppercase label above the section heading",
+        "There's no purple or indigo gradient"
+      ]
+    }
+  ]
+}

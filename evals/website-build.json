@@ -1,0 +1,30 @@
+{
+  "skill_name": "website-build",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "The plan in brief/02-plan.md is approved. The folder is empty, build the site.",
+      "expected_output": "A static site (index.html, styles.css, images/) matching the plan, with screenshots in brief/screenshots/ and a list of images in brief/media.md.",
+      "files": ["output of website-plan eval #1 -> brief/02-plan.md", "evals/fixtures/01-research-joinery.md -> brief/01-research.md"],
+      "assertions": [
+        "index.html exists with one h1 equal to the H1 in the plan",
+        "The order of h2s on the page matches the order of sections in the plan",
+        "The tel: link points to 01632960123",
+        "brief/screenshots/ has screenshots at 375 and 1440 px, or the reply says plainly that there was no screenshot tool",
+        "No stock image has alt text or a caption suggesting it's the company's project",
+        "The visible text contains no — character",
+        "The reply contains the verification checklist with items ticked"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "the review in brief/03-review.md has STATUS: NEEDS_CHANGES, fix what's assigned to the build",
+      "expected_output": "Only the items with the website-build stage are fixed; items for website-plan are reported, not patched in the code.",
+      "files": [],
+      "assertions": [
+        "Only the elements listed in the fixes for website-build were changed",
+        "Fixes assigned to website-plan weren't made in the code, only reported"
+      ]
+    }
+  ]
+}
