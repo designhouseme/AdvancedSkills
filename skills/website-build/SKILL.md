@@ -4,7 +4,7 @@ description: Codes a short business website from the approved plan in brief/02-p
 license: CC-BY-4.0
 metadata:
   author: Design House
-  version: "1.3"
+  version: "1.4"
 ---
 
 # Website build
@@ -36,7 +36,8 @@ The hero accounts for most of the first impression. Build it first, take screens
 - **Design mobile separately**, don't just collapse desktop into one column: the order, image size and CTA placement may differ.
 - **Typography and colours follow the visual direction in the plan.** Fonts self-hosted as WOFF2 with the language's accented letters, not loaded from Google's servers at runtime. Icons: the project's own set if it has one; otherwise first check whether the place needs an icon at all, then choose the set as the ui-without-slop skill describes, not Lucide by reflex. Never hand-drawn or Unicode characters.
 - **Photos stored locally in the project**, no hotlinking. Record origin and licences in `brief/media.md`, not on the site. The logo always comes from the company's original file, never recreated with a font.
-- **Motion only where it explains something** or guides the eye, not the same fade-up on every section. Content and CTAs are visible without JavaScript.
+- **Motion only where it explains something** (feedback, a change of state, where something came from), not the same fade-up on every section. About 100 ms for feedback, 200–300 ms for a panel or modal, under 500 ms for anything; exits shorter than entrances. Animate only `transform` and `opacity`: the browser moves them without recalculating the layout, so they stay smooth when the page is busy.
+- **Motion that respects the visitor.** Content and CTAs are visible without JavaScript and without waiting for an entrance animation; an element at `opacity: 0` doesn't count as the page's main content (LCP) until it appears. With `prefers-reduced-motion`, swap movement for a short fade instead of removing state changes. Anything that moves on its own for more than 5 s (a marquee, an auto-rotating carousel, a looping video) needs a pause control, as WCAG 2.2.2 requires. Don't take over scrolling, and don't use parallax as decoration.
 - **JSON-LD `LocalBusiness` with data 1:1 from the user.** Opening hours only if you know them.
 
 ## 4. Verification before handoff
@@ -56,6 +57,7 @@ Copy this list into your reply and tick it off:
 - [ ] lang, title and meta description from the plan; Open Graph
 - [ ] no em dash (—) in visible copy
 - [ ] run the ui-without-slop skill: no decorative dots, pills above headings, eyebrows, gradient text, identical cards, decorative icons or a component kit at its default theme
+- [ ] motion: only `transform` and `opacity`; a `prefers-reduced-motion` rule; nothing moves on its own for more than 5 s without a pause; the hero isn't hidden behind an entrance animation
 - [ ] LCP and CLS without obvious problems (if you have a measuring tool)
 ```
 
@@ -65,6 +67,7 @@ Don't mask problems by shrinking the font or using `overflow: hidden`. Fix the g
 
 - **A screenshot taken too early** shows unloaded images or a frame of an entrance animation. A screenshot like that isn't evidence. Wait for the images and for animations to finish.
 - **A full-page screenshot with a sticky header** can duplicate the header in several places. Turn off sticky for the screenshot or capture screen by screen.
+- **Pause on hover isn't a pause on a phone.** A marquee or carousel that stops only under the cursor keeps moving on touch screens. Give it a button, or stop it after one pass.
 - **"Full width" applies to the section background, not the paragraphs.** Put `max-width` and centring on an inner wrapper, not on the section itself.
 - **Text over a photo** can be readable at 375 and 1440 and overlap the subject at 768–1024. With text over a photo, check the in-between widths too.
 

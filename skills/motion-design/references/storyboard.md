@@ -54,3 +54,4 @@ Go through this list on the contact sheet of stills before you start the full re
 10. The product is shown in action on one concrete example.
 11. There is a climax (about 70–80% of the video) and a rest at the end.
 12. The end card stays for at least 2–3 s, closes the motif from the opening, and everything on it is true.
+13. Nothing flashes more than 3 times a second over a large part of the frame.

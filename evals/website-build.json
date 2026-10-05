@@ -13,7 +13,8 @@
         "brief/screenshots/ has screenshots at 375 and 1440 px, or the reply says plainly that there was no screenshot tool",
         "No stock image has alt text or a caption suggesting it's the company's project",
         "The visible text contains no — character",
-        "The reply contains the verification checklist with items ticked"
+        "The reply contains the verification checklist with items ticked",
+        "If the page animates anything, it animates only transform and opacity, the CSS has a prefers-reduced-motion rule, and nothing moves on its own for more than 5 s without a pause control"
       ]
     },
     {

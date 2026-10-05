@@ -4,7 +4,7 @@ description: Makes motion design videos and animations from code, in the brand's
 license: CC-BY-4.0
 metadata:
   author: Design House
-  version: "1.0"
+  version: "1.1"
 ---
 
 # Motion design from code
@@ -21,7 +21,7 @@ Goal: a video with an idea nobody else would have had, in the brand's real colou
 - **Colour and type are decisions, not defaults.** The model's usual look (Inter or its substitutes, a purple gradient, a neon glow, cream with a serif and terracotta, black with an acid accent) makes a video look generated before anything moves. Use the brand's values; without them, choose the palette and typeface with `references/look.md` and write down why. The template's grey palette and Urbanist only let the demo render.
 - **Every frame is a pure function of time.** `window.__render(t)` sets the whole state; no CSS animations, `setTimeout`, `Date.now()` or `Math.random()`. Only then do rendering in several browsers at once, a still from any second and a change of pace give the same frames.
 - **Frames first, then the render.** A still costs a second, a full render several minutes.
-- **No sound unless someone asks.** You can't hear the result, so you can't judge it. Sound is best supplied by the user (`--audio`).
+- **No sound unless someone asks.** You can't hear the result, so you can't judge it. Sound is best supplied by the user (`--audio`). Say which platform expects it: TikTok and Reels play with sound, while in Facebook and LinkedIn feeds many people watch muted, so every spoken line also has to be on screen.
 
 ## Workflow
 
@@ -127,6 +127,7 @@ If the film folder has no scripts (someone else's film, an older project), copy 
 | "looks generic", "the colours and fonts are slop" | go back to `references/look.md`: three rejected looks, then a palette and typeface with a reason; change the tokens and the font first, then the demo's own motifs (the star and rounded-square mark, the grid, the square wipe) for ones from the brand; keep the copy unless you have the product's lines |
 | "different format" | `W` and `H` in `index.html`; layout computed from `W`, `H`, `CX`, `CY` |
 | "smaller file", "for the README" | `export.sh mp4 … MB`, `export.sh webp …` and commit the file |
+| "for a newsletter", "in an email" | `export.sh poster` as the image, linked to the MP4: Gmail and most email apps don't play video |
 | "that's not how it works" | fix the scene and recheck every claim on screen |
 
 ## Pitfalls

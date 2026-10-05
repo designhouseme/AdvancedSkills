@@ -4,7 +4,7 @@ description: Removes and prevents the typical look of AI-generated interfaces, t
 license: CC-BY-4.0
 metadata:
   author: Design House
-  version: "1.3"
+  version: "1.4"
 ---
 
 # UI without slop
@@ -52,7 +52,9 @@ General rule: **if a dot needs explaining, a text label was the right choice. If
 | UPPERCASE eyebrow above every heading | remove it; the heading stands on its own; a label only for navigational content, at most 1–2 per page. A small first part of the headline's own sentence above the big word ("Stop using" + "Poppins") is a lockup, not an eyebrow: it stays inside the same `h1` |
 | emoji as icons, ✨ as the "AI" sign | no icon, or one icon set with the same stroke width (`references/icons.md`) |
 | dark background with neon glow | solid surfaces and contrast; glow only as a deliberate exception |
-| motion on everything: fade-up on every section, `hover:scale` on every card | one planned moment of motion and responses to user actions |
+| motion on everything: fade-up on every section, `hover:scale` on every card | one planned moment of motion and responses to user actions; anything that moves on its own for more than 5 s gets a pause button |
+| smooth-scroll library, scrolljacking, parallax on every section | native scrolling; a scroll effect only reacts to the scroll (a sticky graphic that changes with the text) and never takes it over |
+| custom cursor, a blob or ring following the cursor | the system cursor; change it only to signal a state (pointer over a link, text cursor); a custom cursor replaces the enlarged cursor some people set on purpose |
 | glassmorphism, `backdrop-blur` on cards | solid surfaces separated by tone; blur only for a real layer above content (menu, modal) |
 | everything centred, a hero with two equal CTAs | a left-aligned or asymmetric composition; one main CTA |
 | gradient text | a solid colour; emphasis through weight or size |

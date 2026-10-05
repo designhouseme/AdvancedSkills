@@ -280,11 +280,13 @@ Morph shapes that aren't star-shaped (letters, logos with holes) another way: by
 | Format | Size | Notes |
 |---|---|---|
 | 16:9 | 1920×1080 | showreel, YouTube, presentations, README |
-| 9:16 | 1080×1920 | Reels, TikTok, Shorts. The app UI covers the top (about 250 px), the bottom (about 400 px) and a strip on the right (about 120 px): keep text and the logo in the middle. The profile grid shows a 3:4 crop from the centre, so the first frame has to work there as the thumbnail |
+| 9:16 | 1080×1920 | Reels, TikTok, Shorts. The app UI covers the top (about 250 px), the bottom (about 400 px) and a strip on the right (about 120 px): keep text and the logo in the middle. The profile grid shows a 3:4 crop from the centre, so the first frame has to work there as the thumbnail. For ads in Reels, Meta asks for at least 14% free at the top, 35% at the bottom and 6% at the sides (about 270, 670 and 65 px) |
 | 1:1 | 1080×1080 | feed posts |
 | 4:5 | 1080×1350 | Instagram feed, more vertical room than 1:1 |
 
 Set the format for good in `W` and `H` in `index.html`; the `?w=…&h=…` parameter (`render.mjs --params "w=1080&h=1920"`) is only for a try-out, because if you forget it at render time you silently get a 16:9 video. Lay things out from `W`, `H`, `CX`, `CY` and `Math.min(W, H)`, not fixed pixels: then one composition yields several formats, and only the scenes that really need it get a separate layout.
+
+Lengths: YouTube Shorts up to 3 min; Instagram records reels up to 20 min but doesn't recommend ones over 3 min to new viewers; a YouTube bumper ad is at most 6 s, a good limit for a logo sting. TikTok asks for the value of the video in the first 3 s.
 
 60 fps is the default for UI motion and typography. 30 fps gives a smaller file, but fast moves lose smoothness. Motion blur: 5 subframes, shutter 0.5 (180°); 8–10 subframes for a large object turning fast.
 

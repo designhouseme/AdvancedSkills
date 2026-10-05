@@ -4,7 +4,7 @@ description: Performs an independent review of a finished business website based
 license: CC-BY-4.0
 metadata:
   author: Design House
-  version: "1.2"
+  version: "1.3"
 ---
 
 # Website review
@@ -37,6 +37,7 @@ The order is deliberate. Whoever knows the author's reasoning starts seeing the 
 - **Scan:** do the H1, H2s and CTAs on the render alone make the same argument as the scan test in the plan?
 - **Proof:** is the strongest proof before the halfway point of the page and close to the claim it supports?
 - **Truth:** every strong claim can be traced to a fact in the research. Reviews, numbers, prices and lead times aren't invented. Stock doesn't pose as projects or the team.
+- **Motion**, if you open the render: the first screen isn't waiting for an entrance animation, nothing moves on its own for more than 5 s without a pause, and scrolling isn't taken over. A problem here goes to website-build.
 - **Contact:** phone, email and address match the data from the user. The contact section says what happens next, and the FAQ is directly below it.
 
 ## 3. Scores
