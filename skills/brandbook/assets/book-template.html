@@ -175,7 +175,7 @@ const T = {
     bleedL: "Spad", safeL: "Margines bezpieczeństwa", openLabel: "Otwórz etykietę w pełnym rozmiarze", approver: "Etykietę przed drukiem zatwierdza",
     families: "Kroje", why: "Dlaczego ten krój", licence: "Licencja", source: "Źródło", substitute: "Zamiennik w Word, Google Docs i Canvie", weights: "Grubości", scale: "Skala", reflex: "Powód mimo popularności",
     params: { light: "Światło", composition: "Kompozycja", casting: "Ludzie", props: "Rekwizyty", styling: "Stylizacja", grading: "Kolor zdjęć" },
-    doLabel: "Tak", dontLabel: "Nie", ai: "Obrazy z AI", aiAllowed: "Wolno", aiBanned: "Nie wolno", aiLabel: "Podpis pod każdym obrazem z generatora", aiApprover: "Zatwierdza", images: "Przykłady",
+    doLabel: "Tak", dontLabel: "Nie", ai: "Obrazy z AI", aiAllowed: "Wolno", aiBanned: "Nie wolno", aiLabel: "Oznaczenie obrazów z generatora (w stopce slajdu i przy publikacji)", aiApprover: "Zatwierdza", images: "Przykłady",
     preview: "Podgląd", guides: "Siatka i strefy", format: "Format", bleed: "spad", safe: "margines bezpieczeństwa", zones: "Strefy", front: "Front, od najważniejszego", brandMark: "Marka (logo)", net: "Ilość netto", mandatory: "Treści obowiązkowe", present: "jest", missingT: "brak", templateNote: "To szablon do pracy, nie plik do druku. Plik do druku przygotowuje grafik według specyfikacji druku.", exempt: "Zwolnienie",
     printSpec: "Specyfikacja", handoff: "Przed wysłaniem do drukarni", printer: "Drukarnia", technology: "Technologia", pdf: "Plik", profile: "Profil CMYK", smallText: "Drobny tekst", finishes: "Uszlachetnienia", proofL: "Próbny wydruk", notChosen: "jeszcze nie wybrana",
     filePath: "Plik", what: "Co to jest", printReady: "Do druku", yes: "tak", noWord: "nie",
@@ -200,7 +200,7 @@ const T = {
     bleedL: "Bleed", safeL: "Safe margin", openLabel: "Open the label at full size", approver: "Approved before print by",
     families: "Typefaces", why: "Why this typeface", licence: "Licence", source: "Source", substitute: "Substitute in Word, Google Docs and Canva", weights: "Weights", scale: "Scale", reflex: "Reason despite popularity",
     params: { light: "Light", composition: "Composition", casting: "People", props: "Props", styling: "Styling", grading: "Colour grading" },
-    doLabel: "Do", dontLabel: "Don't", ai: "AI images", aiAllowed: "Allowed", aiBanned: "Not allowed", aiLabel: "Caption under every generated image", aiApprover: "Approved by", images: "Examples",
+    doLabel: "Do", dontLabel: "Don't", ai: "AI images", aiAllowed: "Allowed", aiBanned: "Not allowed", aiLabel: "Label for generated images (in the slide footer and when published)", aiApprover: "Approved by", images: "Examples",
     preview: "Preview", guides: "Grid and zones", format: "Format", bleed: "bleed", safe: "safe margin", zones: "Zones", front: "Front, most important first", brandMark: "Brand (logo)", net: "Net quantity", mandatory: "Mandatory content", present: "present", missingT: "missing", templateNote: "This is a working template, not a print file. The designer prepares the print file from the print specification.", exempt: "Exemption",
     printSpec: "Specification", handoff: "Before sending to the printer", printer: "Printer", technology: "Technology", pdf: "File", profile: "CMYK profile", smallText: "Small text", finishes: "Finishes", proofL: "Proof", notChosen: "not chosen yet",
     filePath: "File", what: "What it is", printReady: "Print-ready", yes: "yes", noWord: "no",
@@ -209,12 +209,12 @@ const T = {
   }
 }[LANG];
 Object.assign(T, LANG === "pl" ? {
-  partWord: "Część", keys: "Strzałki w górę i w dół przechodzą między slajdami.", viz: "Wizualizacja", vizMany: "Zdjęcia to wizualizacje",
+  partWord: "Część", keys: "Strzałki w górę i w dół przechodzą między slajdami.", viz: "Wizualizacja",
   rulesLead: "Logo, kolor, pismo, zdjęcia, etykiety i druk: zasady dla osób, które projektują i drukują materiały marki.",
   labelSlide: "Etykieta", more: "ciąg dalszy", products: "Linia produktów", templateShort: "Szablon etykiety, nie plik do druku.",
   howWe: "Jak fotografujemy", aiShort: "Obrazy z AI"
 } : {
-  partWord: "Part", keys: "The up and down arrow keys move between slides.", viz: "Visualisation", vizMany: "The photos are visualisations",
+  partWord: "Part", keys: "The up and down arrow keys move between slides.", viz: "Visualisation",
   rulesLead: "Logo, colour, type, imagery, labels and print: rules for the people who design and print the brand's materials.",
   labelSlide: "Label", more: "continued", products: "The product line", templateShort: "A label template, not a print file.",
   howWe: "How we photograph", aiShort: "AI images"
@@ -323,9 +323,12 @@ const capOn = (text) => h("p", { class: "cap", style: { color: "inherit", opacit
 function head(code, id, title) {
   return [at(M + 4, 46, h("span", { class: "cap" }, `${code}  ${T.topics[id]}`)), at(M, 70, h("div", { class: "h-slide", style: { width: "1640px" } }, title))];
 }
+// A slide with a generated image says so in its footer ("Wizualizacja"), not with a badge on the photo.
 function frame(kids, o = {}) {
+  const gen = [kids].flat(Infinity).some((k) => k && k.matches && (k.matches('[data-generated="true"]') || k.querySelector('[data-generated="true"]')));
+  const cap = gen ? [o.cap, aiLabel].filter(Boolean).join(" · ") : o.cap;
   const sl = h("div", { class: "slide" }, kids,
-    o.cap ? h("p", { class: "foot", style: { left: px(M) } }, o.cap) : null,
+    cap ? h("p", { class: "foot", style: { left: px(M) }, "data-ai": gen ? "" : null }, cap) : null,
     h("p", { class: "foot pno", style: { right: px(M) } }));
   return h("div", { class: "frame" + (o.frameCls ? ` ${o.frameCls}` : ""), id: o.id || null }, sl);
 }
@@ -367,10 +370,10 @@ S.strategy = (code) => {
     h("div", { class: "rule", style: { left: px(M + 6), top: "772px", width: "1040px" } }),
     s.fact ? [at(M + 2, 794, h("p", { class: "disp", style: { fontSize: "140px", lineHeight: 1 } }, s.fact.value)), at(M + 6, 952, h("p", { class: "cap" }, s.fact.label))]
       : (s.decision_rules || []).length ? at(M + 6, 800, h("div", { style: { width: "1040px" } }, h("p", { class: "cap" }, T.rules), h("p", { class: "disp", style: { fontSize: "34px", lineHeight: 1.2, marginTop: "10px" } }, s.decision_rules[0]))) : null,
-    right ? tile(1160, M, 720, CH, right.generated ? h("figcaption", { class: "chip" }, right.caption || aiLabel) : null, { img: right.file, alt: right.alt, generated: right.generated, figure: true, pos: right.pos })
+    right ? tile(1160, M, 720, CH, right.caption ? h("figcaption", { class: "chip" }, right.caption) : null, { img: right.file, alt: right.alt, generated: right.generated, figure: true, pos: right.pos })
       : [tile(1160, M, 720, 600, h("div", { class: "abs", style: { inset: 0, display: "grid", placeItems: "center" } }, logoImg(featureLogo, 380)), { bg: feature.hex }),
         ...pair.map((c, i) => tile(1160 + i * (352 + G), M + 600 + G, 352, CH - 600 - G, inside(capOn(c.name)), { bg: c.hex }))]
-  ], { cap: right && right.generated ? aiLabel : T.topics.strategy }));
+  ], { cap: T.topics.strategy }));
   const vals = (s.values || []).slice(0, 4);
   const rules = s.decision_rules || [], rej = s.rejected || [];
   if (vals.length || rules.length || rej.length) {
@@ -458,7 +461,7 @@ S.applications = (code) => {
       const ratio = (f.h_mm + 2 * f.bleed_mm) / (f.w_mm + 2 * f.bleed_mm);
       const lw = Math.min(w - 64, (topH - 220) / ratio);
       const name = (l.front || {}).name || l.product;
-      kids.push(l.image ? tile(x, TOP, w, topH, h("figcaption", { class: "chip" }, aiLabel), { img: l.image, alt: l.product, generated: l.image_generated !== false, figure: true })
+      kids.push(l.image ? tile(x, TOP, w, topH, null, { img: l.image, alt: l.product, generated: l.image_generated !== false, figure: true })
         : tile(x, TOP, w, topH, [
           at(32, 30, [h("p", { class: "disp", style: { fontSize: "54px", lineHeight: 1, width: px(w - 64) } }, name), (l.front || {}).net ? h("p", { class: "lead", style: { marginTop: "10px" } }, l.front.net) : null]),
           h("div", { class: "abs", style: { left: px((w - lw) / 2), bottom: "32px", width: px(lw), height: px(lw * ratio), borderRadius: "6px", overflow: "hidden", boxShadow: "0 10px 30px rgba(0,0,0,.18)" } },
@@ -466,7 +469,7 @@ S.applications = (code) => {
         ], { bg: c.hex }));
       kids.push(tile(x, TOP + topH + G, w, 190, inside([h("p", { class: "disp", style: { fontSize: "30px", lineHeight: 1.05 } }, l.product), h("p", { class: "small", style: { marginTop: "8px", color: "var(--ink-2)" } }, (l.front || {}).variant || "")], { top: "26px" }), { bg: mix(c.hex, 38), fg: "var(--ink)", text: true }));
     });
-    out.push(frame(kids, { cap: labels.some((l) => l.image) ? T.vizMany : T.templateShort }));
+    out.push(frame(kids, { cap: labels.some((l) => l.image) ? T.products : T.templateShort }));
   });
   (B.applications || []).filter((a) => a.kind === "billboard" && a.image).slice(0, 2).forEach((a) => {
     // The headline goes where the photo is calm (headline_at: top or bottom); at the top the logo sits under it, in the same calm area.
@@ -476,7 +479,6 @@ S.applications = (code) => {
         h("p", { class: "disp", style: { fontSize: "96px", lineHeight: 0.98, textShadow: contrast(ink, "#ffffff") > 4.5 ? "none" : "0 2px 30px rgba(0,0,0,.25)" } }, a.headline || ""),
         top ? h("div", { style: { marginTop: "44px" } }, logoImg(logoFor(a.logo_on) || primary, 260)) : null),
       top ? null : h("div", { class: "abs", style: { right: "64px", top: "56px" } }, logoImg(logoFor(a.logo_on) || primary, 260)),
-      a.generated !== false ? h("figcaption", { class: "chip", style: { left: "auto", right: "18px" } }, aiLabel) : null
     ], { img: a.image, alt: a.title || "", generated: a.generated !== false, figure: true, pos: a.pos })], { cap: a.title || T.topics.applications }));
   });
   const apps = (B.applications || []).filter((a) => a.kind !== "billboard").slice(0, 3);
@@ -501,30 +503,30 @@ S.imagery = (code) => {
     const w = (CW - (worlds.length - 1) * G) / worlds.length, top = CH2 - 170 - G;
     worlds.forEach((wd, i) => {
       const c = byId[wd.colour] || PAL[i % PAL.length] || feature;
-      kids.push(tile(M + i * (w + G), TOP, w, top, wd.generated !== false ? h("figcaption", { class: "chip" }, aiLabel) : null, { img: wd.detail || wd.image, alt: wd.name, generated: wd.generated !== false, figure: true, pos: wd.pos_detail || "50% 30%" }));
+      kids.push(tile(M + i * (w + G), TOP, w, top, null, { img: wd.detail || wd.image, alt: wd.name, generated: wd.generated !== false, figure: true, pos: wd.pos_detail || "50% 30%" }));
       kids.push(tile(M + i * (w + G), TOP + top + G, w, 170, inside([h("p", { class: "disp", style: { fontSize: "40px", lineHeight: 1 } }, wd.name), wd.line ? h("p", { class: "small soft", style: { marginTop: "8px" } }, wd.line) : null], { top: "26px" }), { bg: c.hex, text: true }));
     });
-    out.push(frame(kids, { cap: T.vizMany }));
+    out.push(frame(kids, { cap: T.topics.imagery }));
     worlds.forEach((wd, i) => {
       const c = byId[wd.colour] || PAL[i % PAL.length] || feature;
-      const k = [tile(M, M, 1240, CH, h("figcaption", { class: "chip" }, wd.caption || aiLabel), { img: wd.image, alt: wd.name, generated: wd.generated !== false, figure: true, pos: wd.pos || "50% 50%" })];
+      const k = [tile(M, M, 1240, CH, wd.caption ? h("figcaption", { class: "chip" }, wd.caption) : null, { img: wd.image, alt: wd.name, generated: wd.generated !== false, figure: true, pos: wd.pos || "50% 50%" })];
       const rx = M + 1240 + G, rw = CW - 1240 - G;
-      if (wd.detail) k.push(tile(rx, M, rw, 560, wd.generated !== false ? h("figcaption", { class: "chip" }, aiLabel) : null, { img: wd.detail, alt: "", generated: wd.generated !== false, figure: true, pos: wd.pos_detail || "50% 30%" }));
+      if (wd.detail) k.push(tile(rx, M, rw, 560, null, { img: wd.detail, alt: "", generated: wd.generated !== false, figure: true, pos: wd.pos_detail || "50% 30%" }));
       const cy = wd.detail ? M + 560 + G : M;
       k.push(tile(rx, cy, rw, 1040 - cy, [at(40, 34, h("p", { class: "disp", style: { fontSize: "72px", lineHeight: 0.95, width: px(rw - 80) } }, wd.name)),
         h("div", { class: "abs", style: { left: "40px", right: "40px", bottom: "34px" } }, wd.line ? h("p", { class: "body" }, wd.line) : null, h("p", { class: "cap", style: { color: "inherit", opacity: 0.7, marginTop: "10px" } }, `${c.name || ""} ${c.hex ? c.hex.toUpperCase() : ""}`))], { bg: c.hex, text: true }));
-      out.push(frame(k, { cap: T.vizMany }));
+      out.push(frame(k, { cap: wd.name }));
     });
   }
   const mood = images.filter((i) => !["cover", "intro"].includes(i.slot));
-  const chipFor = (i) => h("figcaption", { class: "chip" }, i.generated ? (i.caption || aiLabel) : (i.alt || ""));
+  const chipFor = (i) => (i.caption || (!i.generated && i.alt) ? h("figcaption", { class: "chip" }, i.caption || i.alt) : null);
   if (mood.length) {
     const kids = [head(code, "imagery", worlds.length ? T.topics.imagery : (sec.imagery || T.topics.imagery))];
     const [a, ...rest] = mood;
     kids.push(tile(M, TOP, rest.length ? 1100 : CW, CH2, chipFor(a), { img: a.file, alt: a.alt, generated: a.generated, figure: true, pos: a.pos }));
     const more = rest.slice(0, 2);
     more.forEach((r, i) => { const hh = (CH2 - (more.length - 1) * G) / more.length; kids.push(tile(M + 1100 + G, TOP + i * (hh + G), CW - 1100 - G, hh, chipFor(r), { img: r.file, alt: r.alt, generated: r.generated, figure: true, pos: r.pos })); });
-    out.push(frame(kids, { cap: mood.some((i) => i.generated) ? T.vizMany : T.topics.imagery }));
+    out.push(frame(kids, { cap: T.topics.imagery }));
   }
   const params = Object.keys(T.params).filter((k) => im[k]);
   if (params.length || im.ai) {
@@ -758,7 +760,7 @@ const tagSize = tag.length > 60 ? 76 : tag.length > 34 ? 104 : 150;
 main.append(frame([
   tile(M, M, CW, 690, [
     h("div", { class: "abs", style: { left: "48px", top: "44px" } }, logoImg(hero ? (logoFor((B.imagery || {}).hero_on) || featureLogo) : featureLogo, 260)),
-    hero ? (hero.generated ? h("figcaption", { class: "chip", style: { left: "auto", right: "18px" } }, hero.caption || aiLabel) : null)
+    hero ? (hero.caption ? h("figcaption", { class: "chip", style: { left: "auto", right: "18px" } }, hero.caption) : null)
       : h("div", { class: "abs", style: { right: "44px", bottom: "44px", display: "flex", gap: "12px" } }, PAL.filter((c) => c !== feature).slice(0, 6).map((c) => h("div", { style: { width: "104px", height: "104px", borderRadius: "14px", background: c.hex, boxShadow: contrast(c.hex, feature.hex) < 1.3 ? "inset 0 0 0 1.5px rgba(255,255,255,.4)" : null } })))
   ], hero ? { img: hero.file, alt: hero.alt, generated: hero.generated, figure: true, pos: hero.pos } : { bg: feature.hex }),
   at(M - 4, 752, h("p", { class: "h-cover", style: { fontSize: px(tagSize), width: "1840px" } }, tag)),

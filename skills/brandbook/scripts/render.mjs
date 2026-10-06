@@ -13,7 +13,7 @@
 // check, book (at 1440 and 390 px): horizontal scroll, images that didn't load, page errors, each brand font
 // loaded and covering the language's letters (ą ć ę ł ń ó ś ź ż „ ” for Polish; the text is measured with two
 // different fallbacks, equal widths mean no fallback glyph was used), logos in mockups smaller than their own
-// min_px, generated images without the caption, text under 12 px (warning).
+// min_px, generated images on a slide whose footer doesn't say so, text under 12 px (warning).
 // check, labels: zone overflow in both axes, mandatory text ([data-legal]) x-height measured in the browser
 // against 1.2 mm (0.9 mm when the largest surface is under 80 cm²) for food and supplements, the height of the
 // net quantity's figures (2/3/4/6 mm by quantity), text contrast on the label colour, fonts, images.
@@ -231,7 +231,7 @@ const BOOK_PROBE = `(() => {
   const d = JSON.parse(document.getElementById("brand-data").textContent);
   const label = (d.imagery && d.imagery.ai && d.imagery.ai.label) || "";
   const uncaptioned = [...document.querySelectorAll('figure[data-generated="true"]')].filter((f) => {
-    const t = (f.querySelector("figcaption") || {}).textContent || "";
+    const t = ((f.querySelector("figcaption") || {}).textContent || "") + " " + ((f.closest(".slide")?.querySelector(".foot[data-ai]") || {}).textContent || "");
     return !(label ? t.includes(label) : /wizualizacja|visuali[sz]ation/i.test(t));
   }).map((f) => f.querySelector("img")?.getAttribute("src"));
   let small = 0; const smallEx = [];
@@ -297,7 +297,7 @@ async function checkBook(file) {
       fontReport(await p.evaluate(FONT_PROBE), "book");
       for (const b of r.broken) err(`book: image did not load: ${b}`);
       for (const l of r.logos) err(`book: a logo in "${l.where.trim().slice(0, 40)}" is ${l.w} px wide at full size, below its own minimum of ${l.min} px`);
-      for (const u of r.uncaptioned) err(`book: generated image without the caption: ${u}`);
+      for (const u of r.uncaptioned) err(`book: generated image on a slide whose footer doesn't name it (imagery.ai.label): ${u}`);
       for (const c of r.cut) err(`book: text runs out of its tile on ${c}; shorten it in brand.json`);
       if (r.small) warn(`book: ${r.small} text fragments under 12 px, e.g. ${r.smallEx.join("; ")}`);
       for (const pr of [...new Set(p.problems)]) err(`book: page error: ${pr}`);

@@ -37,7 +37,7 @@ Why it's needed:
 - **Rights.** The US Copyright Office (January 2025) found that prompts alone don't give enough human control for copyright. A logo, a mascot and key assets are made by a person; AI is for scenes, backgrounds and drafts. EU and Polish law on this wasn't checked.
 - **People.** A generated person is a sketch. A campaign needs a real shoot with model releases; write that in `01-verify.md`.
 
-The template captions every generated image with `imagery.ai.label` (e.g. "Wizualizacja") as plain text under it, not as a badge on the photo.
+The book names generated images in the footer of each slide that holds one ("Billboard przy targu · Wizualizacja", from `imagery.ai.label`), not as a badge on the photo. A generated image published on its own (a post, a website, a print) needs its own disclosure there.
 
 ## 3. The product in a generated image
 
