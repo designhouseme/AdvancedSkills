@@ -168,6 +168,42 @@
     {
       "query": "add a shadcn date picker to the booking form",
       "expected_skill": null
+    },
+    {
+      "query": "zrób brandbook dla naszej marki świec sojowych, grafik ma wiedzieć jak robić etykiety, max 15 stron",
+      "expected_skill": "brandbook"
+    },
+    {
+      "query": "we have a logo and one approved label, build brand guidelines for the whole product line so our designer can do the packaging",
+      "expected_skill": "brandbook"
+    },
+    {
+      "query": "potrzebujemy księgi znaku i zasad identyfikacji dla piekarni, logo już jest",
+      "expected_skill": "brandbook"
+    },
+    {
+      "query": "add the new honey to our brand book in a new colour and rebuild it",
+      "expected_skill": "brandbook"
+    },
+    {
+      "query": "make a 15-second promo video in our brand colours from the brand book",
+      "expected_skill": "motion-design"
+    },
+    {
+      "query": "zrób stronę internetową dla naszej marki herbat, mamy już brandbook",
+      "expected_skill": "business-website"
+    },
+    {
+      "query": "is this supplement label legally compliant? can we print it?",
+      "expected_skill": null
+    },
+    {
+      "query": "design a logo for my bakery from scratch",
+      "expected_skill": null
+    },
+    {
+      "query": "generate five product photos of our tea tins for Instagram",
+      "expected_skill": null
     }
   ]
 }

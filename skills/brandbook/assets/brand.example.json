@@ -1,0 +1,178 @@
+{
+  "meta": {
+    "name": "Odra",
+    "name_confirmed": true,
+    "language": "pl",
+    "version": "1.0",
+    "date": "2026-10-06",
+    "owner": "Anna Przykładowa, właścicielka",
+    "contact": "anna@palarnia-odra.example",
+    "made_by": "Design House",
+    "status": "draft"
+  },
+  "sections": {
+    "strategy": "Sprzedajemy kawę, którą palimy we wtorek i wysyłamy w środę.",
+    "voice": "Mówimy jak palacz przy piecu: konkretnie, z datą i z liczbą.",
+    "applications": "Każdy materiał zaczyna się od daty palenia, nie od przymiotnika.",
+    "logo": "Logo zawsze ma wokół siebie jedno x wolnego miejsca.",
+    "colour": "Rzeka i papier niosą markę, rdza pojawia się raz na stronie.",
+    "type": "Nagłówki są kanciaste jak szablon na worku, tekst spokojny.",
+    "imagery": "Pokazujemy kawę w rękach ludzi, którzy ją palą, w dziennym świetle.",
+    "labels": "Kolor zmienia się z pochodzeniem, układ etykiety nigdy.",
+    "print": "Kolor zatwierdzamy na próbnym wydruku, nie na ekranie.",
+    "files": "Logo bierzesz z paczki plików, nigdy nie przerysowujesz.",
+    "decisions": "Trzy rzeczy czekają na decyzję i każda ma osobę oraz termin."
+  },
+  "strategy": {
+    "purpose": "Świeżo palona kawa z jednego pieca nad Odrą, wysyłana dzień po paleniu.",
+    "audience": "Ludzie, którzy parzą kawę w domu i chcą wiedzieć, kiedy i skąd jest.",
+    "instead_of": "Zamiast kawy z marketu bez daty palenia i kawiarnianych sieciówek.",
+    "proof": ["Data palenia na każdej paczce", "Jeden piec, palenie we wtorki", "Wysyłka w 24 godziny"],
+    "values": [
+      { "value": "Świeżość", "behaviour": "Na każdej paczce i w każdym poście podajemy datę palenia." },
+      { "value": "Rzemiosło", "behaviour": "Pokazujemy piec, ludzi i proces, a nie stockowe ziarna." }
+    ],
+    "decision_rules": [
+      "Gdy nie wiesz, co napisać, napisz, kiedy i skąd jest kawa.",
+      "Gdy nie wiesz, jakiego koloru użyć, użyj papieru i rzeki."
+    ],
+    "signature": "Pieczątka z datą palenia, która stoi na paczce, w poście i w stopce maila.",
+    "rejected": [
+      "Brązowa paleta z ziarnem kawy w logo: zamiast tego chłodna rzeka i papier.",
+      "Kremowe tło z szeryfem i terakotą: zamiast tego szary papier i kanciasty szablon."
+    ]
+  },
+  "voice": {
+    "traits": [
+      { "is": "konkretnie", "is_not": "sucho" },
+      { "is": "z humorem przy piecu", "is_not": "z żartem w reklamacji" }
+    ],
+    "tone": [
+      { "channel": "Paczka", "how": "Fakty: pochodzenie, data palenia, nuty smaku.", "example": "Palona 7 października. Etiopia, Guji. Morela i jaśmin." },
+      { "channel": "Instagram", "how": "Luźniej, z ludźmi i piecem.", "example": "Wtorek, 6:40. Piec rozgrzany, Etiopia już pachnie." },
+      { "channel": "Reklamacja", "how": "Krótko, bez żartów, z rozwiązaniem.", "example": "Przepraszamy. Nowa paczka wyjdzie jutro rano." }
+    ],
+    "words_use": ["data palenia", "piec", "pochodzenie"],
+    "words_avoid": ["najwyższa jakość", "z pasją", "wyjątkowy smak"],
+    "before_after": [
+      { "before": "Kawa najwyższej jakości z pasją.", "after": "Kawa palona we wtorek, u Ciebie w czwartek." }
+    ],
+    "name_rule": "Odra zawsze wielką literą na początku, nigdy wersalikami w tekście.",
+    "claims": []
+  },
+  "logo": {
+    "variants": [
+      { "id": "primary", "name": "Podstawowe", "file": "logo/odra-primary.svg", "use": "Domyślna wersja na jasnym tle.", "min_px": 96, "min_mm": 20, "on": ["paper"] },
+      { "id": "negative", "name": "Negatyw", "file": "logo/odra-negative.svg", "use": "Na rzece i ciemnych zdjęciach.", "min_px": 96, "min_mm": 20, "on": ["river"] }
+    ],
+    "clear_space": { "defined_as": "wysokość litery O", "ratio": 0.6 },
+    "dont": [
+      { "rule": "Nie rozciągaj logo.", "demo": "stretch" },
+      { "rule": "Nie obracaj logo.", "demo": "rotate" },
+      { "rule": "Nie dodawaj cienia.", "demo": "shadow" },
+      { "rule": "Nie stawiaj logo na niespokojnym tle.", "demo": "busy" }
+    ]
+  },
+  "colours": [
+    { "id": "paper", "name": "Papier", "role": "background", "hex": "#E9E6DF", "share": 55,
+      "cmyk": { "value": [7, 7, 11, 0], "profile": "FOGRA39", "status": "converted", "source": "przeliczone z profilu ISO Coated v2" },
+      "pantone": { "c": null, "u": null, "status": "to-decide" } },
+    { "id": "river", "name": "Rzeka", "role": "text", "hex": "#1E3A3A", "share": 30,
+      "cmyk": { "value": [85, 50, 60, 55], "profile": "FOGRA39", "status": "converted", "source": "przeliczone z profilu ISO Coated v2" },
+      "pantone": { "c": null, "u": null, "status": "to-decide" } },
+    { "id": "rust", "name": "Rdza", "role": "accent", "hex": "#B5502A", "share": 10,
+      "cmyk": { "value": [15, 75, 95, 5], "profile": "FOGRA39", "status": "proposed", "source": "do potwierdzenia na próbnym wydruku" },
+      "pantone": { "c": null, "u": null, "status": "to-decide" } },
+    { "id": "stone", "name": "Kamień", "role": "secondary-text", "hex": "#5C625E", "share": 5,
+      "cmyk": { "value": [55, 40, 45, 30], "profile": "FOGRA39", "status": "converted", "source": "przeliczone z profilu ISO Coated v2" },
+      "pantone": { "c": null, "u": null, "status": "to-decide" } }
+  ],
+  "pairs": [
+    { "text": "river", "background": "paper", "use": "tekst główny" },
+    { "text": "paper", "background": "river", "use": "nagłówki na rzece" }
+  ],
+  "type": {
+    "families": [
+      { "family": "Przykład Display", "role": "display", "files": ["fonts/display.woff2"], "weights": [700], "licence": "OFL-1.1", "licence_file": "fonts/OFL.txt",
+        "source": "Google Fonts", "why": "Kanciaste litery jak szablon do malowania worków.", "office_substitute": "Arial Black", "reflex_reason": null },
+      { "family": "Przykład Text", "role": "text", "files": ["fonts/text.woff2"], "weights": [400, 700], "licence": "OFL-1.1", "licence_file": "fonts/OFL.txt",
+        "source": "Google Fonts", "why": "Spokojny humanistyczny krój, czytelny w małym stopniu na etykiecie.", "office_substitute": "Calibri", "reflex_reason": null }
+    ],
+    "scale": [
+      { "level": "H1", "role": "display", "px": 56, "pt": 36, "line": 1.05, "use": "okładka, plakat" },
+      { "level": "H2", "role": "display", "px": 36, "pt": 24, "line": 1.1, "use": "nagłówki stron" },
+      { "level": "Tekst", "role": "text", "px": 17, "pt": 10, "line": 1.5, "use": "tekst główny" },
+      { "level": "Drobny", "role": "text", "px": 13, "pt": 7.5, "line": 1.35, "use": "etykieta, przypisy" }
+    ],
+    "sample": "Zażółć gęślą jaźń. Palona 7 października."
+  },
+  "imagery": {
+    "light": "Dzienne światło z okna palarni, bez lamp błyskowych.",
+    "composition": "Ręce i narzędzia w kadrze, produkt nigdy sam na białym tle.",
+    "casting": "Ludzie, którzy naprawdę palą i pakują kawę, w roboczych ubraniach.",
+    "props": "Piec, worki jutowe, waga, nic z kawiarni.",
+    "styling": "Fartuchy i robocze koszule, bez stylizacji sesyjnej.",
+    "grading": "Chłodne cienie, ciepłe światło na rękach, bez filtrów.",
+    "do": ["Data palenia widoczna w kadrze, gdy to możliwe."],
+    "dont": ["Ziarna kawy w kształcie serca.", "Zdjęcia ze stocku."],
+    "images": [],
+    "ai": {
+      "allowed": ["szkice kadrów do sesji", "tła do makiet"],
+      "banned": ["ludzie podani jako pracownicy palarni", "paczka z wygenerowanym kodem kreskowym"],
+      "label": "Wizualizacja",
+      "approver": "Anna Przykładowa"
+    }
+  },
+  "applications": [
+    { "id": "post", "kind": "post", "title": "Post 1080 × 1080", "headline": "Palona we wtorek.", "text": "Etiopia, Guji. Wysyłka jutro." },
+    { "id": "card", "kind": "card", "title": "Wizytówka 85 × 55 mm", "headline": "Anna Przykładowa", "text": "anna@palarnia-odra.example" }
+  ],
+  "labels": [
+    {
+      "id": "etiopia-250",
+      "product": "Kawa ziarnista Etiopia Guji",
+      "category": "food",
+      "colour": "rust",
+      "status": "template",
+      "format": { "name": "Naklejka na torebkę", "w_mm": 90, "h_mm": 120, "bleed_mm": 3, "safe_mm": 3, "largest_surface_cm2": 240 },
+      "zones": [ { "id": "A", "role": "front", "x_mm": 0, "w_mm": 90 } ],
+      "front": { "name": "Etiopia Guji", "variant": "Kawa ziarnista, jasno palona", "benefit": "Morela i jaśmin", "net": "250 g" },
+      "info": [ { "label": "Palona", "text": "xx.xx.2026" } ],
+      "legal": [
+        { "key": "ingredients", "label": "Składniki", "text": "100% kawa ziarnista arabika." },
+        { "key": "best_before", "label": "Najlepiej spożyć przed końcem", "text": "xx.2027" },
+        { "key": "storage", "label": "Przechowywanie", "text": "W suchym i chłodnym miejscu, po otwarciu szczelnie zamknąć." },
+        { "key": "operator", "label": "Producent", "text": "Palarnia Odra, ul. Przykładowa 1, 00-000 Miasto" },
+        { "key": "lot", "label": "Partia", "text": "xxxx" }
+      ],
+      "nutrition_exempt_reason": "Kawa ziarnista jest zwolniona z obowiązkowej informacji o wartości odżywczej (rozp. 1169/2011, zał. V). Do potwierdzenia przez osobę od regulacji.",
+      "barcode": { "ean": null, "note": "EAN nadaje klient w GS1" },
+      "legal_pt": 7.5
+    }
+  ],
+  "print": {
+    "printer": null,
+    "technology": "druk cyfrowy na papierze samoprzylepnym",
+    "pdf": "PDF/X-4",
+    "profile": "FOGRA39",
+    "bleed_mm": 3,
+    "safe_mm": 3,
+    "small_text": "drobny tekst i kod kreskowy w 100% K z nadrukiem",
+    "finishes": [],
+    "proof": "próbny wydruk na docelowym papierze przed zatwierdzeniem koloru"
+  },
+  "files": [
+    { "path": "logo/odra-primary.svg", "what": "Logo podstawowe, wektor", "print_ready": true },
+    { "path": "labels/etiopia-250.html", "what": "Szablon etykiety, podgląd i siatka", "print_ready": false }
+  ],
+  "decisions": [
+    { "what": "Pantone dla rzeki i rdzy", "who": "Anna Przykładowa z drukarnią", "by": "2026-10-20", "recommendation": "Dobrać na wzorniku przy pierwszym druku etykiet." },
+    { "what": "Papier etykiety", "who": "Anna Przykładowa", "by": "2026-10-15", "recommendation": "Niepowlekany, bez folii; poprosić drukarnię o dwie próbki." }
+  ],
+  "references": [
+    { "name": "Przykładowa Marka Wzorcowa", "layer": "structure", "borrow": "układ podręcznika z numerowanymi działami", "not": "kolory, kroje, ton" }
+  ],
+  "changelog": [
+    { "version": "1.0", "date": "2026-10-06", "change": "Pierwsza wersja." }
+  ]
+}

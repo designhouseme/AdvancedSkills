@@ -1,0 +1,154 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: CC-BY-4.0 · © 2026 Design House (https://designhouse.me)
+     Label template in millimetres, rendered from the JSON in #label-data (written by build_book.py).
+     ?mode=preview: the label with bleed; ?mode=guides: trim, bleed, safe margin and zones, with a margin for notes.
+     This is a working template for the designer, never a print file. -->
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="generator" content="brandbook-skill">
+<title>Label</title>
+<style id="page-size"></style>
+<style>
+/*__FONT_FACES__*/
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: transparent; }
+body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.page { position: relative; }
+.sheet { position: absolute; overflow: hidden; }
+.zone { position: absolute; top: 0; bottom: 0; }
+.inner { position: absolute; display: flex; flex-direction: column; overflow: hidden; }
+.front-top { display: flex; flex-direction: column; gap: 1.6mm; }
+.front-bottom { margin-top: auto; display: flex; justify-content: space-between; align-items: flex-end; gap: 2mm; }
+.name { font-weight: 600; line-height: 1.02; letter-spacing: -0.01em; }
+.variant { line-height: 1.25; }
+.benefit { line-height: 1.25; }
+.net { font-weight: 600; white-space: nowrap; }
+.block { display: flex; flex-direction: column; gap: 0.9mm; }
+.item b { font-weight: 600; }
+.legal-wrap { margin-top: auto; display: flex; flex-direction: column; gap: 1.6mm; }
+.ean { border: 0.25mm dashed currentColor; display: flex; align-items: center; justify-content: center; text-align: center; line-height: 1.2; opacity: 0.9; flex: none; }
+.guides { position: absolute; pointer-events: none; }
+.g-trim { position: absolute; border: 0.25mm solid #e5282a; }
+.g-bleed { position: absolute; border: 0.2mm solid #1b75bb; }
+.g-safe { position: absolute; border: 0.2mm dashed #1b75bb; }
+.g-zone { position: absolute; top: 0; bottom: 0; border-left: 0.2mm dotted #333; }
+.g-tag { position: absolute; font: 600 2.4mm/1 system-ui, sans-serif; color: #333; white-space: nowrap; }
+.legend { position: absolute; font: 2.5mm/1.35 system-ui, sans-serif; color: #333; }
+</style>
+</head>
+<body>
+<div class="page" id="page"></div>
+<script id="label-data" type="application/json">/*__LABEL_DATA__*/</script>
+<script>
+"use strict";
+const D = JSON.parse(document.getElementById("label-data").textContent);
+const L = D.label, BR = D.brand, BASE = D._base || "";
+const PL = (BR.language || "pl") !== "en";
+const mode = new URLSearchParams(location.search).get("mode") === "guides" ? "guides" : "preview";
+const f = L.format, b = Number(f.bleed_mm) || 0, safe = Number(f.safe_mm) || 3;
+const pad = mode === "guides" ? 16 : 0, legendH = mode === "guides" ? 10 : 0;
+const W = f.w_mm + 2 * b + 2 * pad, H = f.h_mm + 2 * b + 2 * pad + legendH;
+document.getElementById("page-size").textContent = `@page { size: ${W}mm ${H}mm; margin: 0 } .page { width: ${W}mm; height: ${H}mm }`;
+
+function h(tag, attrs, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (v === null || v === undefined || v === false) continue;
+    if (k === "class") el.className = v; else if (k === "style") Object.assign(el.style, v); else el.setAttribute(k, v);
+  }
+  for (const kid of kids.flat(Infinity)) if (kid !== null && kid !== undefined && kid !== false && kid !== "") el.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
+  return el;
+}
+const mm = (v) => `${v}mm`;
+const cols = Object.fromEntries((BR.colours || []).map((c) => [c.id, c]));
+const role = (r) => (BR.colours || []).find((c) => c.role === r);
+function lum(hex) { const x = hex.replace("#", ""); return [0, 2, 4].map((i) => parseInt(x.slice(i, i + 2), 16) / 255).map((c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4)).reduce((a, c, i) => a + c * [0.2126, 0.7152, 0.0722][i], 0); }
+const field = cols[L.colour] || role("background") || { hex: "#ffffff", id: "white" };
+const dark = lum(field.hex) < 0.2;
+const ink = dark ? (role("background") || { hex: "#ffffff" }).hex : (role("text") || { hex: "#111111" }).hex;
+const fam = (r) => { const x = (BR.families || []).find((q) => q.role === r); return x ? `"${x.family}", system-ui, sans-serif` : "system-ui, sans-serif"; };
+const variants = BR.logo_variants || [];
+const logo = variants.find((v) => (v.on || []).includes(field.id)) || (dark ? variants.find((v) => /neg|white|light|inverse/i.test(v.id)) : null) || variants[0];
+const legalPt = Number(L.legal_pt) || 7.5;
+
+const page = document.getElementById("page");
+const sheet = h("div", { class: "sheet", style: { left: mm(pad), top: mm(pad), width: mm(f.w_mm + 2 * b), height: mm(f.h_mm + 2 * b), background: field.hex, color: ink, fontFamily: fam("text") } });
+page.append(sheet);
+
+const zones = (L.zones && L.zones.length ? L.zones : [{ id: "A", role: "front", x_mm: 0, w_mm: f.w_mm }]).slice().sort((p, q) => p.x_mm - q.x_mm);
+const hasInfo = zones.some((z) => z.role === "info"), hasLegal = zones.some((z) => z.role === "legal");
+
+function frontBlock(netInTop) {
+  const fr = L.front || {};
+  const logoW = Math.max(Number(logo && logo.min_mm) || 20, Math.min(f.w_mm, f.h_mm) * 0.42);
+  const net = fr.net ? h("div", { class: "net", "data-legal": "net", style: { fontSize: `${L.net_pt || 10}pt` } }, fr.net) : null;
+  return [
+    h("div", { class: "front-top" },
+      logo ? h("img", { src: BASE + logo.file, alt: BR.name, "data-logo-mm": logo.min_mm || "", style: { width: mm(logoW), height: "auto", alignSelf: "flex-start" } }) : h("div", { class: "name" }, BR.name),
+      h("div", { class: "name", style: { fontFamily: fam("display"), fontSize: `${L.name_pt || 18}pt` } }, fr.name),
+      fr.variant ? h("div", { class: "variant", style: { fontSize: `${L.variant_pt || 9}pt` } }, fr.variant) : null,
+      fr.benefit ? h("div", { class: "benefit", style: { fontSize: `${L.variant_pt || 9}pt`, opacity: 0.85 } }, fr.benefit) : null,
+      netInTop ? net : null),
+    netInTop ? null : h("div", { class: "front-bottom" }, net || h("span"))
+  ];
+}
+function infoBlock() {
+  return (L.info || []).length ? h("div", { class: "block", style: { fontSize: `${legalPt}pt`, lineHeight: 1.3 } },
+    L.info.map((i) => h("div", { class: "item", "data-legal": "info" }, i.label ? h("b", {}, `${i.label}: `) : null, i.text))) : null;
+}
+function eanBox() {
+  const e = L.barcode || {};
+  const txt = e.ean ? `EAN-13 ${e.ean}` : (PL ? "EAN-13: numer od klienta (GS1)" : "EAN-13: number from the client (GS1)");
+  const sub = PL ? "kod generuje grafik lub drukarnia, 80%: 29,8 × 20,7 mm" : "the designer or printer generates the code, 80%: 29.8 × 20.7 mm";
+  return h("div", { class: "ean", style: { width: mm(29.8), height: mm(20.7), fontSize: "5.5pt", padding: "1mm" } }, h("div", {}, txt, h("br"), sub));
+}
+function legalBlock() {
+  return h("div", { class: "legal", style: { display: "flex", flexDirection: "column", gap: "0.8mm", fontSize: `${legalPt}pt`, lineHeight: 1.3 } },
+    (L.legal || []).filter((x) => x.text).map((x) => h("div", { class: "item", "data-legal": x.key }, x.label ? h("b", {}, `${x.label}: `) : null, x.text)),
+    h("div", { style: { display: "flex", justifyContent: "flex-end", marginTop: "1mm" } }, eanBox()));
+}
+
+zones.forEach((z, idx) => {
+  const zone = h("div", { class: "zone", "data-zone": z.id, "data-role": z.role, style: { left: mm(b + z.x_mm), width: mm(z.w_mm) } });
+  const inner = h("div", { class: "inner", style: { left: mm(safe), right: mm(safe), top: mm(b + safe), bottom: mm(b + safe), gap: "2mm" } });
+  const last = idx === zones.length - 1;
+  const takesInfo = z.role === "info" || (last && !hasInfo);
+  const takesLegal = z.role === "legal" || (last && !hasLegal);
+  if (z.role === "front") inner.append(...frontBlock(takesLegal).filter(Boolean));
+  const bottom = h("div", { class: "legal-wrap" }, takesInfo ? infoBlock() : null, takesLegal ? legalBlock() : null);
+  if (bottom.childNodes.length) inner.append(bottom);
+  zone.append(inner);
+  sheet.append(zone);
+});
+
+if (mode === "guides") {
+  const g = h("div", { class: "guides", style: { left: mm(pad), top: mm(pad), width: mm(f.w_mm + 2 * b), height: mm(f.h_mm + 2 * b) } });
+  g.append(h("div", { class: "g-bleed", style: { left: 0, top: 0, right: 0, bottom: 0 } }));
+  g.append(h("div", { class: "g-trim", style: { left: mm(b), top: mm(b), width: mm(f.w_mm), height: mm(f.h_mm) } }));
+  for (const z of zones) {
+    g.append(h("div", { class: "g-safe", style: { left: mm(b + z.x_mm + safe), top: mm(b + safe), width: mm(z.w_mm - 2 * safe), height: mm(f.h_mm - 2 * safe) } }));
+    if (z.x_mm > 0) g.append(h("div", { class: "g-zone", style: { left: mm(b + z.x_mm) } }));
+    g.append(h("div", { class: "g-tag", style: { left: mm(b + z.x_mm + 1), top: mm(-5) } }, `${z.id}: ${z.role}, ${z.w_mm} mm`));
+  }
+  page.append(g);
+  page.append(h("div", { class: "legend", style: { left: mm(pad), top: mm(pad + f.h_mm + 2 * b + 4), width: mm(Math.max(f.w_mm + 2 * b, 60)) } },
+    PL ? `Czerwona: linia cięcia ${f.w_mm} × ${f.h_mm} mm. Niebieska ciągła: spad ${b} mm. Niebieska przerywana: margines bezpieczeństwa ${safe} mm. Szablon, nie plik do druku.`
+       : `Red: trim ${f.w_mm} × ${f.h_mm} mm. Solid blue: ${b} mm bleed. Dashed blue: ${safe} mm safe margin. A template, not a print file.`));
+}
+document.title = `${BR.name}: ${L.product} (${mode})`;
+// ?fit=1 (the book's preview): scale the label to the frame's width on screen; print and checks use real millimetres.
+if (new URLSearchParams(location.search).get("fit") === "1") {
+  const fit = () => {
+    if (matchMedia("print").matches) { page.style.transform = ""; return; }
+    if (!innerWidth) return;
+    const s = innerWidth / (W * 96 / 25.4);
+    page.style.transformOrigin = "0 0"; page.style.transform = `scale(${s})`;
+    document.body.style.overflow = "hidden";
+  };
+  addEventListener("resize", fit); fit();
+}
+window.__labelReady = document.fonts.ready.then(() => Promise.all([...document.images].map((i) => (i.complete ? 1 : new Promise((r) => { i.onload = i.onerror = r; }))))).then(() => true);
+</script>
+</body>
+</html>

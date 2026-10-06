@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="260mm" height="60mm" viewBox="0 0 260 60">
+  <!-- Etykieta drukowana przez klienta w 2025 r. Jednostki: milimetry. Obwód puszki 251 mm + 9 mm zakładki. -->
+  <rect width="260" height="60" fill="#F3EFE2"/>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#2E2E2E">
+    <!-- tył lewy -->
+    <text x="6" y="10" font-size="1.6" font-weight="700">Składniki:</text>
+    <text x="6" y="13" font-size="1.6">koszyczek rumianku 100%.</text>
+    <text x="6" y="18" font-size="1.6">Masa netto: 50 g</text>
+    <text x="6" y="23" font-size="1.6">Najlepiej spożyć przed: 06.2027</text>
+    <text x="6" y="28" font-size="1.6">Przechowywać w suchym miejscu.</text>
+    <text x="6" y="33" font-size="1.6">Tatarak sp. z o.o., ul. Przykładowa 3, 00-000 Miasto</text>
+    <!-- front -->
+    <text x="100" y="20" font-size="9" font-family="Georgia, serif" fill="#2E4A3B" letter-spacing="1">TATARAK</text>
+    <text x="100" y="33" font-size="7" font-family="Georgia, serif">Rumianek</text>
+    <text x="100" y="41" font-size="3">Rumianek wspiera odporność i dobry sen.</text>
+    <!-- tył prawy -->
+    <text x="180" y="12" font-size="2.2">Sposób przygotowania: 1 łyżeczkę zalać szklanką</text>
+    <text x="180" y="15" font-size="2.2">wody o temperaturze 95°C, parzyć 7 minut.</text>
+    <text x="180" y="22" font-size="2.2">www.tatarak.example</text>
+  </g>
+</svg>

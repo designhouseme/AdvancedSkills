@@ -1,0 +1,618 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: CC-BY-4.0 · © 2026 Design House (https://designhouse.me)
+     Brand book template. Don't edit the built copy: change brand.json and run build_book.py.
+     Everything on the page is rendered from the JSON in #brand-data; the PDF is this page printed. -->
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="brandbook-skill">
+<title>Brandbook</title>
+<style>
+/*__FONT_FACES__*/
+:root {
+  --bg: #ffffff; --ink: #161616; --ink-2: #565656; --line: #d9d9d9; --accent: #2f2f2f; --panel: #f4f4f4;
+  --display: system-ui, sans-serif; --text: system-ui, sans-serif;
+  --nav: 264px; --max: 1060px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: auto; -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.55 var(--text); }
+a { color: inherit; text-underline-offset: 3px; }
+img { max-width: 100%; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.skip { position: absolute; left: -999px; top: 8px; background: var(--ink); color: var(--bg); padding: 8px 12px; z-index: 10; }
+.skip:focus { left: 8px; }
+
+/* bar */
+.bar { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; gap: 20px; padding: 10px 24px; flex-wrap: wrap; }
+.bar .brand { display: flex; align-items: center; gap: 12px; min-width: 0; text-decoration: none; }
+.bar .brand img { height: 28px; width: auto; }
+.bar .brand span { font-size: 14px; color: var(--ink-2); white-space: nowrap; }
+.readers { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+.readers .lab { font-size: 14px; color: var(--ink-2); margin-right: 4px; }
+.readers button { border: 1px solid var(--line); background: transparent; border-radius: 8px; padding: 6px 11px; font-size: 14px; cursor: pointer; min-height: 36px; }
+.readers button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.menu { display: none; }
+
+/* layout */
+.wrap { display: grid; grid-template-columns: var(--nav) minmax(0, 1fr); }
+nav.toc { position: sticky; top: 57px; align-self: start; height: calc(100vh - 57px); overflow: auto; padding: 28px 18px 40px 24px; border-right: 1px solid var(--line); }
+nav.toc p { margin: 22px 0 6px; font-size: 13px; color: var(--ink-2); }
+nav.toc p:first-child { margin-top: 0; }
+nav.toc a { display: flex; gap: 10px; padding: 6px 8px; border-radius: 6px; text-decoration: none; font-size: 15px; line-height: 1.35; }
+nav.toc a .n { color: var(--ink-2); font-variant-numeric: tabular-nums; min-width: 26px; }
+nav.toc a[aria-current="true"] { background: var(--panel); }
+main { padding: 0 40px 120px; min-width: 0; }
+.cover { min-height: 78vh; display: flex; flex-direction: column; justify-content: center; max-width: var(--max); padding: 64px 0; }
+.cover img.logo { height: clamp(56px, 9vw, 112px); width: auto; align-self: flex-start; }
+.cover .purpose { font: 600 clamp(26px, 3.6vw, 46px)/1.12 var(--display); margin: 44px 0 0; max-width: 22ch; letter-spacing: -0.01em; }
+.cover .meta { margin-top: 36px; color: var(--ink-2); font-size: 15px; display: grid; gap: 4px; }
+.part { max-width: var(--max); margin: 40px 0 0; padding: 56px 0 8px; border-top: 2px solid var(--ink); }
+.part h1 { font: 600 clamp(20px, 2vw, 24px)/1.2 var(--display); margin: 0; }
+.part p { margin: 6px 0 0; color: var(--ink-2); max-width: 60ch; }
+section.s { max-width: var(--max); padding: 64px 0 24px; border-top: 1px solid var(--line); scroll-margin-top: 72px; }
+section.s h2 { font: 600 clamp(26px, 3vw, 40px)/1.12 var(--display); margin: 0 0 14px; letter-spacing: -0.01em; max-width: 26ch; }
+section.s h2 .n { color: var(--ink-2); font-weight: 400; margin-right: 0.35em; font-variant-numeric: tabular-nums; }
+section.s .topic { font-size: 15px; color: var(--ink-2); margin: 0 0 28px; }
+h3 { font: 600 20px/1.25 var(--display); margin: 40px 0 12px; }
+p.lead { font-size: 19px; max-width: 62ch; margin: 0 0 20px; }
+.muted { color: var(--ink-2); }
+.small { font-size: 14px; }
+.grid { display: grid; gap: 14px; }
+.g2 { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+.g3 { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+.card { border: 1px solid var(--line); border-radius: 12px; padding: 18px; background: var(--bg); break-inside: avoid; }
+.card h4 { margin: 0 0 6px; font: 600 17px/1.3 var(--text); }
+.rows { border-top: 1px solid var(--line); }
+.row { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 2fr); gap: 6px 20px; padding: 12px 0; border-bottom: 1px solid var(--line); break-inside: avoid; }
+.row > :first-child { font-weight: 600; }
+ul.plain, ol.plain { margin: 0; padding-left: 1.2em; }
+ul.plain li, ol.plain li { margin: 6px 0; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.pair > div { padding: 14px 16px; }
+.pair > div + div { border-left: 1px solid var(--line); }
+.pair .h { font-size: 14px; color: var(--ink-2); display: block; margin-bottom: 4px; }
+.scroll { overflow-x: auto; }
+.note { background: var(--panel); border-radius: 12px; padding: 14px 18px; margin: 18px 0; font-size: 15px; break-inside: avoid; }
+
+/* colour */
+.swatch { height: 116px; border-radius: 10px 10px 0 0; box-shadow: inset 0 0 0 1px var(--line); }
+.ccard { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; break-inside: avoid; }
+.ccard .body { padding: 14px 16px; }
+.ccard .vals { display: grid; gap: 2px; margin-top: 8px; font-size: 14px; }
+.ccard .vals button { all: unset; cursor: pointer; display: flex; justify-content: space-between; gap: 10px; padding: 5px 6px; margin: 0 -6px; border-radius: 6px; }
+.ccard .vals button:hover, .ccard .vals button:focus-visible { background: var(--panel); }
+.ccard .vals .k { color: var(--ink-2); }
+.ccard .status { font-size: 13px; color: var(--ink-2); margin-top: 8px; }
+.share { display: flex; height: 22px; border-radius: 6px; overflow: hidden; border: 1px solid var(--line); margin: 8px 0 4px; }
+table.matrix { border-collapse: collapse; font-size: 13px; }
+table.matrix th { font-weight: 600; text-align: left; padding: 6px 8px; white-space: nowrap; }
+table.matrix td { padding: 0; border: 1px solid var(--line); }
+table.matrix .cell { width: 112px; padding: 10px; }
+table.matrix .cell b { font: 600 22px/1 var(--display); display: block; }
+table.matrix .cell span { display: block; margin-top: 6px; }
+table.matrix .ok-mark .cell { box-shadow: inset 0 0 0 3px var(--bg), inset 0 0 0 5px var(--ink); }
+.verdict { font-size: 12px; margin-top: 4px; display: block; }
+
+/* logo */
+.logobox { display: flex; align-items: center; justify-content: center; min-height: 180px; border-radius: 12px 12px 0 0; padding: 28px; }
+.clear { display: inline-block; position: relative; outline: 1px dashed currentColor; }
+.clear img { display: block; height: 64px; width: auto; }
+.clear .x { position: absolute; font-size: 12px; line-height: 1; padding: 2px 4px; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 4px; }
+.dont { position: relative; overflow: hidden; }
+.dont .tag { position: absolute; top: 10px; left: 10px; font-size: 12px; background: var(--ink); color: var(--bg); padding: 2px 7px; border-radius: 5px; }
+
+/* type */
+.spec { font-size: clamp(30px, 4.4vw, 54px); line-height: 1.12; margin: 6px 0 14px; overflow-wrap: anywhere; }
+.alpha { font-size: 20px; line-height: 1.5; overflow-wrap: anywhere; color: var(--ink); }
+.scale-row { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 18px; padding: 14px 0; border-bottom: 1px solid var(--line); align-items: baseline; }
+.scale-row .meta { font-size: 13px; color: var(--ink-2); }
+.scale-row .ex { overflow-wrap: anywhere; }
+
+/* images */
+figure { margin: 0; break-inside: avoid; }
+figure img { display: block; width: 100%; height: auto; border-radius: 10px; }
+figcaption { font-size: 14px; color: var(--ink-2); margin-top: 6px; }
+figcaption .gen { color: var(--ink); font-weight: 600; }
+
+/* mockups */
+.mock { position: relative; overflow: hidden; border-radius: 10px; border: 1px solid var(--line); }
+.mock .canvas { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+
+/* labels */
+.labelview { border: 1px solid var(--line); border-radius: 12px; background: var(--panel); padding: 16px; }
+.labelview iframe { width: 100%; border: 0; display: block; background: transparent; margin: 0 auto; }
+.modes { display: flex; gap: 6px; margin: 0 0 12px; }
+.modes button { border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 6px 11px; font-size: 14px; cursor: pointer; }
+.modes button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.check { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 15px; break-inside: avoid; }
+.check b { min-width: 74px; font-size: 13px; }
+.missing { font-weight: 700; }
+
+.toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 8px 14px; border-radius: 8px; font-size: 14px; opacity: 0; transition: opacity .15s; pointer-events: none; }
+.toast.on { opacity: 1; }
+[hidden] { display: none !important; }
+footer.colophon { max-width: var(--max); border-top: 1px solid var(--line); margin-top: 64px; padding-top: 18px; font-size: 14px; color: var(--ink-2); }
+
+@media (max-width: 1023px) {
+  .wrap { grid-template-columns: minmax(0, 1fr); }
+  nav.toc { display: none; }
+  main { padding: 0 16px 96px; }
+  .bar { padding: 10px 16px; gap: 10px; }
+  .readers { margin-left: 0; width: 100%; }
+  .menu { display: block; width: 100%; }
+  .menu summary { cursor: pointer; font-size: 15px; padding: 6px 0; }
+  .menu a { display: block; padding: 8px 0; text-decoration: none; border-bottom: 1px solid var(--line); font-size: 15px; }
+  .row { grid-template-columns: minmax(0, 1fr); }
+  .pair { grid-template-columns: 1fr; }
+  .pair > div + div { border-left: 0; border-top: 1px solid var(--line); }
+  .scale-row { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  section.s { padding-top: 48px; }
+}
+@media print {
+  @page { size: 297mm 210mm; margin: 12mm; }
+  body { font-size: 11pt; }
+  .bar, nav.toc, .modes, .readers, .menu, .toast, .skip, .no-print { display: none !important; }
+  .wrap { display: block; }
+  main { padding: 0; }
+  .cover { min-height: 0; height: 180mm; padding: 0; }
+  .part, section.s { break-before: page; border-top: 0; padding-top: 0; margin-top: 0; max-width: none; }
+  .part { display: flex; flex-direction: column; justify-content: flex-end; height: 180mm; }
+  section.s h2 { font-size: 26pt; }
+  .card, .ccard, .row, figure, .mock, .labelview, .scale-row { break-inside: avoid; }
+  a { text-decoration: none; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main" id="skip">Skip</a>
+<header class="bar">
+  <a class="brand" href="#top" id="bar-brand"></a>
+  <details class="menu" id="menu"><summary id="menu-label"></summary><div id="menu-links"></div></details>
+  <div class="readers" role="group" id="readers"></div>
+</header>
+<div class="wrap">
+  <nav class="toc" id="toc"></nav>
+  <main id="main"></main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script id="brand-data" type="application/json">/*__BRAND_DATA__*/</script>
+<script>
+"use strict";
+const B = JSON.parse(document.getElementById("brand-data").textContent);
+const BASE = B._base || "";
+const LANG = (B.meta && B.meta.language) === "en" ? "en" : "pl";
+const T = {
+  pl: {
+    skip: "Przejdź do treści", reader: "Czytam jako", menu: "Spis treści",
+    readers: { all: "Wszystko", owner: "Właściciel", designer: "Grafik", printer: "Drukarnia", marketing: "Marketing" },
+    part1: "Marka", part1Lead: "Po co marka istnieje, jak mówi i jak wygląda w użyciu.",
+    part2: "Zasady", part2Lead: "Logo, kolor, pismo, zdjęcia, etykiety i druk. Liczby, pliki i zakazy.",
+    topics: { strategy: "Strategia", voice: "Język", applications: "Zastosowania", logo: "Logo", colour: "Kolor", type: "Pismo", imagery: "Zdjęcia i obrazy", labels: "Etykiety", print: "Druk", files: "Pliki", decisions: "Decyzje i wersje" },
+    version: "Wersja", date: "Data", owner: "Właściciel", contact: "Kontakt", madeBy: "Przygotował", status: "Status", draft: "wersja robocza", approved: "zatwierdzony",
+    purpose: "Po co istniejemy", audience: "Dla kogo", insteadOf: "Zamiast czego", proof: "Na dowód", values: "Wartości w działaniu", rules: "Gdy księga nie wie", signature: "Nasz znak rozpoznawczy", rejected: "Czego świadomie unikamy",
+    traits: "Jak brzmimy", isNot: "ale nie", tone: "Ton w kanałach", channel: "Kanał", how: "Jak", example: "Przykład", wordsUse: "Mówimy", wordsAvoid: "Nie mówimy", beforeAfter: "Przed i po", before: "Było", after: "Jest", nameRule: "Pisownia nazwy", claims: "Oświadczenia, których wolno używać", registerRef: "rejestr",
+    variants: "Wersje logo", use: "Kiedy", minSize: "Najmniejszy rozmiar", clearSpace: "Pole ochronne", clearText: (d, r) => `Wokół logo zostaw x wolnego miejsca. x to ${d} (${Math.round(r * 100)}% wysokości logo).`, donts: "Czego nie robić", no: "Nie", finish: "Uszlachetnienie",
+    palette: "Paleta", role: "Rola", share: "Udział", copy: "Kliknij wartość, żeby ją skopiować.", copied: "Skopiowano", pantone: "Pantone", toDecide: "do ustalenia", matrix: "Które napisy na których tłach", matrixLead: "Kontrast policzony wzorem WCAG 2.2. Obwódka oznacza parę opisaną w zasadach.", textOn: "Tekst ↓  Tło →",
+    v: { aaa: "każdy tekst", aa: "tekst", large: "tylko duży tekst", fail: "nie używać" },
+    cmykStatus: { proposed: "proponowane, do potwierdzenia na próbnym wydruku", converted: "przeliczone z profilu, bez próbnego wydruku", proofed: "potwierdzone na próbnym wydruku" },
+    roles: { background: "tło", text: "tekst", "secondary-text": "tekst pomocniczy", accent: "akcent", line: "linie", support: "dodatkowy" },
+    families: "Kroje", why: "Dlaczego ten krój", licence: "Licencja", source: "Źródło", substitute: "Zamiennik w Word, Google Docs i Canvie", weights: "Grubości", scale: "Skala", reflex: "Powód mimo popularności",
+    params: { light: "Światło", composition: "Kompozycja", casting: "Ludzie", props: "Rekwizyty", styling: "Stylizacja", grading: "Kolor zdjęć" },
+    doLabel: "Tak", dontLabel: "Nie", ai: "Obrazy z AI", aiAllowed: "Wolno", aiBanned: "Nie wolno", aiLabel: "Podpis pod każdym obrazem z generatora", aiApprover: "Zatwierdza", images: "Przykłady",
+    preview: "Podgląd", guides: "Siatka i strefy", format: "Format", bleed: "spad", safe: "margines bezpieczeństwa", zones: "Strefy", front: "Front, od najważniejszego", brandMark: "Marka (logo)", net: "Ilość netto", mandatory: "Treści obowiązkowe", present: "jest", missingT: "brak", templateNote: "To szablon do pracy, nie plik do druku. Plik do druku przygotowuje grafik według specyfikacji druku.", exempt: "Zwolnienie",
+    printSpec: "Specyfikacja", handoff: "Przed wysłaniem do drukarni", printer: "Drukarnia", technology: "Technologia", pdf: "Plik", profile: "Profil CMYK", smallText: "Drobny tekst", finishes: "Uszlachetnienia", proofL: "Próbny wydruk", notChosen: "jeszcze nie wybrana",
+    filePath: "Plik", what: "Co to jest", printReady: "Do druku", yes: "tak", noWord: "nie, podgląd",
+    decWhat: "Decyzja", decWho: "Kto", decBy: "Do kiedy", decRec: "Nasza rekomendacja", changelog: "Historia zmian",
+    colophon: (b) => `${b.meta.name}, brandbook ${b.meta.version}, ${b.meta.date}.`
+  },
+  en: {
+    skip: "Skip to content", reader: "Reading as", menu: "Contents",
+    readers: { all: "Everything", owner: "Owner", designer: "Designer", printer: "Printer", marketing: "Marketing" },
+    part1: "Brand", part1Lead: "Why the brand exists, how it speaks and how it looks in use.",
+    part2: "Rules", part2Lead: "Logo, colour, type, imagery, labels and print. Numbers, files and don'ts.",
+    topics: { strategy: "Strategy", voice: "Voice", applications: "Applications", logo: "Logo", colour: "Colour", type: "Type", imagery: "Imagery", labels: "Labels", print: "Print", files: "Files", decisions: "Decisions and versions" },
+    version: "Version", date: "Date", owner: "Owner", contact: "Contact", madeBy: "Made by", status: "Status", draft: "draft", approved: "approved",
+    purpose: "Why we exist", audience: "For whom", insteadOf: "Instead of", proof: "Proof", values: "Values in action", rules: "When the book doesn't say", signature: "Our signature", rejected: "What we avoid on purpose",
+    traits: "How we sound", isNot: "but not", tone: "Tone by channel", channel: "Channel", how: "How", example: "Example", wordsUse: "We say", wordsAvoid: "We don't say", beforeAfter: "Before and after", before: "Before", after: "After", nameRule: "Spelling the name", claims: "Claims we may use", registerRef: "register",
+    variants: "Logo versions", use: "When", minSize: "Minimum size", clearSpace: "Clear space", clearText: (d, r) => `Leave x of empty space around the logo. x is ${d} (${Math.round(r * 100)}% of the logo height).`, donts: "Don'ts", no: "No", finish: "Finish",
+    palette: "Palette", role: "Role", share: "Share", copy: "Click a value to copy it.", copied: "Copied", pantone: "Pantone", toDecide: "to decide", matrix: "Which text on which background", matrixLead: "Contrast by the WCAG 2.2 formula. An outline marks a pair named in the rules.", textOn: "Text ↓  Background →",
+    v: { aaa: "any text", aa: "text", large: "large text only", fail: "do not use" },
+    cmykStatus: { proposed: "proposed, to confirm on a proof", converted: "converted from the profile, no proof yet", proofed: "confirmed on a proof" },
+    roles: { background: "background", text: "text", "secondary-text": "secondary text", accent: "accent", line: "lines", support: "support" },
+    families: "Typefaces", why: "Why this typeface", licence: "Licence", source: "Source", substitute: "Substitute in Word, Google Docs and Canva", weights: "Weights", scale: "Scale", reflex: "Reason despite popularity",
+    params: { light: "Light", composition: "Composition", casting: "People", props: "Props", styling: "Styling", grading: "Colour grading" },
+    doLabel: "Do", dontLabel: "Don't", ai: "AI images", aiAllowed: "Allowed", aiBanned: "Not allowed", aiLabel: "Caption under every generated image", aiApprover: "Approved by", images: "Examples",
+    preview: "Preview", guides: "Grid and zones", format: "Format", bleed: "bleed", safe: "safe margin", zones: "Zones", front: "Front, most important first", brandMark: "Brand (logo)", net: "Net quantity", mandatory: "Mandatory content", present: "present", missingT: "missing", templateNote: "This is a working template, not a print file. The designer prepares the print file from the print specification.", exempt: "Exemption",
+    printSpec: "Specification", handoff: "Before sending to the printer", printer: "Printer", technology: "Technology", pdf: "File", profile: "CMYK profile", smallText: "Small text", finishes: "Finishes", proofL: "Proof", notChosen: "not chosen yet",
+    filePath: "File", what: "What it is", printReady: "Print-ready", yes: "yes", noWord: "no, preview",
+    decWhat: "Decision", decWho: "Who", decBy: "By", decRec: "Our recommendation", changelog: "Changelog",
+    colophon: (b) => `${b.meta.name}, brand book ${b.meta.version}, ${b.meta.date}.`
+  }
+}[LANG];
+document.documentElement.lang = LANG;
+
+/* Mandatory label content by category. Keep in sync with check_brand.py (REQUIRED). */
+const REQUIRED = {
+  food: ["ingredients", "best_before", "storage", "operator", "lot"],
+  supplement: ["ingredients", "best_before", "storage", "operator", "lot", "nutrient_categories", "daily_dose", "dose_warning", "diet_statement", "children_warning", "amounts_per_dose"],
+  cosmetic: ["responsible_person", "nominal_content", "durability_or_pao", "precautions", "batch", "function", "ingredients_inci"]
+};
+const READERS = {
+  strategy: ["owner", "marketing", "designer"], voice: ["marketing", "owner"], applications: ["owner", "marketing", "designer"],
+  logo: ["designer", "printer", "marketing"], colour: ["designer", "printer", "marketing"], type: ["designer", "marketing"],
+  imagery: ["marketing", "designer"], labels: ["designer", "printer"], print: ["printer", "designer"],
+  files: ["owner", "designer", "printer", "marketing"], decisions: ["owner", "designer"]
+};
+
+/* helpers */
+function h(tag, attrs, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (v === null || v === undefined || v === false) continue;
+    if (k === "class") el.className = v;
+    else if (k === "style" && typeof v === "object") Object.assign(el.style, v);
+    else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+    else el.setAttribute(k, v === true ? "" : v);
+  }
+  for (const kid of kids.flat(Infinity)) if (kid !== null && kid !== undefined && kid !== false) el.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
+  return el;
+}
+const asset = (p) => (p ? BASE + p : "");
+const colours = B.colours || [];
+const byId = Object.fromEntries(colours.map((c) => [c.id, c]));
+const firstRole = (role) => colours.find((c) => c.role === role);
+function rgbOf(hex) { const x = hex.replace("#", ""); const f = x.length === 3 ? x.split("").map((c) => c + c).join("") : x; return [0, 2, 4].map((i) => parseInt(f.slice(i, i + 2), 16)); }
+function lum(hex) { return rgbOf(hex).map((v) => v / 255).map((c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4)).reduce((a, c, i) => a + c * [0.2126, 0.7152, 0.0722][i], 0); }
+function contrast(a, b) { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05); }
+function verdict(r) { return r >= 7 ? "aaa" : r >= 4.5 ? "aa" : r >= 3 ? "large" : "fail"; }
+const fmt = (r) => (LANG === "pl" ? r.toFixed(1).replace(".", ",") : r.toFixed(1)) + ":1";
+const isDark = (hex) => lum(hex) < 0.2;
+function fam(role) { const f = (B.type && B.type.families || []).find((x) => x.role === role); return f ? `"${f.family}"` : null; }
+function logoFor(bgId) {
+  const vs = (B.logo && B.logo.variants) || [];
+  const bg = byId[bgId];
+  return vs.find((v) => (v.on || []).includes(bgId)) || (bg && isDark(bg.hex) ? vs.find((v) => /neg|white|light|inverse/i.test(v.id)) : null) || vs[0];
+}
+let toastTimer;
+function toast(msg) { const t = document.getElementById("toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("on"), 1400); }
+async function copy(text) {
+  try { await navigator.clipboard.writeText(text); } catch {
+    const ta = h("textarea", { style: { position: "fixed", opacity: "0" } }); ta.value = text; document.body.append(ta); ta.select();
+    try { document.execCommand("copy"); } catch {} ta.remove();
+  }
+  toast(`${T.copied}: ${text}`);
+}
+const rows = (pairs) => h("div", { class: "rows" }, pairs.filter(([, v]) => v !== undefined && v !== null && v !== "").map(([k, v]) => h("div", { class: "row" }, h("div", {}, k), h("div", {}, v))));
+
+/* tokens */
+const root = document.documentElement.style;
+const bg = firstRole("background"), ink = firstRole("text"), ink2 = firstRole("secondary-text"), line = firstRole("line"), accent = firstRole("accent");
+if (bg) root.setProperty("--bg", bg.hex);
+if (ink) root.setProperty("--ink", ink.hex);
+root.setProperty("--ink-2", ink2 ? ink2.hex : `color-mix(in srgb, var(--ink) 68%, var(--bg))`);
+root.setProperty("--line", line ? line.hex : `color-mix(in srgb, var(--ink) 18%, var(--bg))`);
+root.setProperty("--panel", `color-mix(in srgb, var(--ink) 6%, var(--bg))`);
+if (accent) root.setProperty("--accent", accent.hex);
+if (fam("display")) root.setProperty("--display", `${fam("display")}, ${fam("text") || "system-ui"}, sans-serif`);
+if (fam("text")) root.setProperty("--text", `${fam("text")}, system-ui, sans-serif`);
+document.title = `${B.meta.name}: brandbook ${B.meta.version}`;
+
+/* sections */
+const sec = B.sections || {};
+const ORDER = [
+  { part: 1, items: ["strategy", "voice", "applications"] },
+  { part: 2, items: ["logo", "colour", "type", "imagery", "labels", "print", "files", "decisions"] }
+];
+const has = {
+  strategy: !!B.strategy, voice: !!B.voice, applications: (B.applications || []).length > 0, logo: !!B.logo, colour: colours.length > 0,
+  type: !!B.type, imagery: !!B.imagery, labels: (B.labels || []).length > 0, print: !!B.print, files: (B.files || []).length > 0, decisions: true
+};
+
+function section(id, code, body) {
+  return h("section", { class: "s", id, "data-readers": READERS[id].join(" "), "aria-labelledby": `${id}-h` },
+    h("h2", { id: `${id}-h` }, h("span", { class: "n" }, code), sec[id] || T.topics[id]),
+    h("p", { class: "topic" }, T.topics[id]),
+    body);
+}
+
+const build = {
+  strategy() {
+    const s = B.strategy;
+    return [
+      h("p", { class: "lead" }, s.purpose),
+      rows([[T.audience, s.audience], [T.insteadOf, s.instead_of], [T.signature, s.signature]]),
+      s.proof && s.proof.length ? [h("h3", {}, T.proof), h("ul", { class: "plain" }, s.proof.map((p) => h("li", {}, p)))] : null,
+      s.values && s.values.length ? [h("h3", {}, T.values), rows(s.values.map((v) => [v.value, v.behaviour]))] : null,
+      s.decision_rules && s.decision_rules.length ? [h("h3", {}, T.rules), h("ol", { class: "plain" }, s.decision_rules.map((r) => h("li", {}, r)))] : null,
+      s.rejected && s.rejected.length ? [h("h3", {}, T.rejected), h("ul", { class: "plain" }, s.rejected.map((r) => h("li", {}, r)))] : null
+    ];
+  },
+  voice() {
+    const v = B.voice;
+    return [
+      v.traits && v.traits.length ? [h("h3", {}, T.traits), h("div", { class: "grid g2" }, v.traits.map((t) => h("div", { class: "card" }, h("h4", {}, t.is), h("div", { class: "muted" }, `${T.isNot} ${t.is_not}`))))] : null,
+      v.tone && v.tone.length ? [h("h3", {}, T.tone), rows(v.tone.map((t) => [t.channel, h("div", {}, h("div", {}, t.how), t.example ? h("div", { class: "muted" }, `„${t.example}”`) : null)]))] : null,
+      (v.words_use || v.words_avoid) ? h("div", { class: "pair", style: { marginTop: "28px" } },
+        h("div", {}, h("span", { class: "h" }, T.wordsUse), (v.words_use || []).join(", ")),
+        h("div", {}, h("span", { class: "h" }, T.wordsAvoid), (v.words_avoid || []).join(", "))) : null,
+      v.before_after && v.before_after.length ? [h("h3", {}, T.beforeAfter), v.before_after.map((p) => h("div", { class: "pair", style: { marginBottom: "10px" } },
+        h("div", {}, h("span", { class: "h" }, T.before), p.before), h("div", {}, h("span", { class: "h" }, T.after), p.after)))] : null,
+      v.name_rule ? [h("h3", {}, T.nameRule), h("p", {}, v.name_rule)] : null,
+      v.claims && v.claims.length ? [h("h3", {}, T.claims), h("ul", { class: "plain" }, v.claims.map((c) => h("li", {}, c.text, c.register_ref ? h("span", { class: "muted small" }, ` (${T.registerRef}: ${c.register_ref})`) : null)))] : null
+    ];
+  },
+  applications() {
+    return h("div", { class: "grid g2" }, (B.applications || []).map(mockup));
+  },
+  logo() {
+    const L = B.logo, vs = L.variants || [];
+    const primary = vs[0];
+    const cs = L.clear_space || {};
+    const ratio = Number(cs.ratio) || 0.5;
+    return [
+      h("h3", {}, T.variants),
+      h("div", { class: "grid g2" }, vs.map((v) => {
+        const onId = (v.on || [])[0]; const c = byId[onId] || bg;
+        return h("div", { class: "card", style: { padding: 0, overflow: "hidden" } },
+          h("div", { class: "logobox", style: { background: c ? c.hex : "transparent" } }, h("img", { src: asset(v.file), alt: `${B.meta.name}: ${v.name || v.id}`, style: { height: "64px", width: "auto" } })),
+          h("div", { style: { padding: "14px 16px" } }, h("h4", {}, v.name || v.id), h("div", { class: "muted small" }, v.use),
+            h("div", { class: "small", style: { marginTop: "6px" } }, `${T.minSize}: ${v.min_px} px / ${v.min_mm} mm`)));
+      })),
+      primary ? [h("h3", {}, T.clearSpace), h("p", {}, T.clearText(cs.defined_as || "?", ratio)),
+        h("div", { class: "logobox card", style: { borderRadius: "12px", color: "var(--ink-2)" } },
+          h("span", { class: "clear", style: { padding: `${64 * ratio}px` } }, h("img", { src: asset(primary.file), alt: "" }),
+            ...[["50%", "0", "-50%", "-50%"], ["50%", "100%", "-50%", "-50%"], ["0", "50%", "-50%", "-50%"], ["100%", "50%", "-50%", "-50%"]].map(([l, t, tx, ty]) => h("span", { class: "x", style: { left: l, top: t, transform: `translate(${tx}, ${ty})` } }, "x"))))] : null,
+      primary ? [h("h3", {}, T.minSize), h("div", { class: "card" }, vs.map((v) => h("div", { style: { display: "flex", alignItems: "center", gap: "16px", padding: "8px 0" } },
+        h("img", { src: asset(v.file), alt: "", "data-logo": "", "data-min-px": v.min_px, "data-scale": 1, style: { width: `${v.min_px}px`, height: "auto", background: (byId[(v.on || [])[0]] || {}).hex || "transparent", padding: "6px", boxSizing: "content-box" } }),
+        h("span", { class: "small muted" }, `${v.name || v.id}: ${v.min_px} px / ${v.min_mm} mm`))))] : null,
+      L.dont && L.dont.length && primary ? [h("h3", {}, T.donts), h("div", { class: "grid g3" }, L.dont.map((d) => dontCard(d, primary)))] : null,
+      L.finish && L.finish.type && L.finish.type !== "none" ? [h("h3", {}, T.finish), rows([[T.finish, L.finish.type], [T.minSize, L.finish.min_mm ? `${L.finish.min_mm} mm` : null], ["min. linia", L.finish.min_line_mm ? `${L.finish.min_line_mm} mm` : null]])] : null
+    ];
+  },
+  colour() {
+    const total = colours.reduce((a, c) => a + (Number(c.share) || 0), 0);
+    const cards = colours.map((c) => {
+      const [r, g, b2] = rgbOf(c.hex);
+      const cm = c.cmyk || {}; const pt = c.pantone || {};
+      const vals = [["HEX", c.hex.toUpperCase()], ["RGB", `${r} ${g} ${b2}`]];
+      if (cm.value) vals.push([`CMYK ${cm.profile || "?"}`, cm.value.join(" ")]);
+      const pms = [pt.c ? `${pt.c} C` : null, pt.u ? `${pt.u} U` : null].filter(Boolean).join(" / ");
+      vals.push([T.pantone, pms || T.toDecide]);
+      return h("div", { class: "ccard" }, h("div", { class: "swatch", style: { background: c.hex } }),
+        h("div", { class: "body" }, h("h4", {}, c.name), h("div", { class: "muted small" }, `${T.role}: ${T.roles[c.role] || c.role}${c.share ? `, ${T.share}: ${c.share}%` : ""}`),
+          h("div", { class: "vals" }, vals.map(([k, v]) => v === T.toDecide ? h("div", { style: { display: "flex", justifyContent: "space-between", padding: "5px 0" } }, h("span", { class: "k" }, k), h("span", {}, v))
+            : h("button", { type: "button", onclick: () => copy(v), title: v }, h("span", { class: "k" }, k), h("span", {}, v)))),
+          cm.status ? h("div", { class: "status" }, `CMYK: ${T.cmykStatus[cm.status] || cm.status}${cm.date ? `, ${cm.date}` : ""}`) : null));
+    });
+    const textC = colours.filter((c) => ["text", "secondary-text", "accent", "background"].includes(c.role));
+    const bgC = colours.filter((c) => ["background", "text", "accent", "support"].includes(c.role));
+    const declared = new Set((B.pairs || []).map((p) => `${p.text}|${p.background}`));
+    return [
+      h("p", { class: "muted small no-print" }, T.copy),
+      h("div", { class: "grid g3" }, cards),
+      total ? [h("h3", {}, T.share), h("div", { class: "share", role: "img", "aria-label": colours.map((c) => `${c.name} ${c.share || 0}%`).join(", ") },
+        colours.map((c) => h("div", { style: { background: c.hex, flex: `${Number(c.share) || 0} 0 0` } })))] : null,
+      h("h3", {}, T.matrix), h("p", { class: "muted small" }, T.matrixLead),
+      h("div", { class: "scroll" }, h("table", { class: "matrix" },
+        h("thead", {}, h("tr", {}, h("th", {}, T.textOn), bgC.map((b) => h("th", { scope: "col" }, b.name)))),
+        h("tbody", {}, textC.map((t) => h("tr", {}, h("th", { scope: "row" }, t.name), bgC.map((b) => {
+          if (t.id === b.id) return h("td", {}, h("div", { class: "cell muted" }, "–"));
+          const r = contrast(t.hex, b.hex), v = verdict(r);
+          return h("td", { class: declared.has(`${t.id}|${b.id}`) ? "ok-mark" : null },
+            h("div", { class: "cell", style: { background: b.hex, color: t.hex } }, h("b", {}, "Aa"), h("span", {}, fmt(r)), h("span", { class: "verdict" }, T.v[v])));
+        })))))),
+      (B.pairs || []).length ? rows((B.pairs || []).map((p) => [`${(byId[p.text] || {}).name || p.text} / ${(byId[p.background] || {}).name || p.background}`, `${p.use || ""} (${fmt(contrast((byId[p.text] || {}).hex || "#000", (byId[p.background] || {}).hex || "#fff"))})`])) : null
+    ];
+  },
+  type() {
+    const fs = (B.type.families || []);
+    const sample = B.type.sample || (LANG === "pl" ? "Zażółć gęślą jaźń" : "Sphinx of black quartz, judge my vow");
+    const alpha = LANG === "pl" ? "AĄBCĆDEĘFGHIJKLŁMNŃOÓPRSŚTUWYZŹŻ aąbcćdeęfghijklłmnńoóprsśtuwyzźż 0123456789 „”–?!&" : "ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789 “”–?!&";
+    return [
+      h("h3", {}, T.families),
+      fs.map((f) => h("div", { class: "card", style: { marginBottom: "14px" } },
+        h("div", { class: "muted small" }, `${f.family}, ${f.role}`),
+        h("div", { class: "spec", style: { fontFamily: `"${f.family}", var(--text)`, fontWeight: (f.weights || [])[(f.weights || []).length - 1] || 600 }, "data-font": f.family }, sample),
+        h("div", { class: "alpha", style: { fontFamily: `"${f.family}", var(--text)` } }, alpha),
+        rows([[T.why, f.why], [T.weights, (f.weights || []).join(", ")], [T.licence, f.licence], [T.source, f.source], [T.substitute, f.office_substitute], [T.reflex, f.reflex_reason]]))),
+      (B.type.scale || []).length ? [h("h3", {}, T.scale), h("div", {}, B.type.scale.map((s) => {
+        const f = fs.find((x) => x.role === s.role) || fs[0] || {};
+        return h("div", { class: "scale-row" }, h("div", { class: "meta" }, h("div", {}, h("b", {}, s.level)), `${s.px} px${s.pt ? ` / ${s.pt} pt` : ""}`, h("div", {}, `× ${s.line}`)),
+          h("div", { class: "ex", style: { fontFamily: `"${f.family}", var(--text)`, fontSize: `${Math.min(s.px, 64)}px`, lineHeight: s.line } }, s.use || sample));
+      }))] : null
+    ];
+  },
+  imagery() {
+    const im = B.imagery;
+    const p = Object.keys(T.params).filter((k) => im[k]).map((k) => [T.params[k], im[k]]);
+    return [
+      rows(p),
+      (im.do || im.dont) ? h("div", { class: "pair", style: { marginTop: "24px" } },
+        h("div", {}, h("span", { class: "h" }, T.doLabel), h("ul", { class: "plain" }, (im.do || []).map((x) => h("li", {}, x)))),
+        h("div", {}, h("span", { class: "h" }, T.dontLabel), h("ul", { class: "plain" }, (im.dont || []).map((x) => h("li", {}, x))))) : null,
+      (im.images || []).length ? [h("h3", {}, T.images), h("div", { class: "grid g2" }, im.images.map((i) => h("figure", { "data-generated": i.generated ? "true" : null },
+        h("img", { src: asset(i.file), alt: i.alt || "", loading: "lazy" }),
+        h("figcaption", {}, i.generated ? h("span", { class: "gen" }, `${i.caption || (im.ai && im.ai.label) || "Wizualizacja"}. `) : null, i.alt || ""))))] : null,
+      im.ai ? [h("h3", {}, T.ai), rows([[T.aiAllowed, (im.ai.allowed || []).join("; ")], [T.aiBanned, (im.ai.banned || []).join("; ")], [T.aiLabel, im.ai.label], [T.aiApprover, im.ai.approver]])] : null
+    ];
+  },
+  labels() {
+    return (B.labels || []).map((l) => {
+      const f = l.format;
+      const req = REQUIRED[l.category] || [];
+      const keys = new Set((l.legal || []).filter((x) => x.text).map((x) => x.key));
+      const frame = h("iframe", { title: `${l.product}: ${T.preview}`, loading: "lazy", src: asset(`labels/${l.id}.html?mode=preview&fit=1`) });
+      const size = (mode) => {
+        const pad = mode === "guides" ? 16 : 0;
+        const w = f.w_mm + 2 * f.bleed_mm + 2 * pad, hh = f.h_mm + 2 * f.bleed_mm + 2 * pad + (mode === "guides" ? 10 : 0);
+        frame.style.aspectRatio = `${w} / ${hh}`;
+        frame.style.maxWidth = `${Math.round(620 * w / hh)}px`;
+      };
+      size("preview");
+      const modes = h("div", { class: "modes", role: "group" }, ["preview", "guides"].map((m) => h("button", { type: "button", "aria-pressed": m === "preview" ? "true" : "false", onclick: (e) => {
+        for (const b of modes.children) b.setAttribute("aria-pressed", b === e.currentTarget ? "true" : "false");
+        frame.src = asset(`labels/${l.id}.html?mode=${m}&fit=1`); size(m);
+      } }, T[m])));
+      return h("div", { class: "card", style: { marginBottom: "22px" } },
+        h("h3", { style: { marginTop: 0 } }, l.product),
+        h("p", { class: "muted small" }, `${T.format}: ${f.name ? `${f.name}, ` : ""}${f.w_mm} × ${f.h_mm} mm, ${T.bleed} ${f.bleed_mm} mm, ${T.safe} ${f.safe_mm} mm`),
+        h("div", { class: "labelview" }, modes, frame),
+        h("div", { class: "note" }, T.templateNote),
+        h("h3", {}, T.front), h("ol", { class: "plain" }, h("li", {}, T.brandMark), [l.front.name, l.front.variant, l.front.benefit].filter(Boolean).map((x) => h("li", {}, x)), l.front.net ? h("li", {}, `${T.net}: ${l.front.net}`) : null),
+        (l.zones || []).length > 1 ? [h("h3", {}, T.zones), rows(l.zones.map((z) => [`${z.id}: ${z.role}`, `${z.x_mm}–${z.x_mm + z.w_mm} mm`]))] : null,
+        req.length ? [h("h3", {}, T.mandatory), req.map((k) => {
+          const item = (l.legal || []).find((x) => x.key === k);
+          return h("div", { class: "check" }, h("b", { class: keys.has(k) ? null : "missing" }, keys.has(k) ? T.present : T.missingT), h("span", {}, item ? `${item.label}: ${item.text}` : k));
+        }), l.nutrition_exempt_reason ? h("div", { class: "check" }, h("b", {}, T.exempt), h("span", {}, l.nutrition_exempt_reason)) : null] : null);
+    });
+  },
+  print() {
+    const p = B.print;
+    return [
+      h("h3", {}, T.printSpec),
+      rows([[T.printer, p.printer || T.notChosen], [T.technology, p.technology], [T.pdf, p.pdf], [T.profile, p.profile], [T.bleed, p.bleed_mm !== undefined ? `${p.bleed_mm} mm` : null], [T.safe, p.safe_mm !== undefined ? `${p.safe_mm} mm` : null], [T.smallText, p.small_text], [T.finishes, (p.finishes || []).map((x) => `${x.type}${x.colour ? ` (${x.colour})` : ""}${x.layer ? `, ${x.layer}` : ""}`).join("; ")], [T.proofL, p.proof]]),
+      h("h3", {}, T.handoff),
+      h("ol", { class: "plain" }, (LANG === "pl" ? [
+        `Eksport do ${p.pdf || "PDF/X-4"} z profilem ${p.profile || "ustalonym z drukarnią"}.`,
+        `Spad ${p.bleed_mm ?? 3} mm i ${p.safe_mm ?? 3} mm marginesu bezpieczeństwa; wartości potwierdzić z drukarnią.`,
+        "Drobny tekst i kod kreskowy w 100% K z nadrukiem.",
+        "Uszlachetnienia i wykrojnik na osobnych warstwach, jako kolory dodatkowe nazwane tak, jak chce drukarnia.",
+        "Wykrojnik od drukarni, nie rysowany na oko.",
+        "Próbny wydruk na docelowym papierze przed zatwierdzeniem koloru."
+      ] : [
+        `Export to ${p.pdf || "PDF/X-4"} with the ${p.profile || "printer's"} profile.`,
+        `${p.bleed_mm ?? 3} mm bleed and ${p.safe_mm ?? 3} mm safe margin; confirm with the printer.`,
+        "Small text and barcode in 100% K, overprinting.",
+        "Finishes and dieline on separate layers, as spot colours named the way the printer wants.",
+        "The dieline from the printer, not drawn by eye.",
+        "A proof on the final paper before the colour is approved."
+      ]).map((x) => h("li", {}, x)))
+    ];
+  },
+  files() {
+    return rows([[T.filePath, h("span", {}, T.what, " / ", T.printReady)], ...(B.files || []).map((f) => [h("a", { href: asset(f.path) }, f.path), `${f.what} / ${f.print_ready ? T.yes : T.noWord}`])]);
+  },
+  decisions() {
+    const d = B.decisions || [];
+    return [
+      d.length ? rows(d.map((x) => [x.what, h("div", {}, h("div", {}, `${T.decWho}: ${x.who || "?"}, ${T.decBy.toLowerCase()}: ${x.by || "?"}`), x.recommendation ? h("div", { class: "muted" }, `${T.decRec}: ${x.recommendation}`) : null)])) : null,
+      (B.changelog || []).length ? [h("h3", {}, T.changelog), rows(B.changelog.map((c) => [`${c.version}, ${c.date}`, c.change]))] : null
+    ];
+  }
+};
+
+function dontCard(d, primary) {
+  const st = { height: "52px", width: "auto" };
+  let box = { background: bg ? bg.hex : "#fff" };
+  if (d.demo === "stretch") st.transform = "scaleX(1.6)";
+  if (d.demo === "rotate") st.transform = "rotate(-16deg)";
+  if (d.demo === "shadow") st.filter = "drop-shadow(5px 5px 0 rgba(0,0,0,.45))";
+  if (d.demo === "recolor") st.filter = "hue-rotate(150deg) saturate(3)";
+  if (d.demo === "busy") box = { backgroundImage: `repeating-linear-gradient(45deg, ${(accent || ink || {}).hex || "#888"} 0 10px, ${(bg || {}).hex || "#fff"} 10px 20px)` };
+  if (d.demo === "squeeze") st.transform = "scaleY(1.6)";
+  return h("div", { class: "card dont", style: { padding: 0 } },
+    d.demo ? h("div", { class: "logobox", style: box }, h("img", { src: asset(primary.file), alt: "", style: st }), h("span", { class: "tag" }, T.no)) : null,
+    h("div", { style: { padding: "12px 16px" } }, d.rule));
+}
+
+/* Mockups are drawn at their real size and scaled down; data-scale lets render.mjs check the logo against min_px. */
+function mockup(a) {
+  const darkBg = ink || { hex: "#111" };
+  const kinds = {
+    post: { w: 1080, h: 1080, view: 1, bgId: (darkBg || {}).id },
+    card: { w: 321, h: 208, view: 1, bgId: (bg || {}).id, mm: true },
+    email: { w: 600, h: 300, view: 1, bgId: (bg || {}).id },
+    web: { w: 1440, h: 810, view: 1, bgId: (bg || {}).id }
+  };
+  const k = kinds[a.kind] || kinds.post;
+  const bgc = byId[k.bgId] || bg || { hex: "#fff" };
+  const fg = isDark(bgc.hex) ? (bg || { hex: "#fff" }).hex : (ink || { hex: "#111" }).hex;
+  const lv = logoFor(bgc.id) || {};
+  const minPx = k.mm ? Math.ceil((lv.min_mm || 20) * 3.7795) : (lv.min_px || 96);
+  const logoW = Math.max(minPx, Math.round(k.w * (k.mm ? 0.42 : 0.2)));
+  const canvas = h("div", { class: "canvas", style: { width: `${k.w}px`, height: `${k.h}px`, background: bgc.hex, color: fg, padding: `${Math.round(k.w * 0.07)}px`, display: "flex", flexDirection: "column", justifyContent: "space-between", boxSizing: "border-box" } },
+    a.image ? h("img", { src: asset(a.image), alt: "", style: { position: "absolute", inset: "0", width: "100%", height: "100%", objectFit: "cover", opacity: "0.9" } }) : null,
+    h("img", { src: asset(lv.file), alt: B.meta.name, "data-logo": "", "data-min-px": minPx, style: { width: `${logoW}px`, height: "auto", position: "relative" } }),
+    h("div", { style: { position: "relative" } },
+      h("div", { style: { fontFamily: "var(--display)", fontWeight: 600, fontSize: `${Math.round(k.w * (k.mm ? 0.07 : 0.075))}px`, lineHeight: 1.05 } }, a.headline || ""),
+      a.text ? h("div", { style: { marginTop: `${Math.round(k.w * 0.02)}px`, fontSize: `${Math.round(k.w * (k.mm ? 0.04 : 0.03))}px`, opacity: 0.85 } }, a.text) : null));
+  const holder = h("div", { class: "mock", style: { aspectRatio: `${k.w} / ${k.h}` } }, canvas);
+  const fit = () => { const s = holder.clientWidth / k.w; canvas.style.transform = `scale(${s})`; canvas.querySelectorAll("[data-logo]").forEach((el) => el.setAttribute("data-scale", s)); };
+  new ResizeObserver(fit).observe(holder);
+  return h("figure", {}, holder, h("figcaption", {}, a.title || a.kind));
+}
+
+/* page */
+const main = document.getElementById("main");
+const M = B.meta;
+const primary = ((B.logo || {}).variants || [])[0];
+main.append(h("div", { class: "cover", id: "top" },
+  primary ? h("img", { class: "logo", src: asset(primary.file), alt: M.name }) : h("div", { class: "purpose" }, M.name),
+  B.strategy && B.strategy.purpose ? h("p", { class: "purpose" }, B.strategy.purpose) : null,
+  h("div", { class: "meta" },
+    h("div", {}, `${T.version} ${M.version}, ${M.date}${M.status ? `, ${M.status === "approved" ? T.approved : T.draft}` : ""}`),
+    M.owner ? h("div", {}, `${T.owner}: ${M.owner}${M.contact ? `, ${M.contact}` : ""}`) : null,
+    M.made_by ? h("div", {}, `${T.madeBy}: ${M.made_by}`) : null)));
+
+const tocItems = [];
+for (const part of ORDER) {
+  const items = part.items.filter((id) => has[id]);
+  if (!items.length) continue;
+  main.append(h("div", { class: "part", "data-part": part.part }, h("h1", {}, part.part === 1 ? T.part1 : T.part2), h("p", {}, part.part === 1 ? T.part1Lead : T.part2Lead)));
+  items.forEach((id, i) => {
+    const code = `${part.part}.${i + 1}`;
+    main.append(section(id, code, build[id]()));
+    tocItems.push({ id, code, part: part.part, title: T.topics[id] });
+  });
+}
+main.append(h("footer", { class: "colophon" }, T.colophon(B)));
+
+/* navigation */
+const toc = document.getElementById("toc");
+const menuLinks = document.getElementById("menu-links");
+document.getElementById("menu-label").textContent = T.menu;
+document.getElementById("skip").textContent = T.skip;
+let lastPart = 0;
+for (const it of tocItems) {
+  if (it.part !== lastPart) { toc.append(h("p", {}, it.part === 1 ? T.part1 : T.part2)); lastPart = it.part; }
+  toc.append(h("a", { href: `#${it.id}`, "data-for": it.id }, h("span", { class: "n" }, it.code), it.title));
+  menuLinks.append(h("a", { href: `#${it.id}`, "data-for": it.id, onclick: () => (document.getElementById("menu").open = false) }, `${it.code} ${it.title}`));
+}
+const barBrand = document.getElementById("bar-brand");
+barBrand.append(primary ? h("img", { src: asset(primary.file), alt: M.name }) : M.name, h("span", {}, `brandbook ${M.version}`));
+
+/* reader filter: a real state, kept in the URL so a link can open the designer's view */
+const readersEl = document.getElementById("readers");
+readersEl.setAttribute("aria-label", T.reader);
+readersEl.append(h("span", { class: "lab" }, T.reader));
+function setReader(r) {
+  for (const b of readersEl.querySelectorAll("button")) b.setAttribute("aria-pressed", b.dataset.r === r ? "true" : "false");
+  for (const s of main.querySelectorAll("section.s")) s.hidden = r !== "all" && !s.dataset.readers.split(" ").includes(r);
+  for (const p of main.querySelectorAll(".part")) {
+    let n = p.nextElementSibling, any = false;
+    while (n && !n.classList.contains("part") && n.tagName !== "FOOTER") { if (n.matches("section.s") && !n.hidden) any = true; n = n.nextElementSibling; }
+    p.hidden = !any;
+  }
+  for (const a of document.querySelectorAll("[data-for]")) a.hidden = document.getElementById(a.dataset.for).hidden;
+  const u = new URL(location.href); if (r === "all") u.searchParams.delete("reader"); else u.searchParams.set("reader", r);
+  try { history.replaceState(null, "", u); } catch {}
+}
+for (const r of Object.keys(T.readers)) readersEl.append(h("button", { type: "button", "data-r": r, onclick: () => setReader(r) }, T.readers[r]));
+const startReader = new URLSearchParams(location.search).get("reader");
+setReader(T.readers[startReader] ? startReader : "all");
+
+/* scrollspy */
+const links = [...toc.querySelectorAll("a")];
+const spy = new IntersectionObserver((entries) => {
+  for (const e of entries) if (e.isIntersecting) for (const a of links) a.setAttribute("aria-current", a.dataset.for === e.target.id ? "true" : "false");
+}, { rootMargin: "-20% 0px -70% 0px" });
+main.querySelectorAll("section.s").forEach((s) => spy.observe(s));
+window.addEventListener("beforeprint", () => setReader("all"));
+window.__bookReady = document.fonts.ready.then(() => true);
+</script>
+</body>
+</html>

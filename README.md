@@ -35,6 +35,7 @@ You don't have to name a skill. Describe the task and the agent picks the right 
 | get an honest score for a finished site | "review this site before we show it to the client" | `website-review` |
 | make an interface stop looking AI-made | "it looks generated: dots everywhere, Inter and Lucide again" | `ui-without-slop` |
 | make a video or an animation from code | "a 20-second promo for our app, also as a 9:16 reel" | `motion-design` |
+| get a brand book the owner, the designer and the printer can each use | "a brand book for our herbal teas, the designer needs clear label rules" | `brandbook` |
 
 ### A website: four stages in one request
 
@@ -59,6 +60,17 @@ Removes the look of AI-made interfaces and replaces each pattern with a design d
 - **text hierarchy:** reading order, jumps in size and weight, a headline set as one lockup;
 - **icons:** when a place needs one at all, and how to choose a set instead of Lucide by default;
 - **component kits:** shadcn/ui and Magic UI restyled, with their keyboard behaviour kept.
+
+### Brand book: `brandbook`
+
+Builds a brand book from a brief, the logo and product data. Everything comes from one `brand.json`, so the parts can't drift apart:
+
+- **an interactive page** in two parts, the brand and the rules, with a "reading as" filter (owner, designer, printer, marketing), colour values to copy, a contrast matrix and label previews; the PDF is the same page printed;
+- **label templates in millimetres** with bleed, safe margin and zones, checked for overflow and for the 1.2 mm x-height of mandatory food text;
+- **colour per medium** with the CMYK profile and the status of every print value (proposed, converted, proofed);
+- **an internal list to verify** before print, and `tokens.css` for `motion-design` and websites.
+
+It needs Python 3, Node 22+ and Chromium or Chrome on your machine. It flags label law for a regulatory person and doesn't design a logo from nothing.
 
 ### Video: `motion-design`
 

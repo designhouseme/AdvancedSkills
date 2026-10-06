@@ -1,0 +1,57 @@
+{
+ "skill_name": "brandbook",
+ "evals": [
+  {
+   "id": 1,
+   "prompt": "Zrób brandbook dla naszych herbat ziołowych Tatarak. W folderze masz brief, logo, arkusz produktów i obecną etykietę rumianku. Grafik ma z tego zrobić etykiety na trzy puszki, a ja chcę coś, co pokażę wspólnikowi. Bez pytań, rób na założeniach.",
+   "expected_output": "A brand/ folder with brand.json, the interactive book (book/index.html), three label templates (labels/*.html) with PDFs and PNGs, tokens.css, a PDF of the book of at most 20 pages, 00-input.md, 01-verify.md and 02-system.md, and a reply with the direction, the palette and typefaces with reasons, the placeholders and open decisions, what wasn't checked and the commands to rebuild.",
+   "files": [
+    "evals/fixtures/brand-herbal/brief.md -> brief.md",
+    "evals/fixtures/brand-herbal/products.csv -> products.csv",
+    "evals/fixtures/brand-herbal/logo.svg -> logo.svg",
+    "evals/fixtures/brand-herbal/existing-label-rumianek.svg -> existing-label-rumianek.svg"
+   ],
+   "assertions": [
+    "check_brand.py and render.mjs check end without errors on the final brand/ folder",
+    "brand/book/index.html opens from disk, has the reader filter and both parts (brand, rules), and its sections were viewed at 1440 and 390 px (out/shots/sections/)",
+    "There are three label templates (lipa, rumianek, pokrzywa) of 260 × 60 mm with bleed, each with the net quantity on the front, all mandatory food keys filled, and the lot given as printed on the bottom of the tin",
+    "The PDF of the book has at most 20 pages, as the brief asked",
+    "01-verify.md lists the two spellings (Tatarak in the brief and logo, Tatarák in the sheet), the net quantity 50 g on the old label against 40 g in the sheet, the net quantity missing from the old front, the plant claim about immunity and sleep, the small print below 1.2 mm x-height, the date form without 'końcem', and says who decides each",
+    "No health claim appears in brand.json, the book or the labels without a register_ref, and the plant claim from the old label isn't reused",
+    "Every colour has HEX, RGB, CMYK with a named profile and a status, and Pantone is either given or an open decision with a person and a date",
+    "The typefaces have a written reason, a licence file and the Polish letters (render.mjs check reports no missing glyphs); none is from the reflex list without reflex_reason",
+    "The palette is not the model default (cream with terracotta, near-black with an acid accent) and the green differs from a generic eco green, with the reason in 02-system.md",
+    "The name 'Herbaciarnia Wzorcowa' appears nowhere in the book, the labels or tokens.css",
+    "The logo comes from the supplied file and isn't redrawn; the reply or 01-verify.md notes that the logo file uses live text in Georgia and should be outlined by a designer",
+    "The reply lists the assumptions made without questions, the open decisions with people and dates, what wasn't checked (printer's proof, legal review, images) and the commands to rebuild"
+   ]
+  },
+  {
+   "id": 2,
+   "prompt": "Dodaj czwartą herbatę: Mięta pieprzowa, 30 g, w tej samej puszce, skład liść mięty pieprzowej 100%. Ma mieć nowy kolor wariantu.",
+   "expected_output": "The existing brand/ folder updated through brand.json only: a fourth label and colour, the book rebuilt with the new label and the colour in the palette and contrast matrix, checks without errors.",
+   "files": [],
+   "assertions": [
+    "Only brand.json was edited by hand; book/index.html and labels/ were rebuilt by build_book.py (no hand edits reported by the build)",
+    "There is a fourth label of the same format and layout, with the net quantity 30 g on the front and all mandatory food keys",
+    "The new colour has CMYK with a profile and a status that isn't proofed, and it appears in the palette and the contrast matrix of the book",
+    "check_brand.py and render.mjs check end without errors",
+    "The changelog has a new version entry"
+   ]
+  },
+  {
+   "id": 3,
+   "prompt": "czy obecna etykieta rumianku jest zgodna z prawem? możemy ją dalej drukować?",
+   "expected_output": "A reply that doesn't give a legal verdict: the points from labels-eu.md found on the label, each with why it matters, and that the client's regulatory person decides.",
+   "files": [
+    "evals/fixtures/brand-herbal/existing-label-rumianek.svg -> existing-label-rumianek.svg",
+    "evals/fixtures/brand-herbal/products.csv -> products.csv"
+   ],
+   "assertions": [
+    "The reply doesn't say the label is legal or illegal; it says a regulatory person decides",
+    "It names at least: the small print below 1.2 mm x-height, the net quantity not next to the name, the plant claim, the date form, and the 50 g against 40 g mismatch",
+    "It doesn't build a full brand book for this question"
+   ]
+  }
+ ]
+}
