@@ -70,12 +70,12 @@ node $SK/scripts/render.mjs shots brand/book/index.html brand/out/shots   # sect
 node $SK/scripts/render.mjs pdf brand/book/index.html brand/out/brandbook.pdf --max-pages 20   # pages per section
 ```
 
-Look at every section at both widths and at the PDF's slides side by side: a slide that is mostly empty or set in one small block of text is a slide to merge or to give an image. When the PDF is over budget, cut part 1 or the longest sections that `pdf` lists, never the rules. Run `ui-without-slop` on the book's own layout only, never on the brand's specimens (a dot in a variant name on a pack is the brand's decision); the layout is the template's, so report its findings in the reply instead of editing the built file. Copy this into the reply and tick it off:
+Look at every section at 1440 px and at the PDF's slides side by side (the deck is read on a laptop, a tablet or a projector; at 390 px the slides only shrink, so that shot shows the page doesn't break, not that it reads): a slide that is mostly empty or set in one small block of text is a slide to merge or to give an image. When the PDF is over budget, cut part 1 or the longest sections that `pdf` lists, never the rules. Run `ui-without-slop` on the book's own layout only, never on the brand's specimens (a dot in a variant name on a pack is the brand's decision); the layout is the template's, so report its findings in the reply instead of editing the built file. Copy this into the reply and tick it off:
 
 ```md
 - [ ] direction chosen at the stop (or assumptions recorded); page budget kept
 - [ ] check_brand.py and render.mjs check without errors; every warning fixed or explained
-- [ ] every section viewed at 1440 and 390 px; label guides viewed
+- [ ] every section viewed at 1440 px, the PDF's slides side by side; label guides viewed
 - [ ] every colour with CMYK profile and status, Pantone or a dated decision
 - [ ] typefaces with reasons, licences and the language's letters
 - [ ] 01-verify.md lists every inconsistency, legal flag and placeholder, each with who decides
