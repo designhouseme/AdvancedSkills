@@ -70,7 +70,7 @@ node $SK/scripts/render.mjs shots brand/book/index.html brand/out/shots   # sect
 node $SK/scripts/render.mjs pdf brand/book/index.html brand/out/brandbook.pdf --max-pages 20   # pages per section
 ```
 
-Look at every section at 1440 px and at the PDF's slides side by side (the deck is read on a laptop, a tablet or a projector; at 390 px the slides only shrink, so that shot shows the page doesn't break, not that it reads): a slide that is mostly empty or set in one small block of text is a slide to merge or to give an image. When the PDF is over budget, cut part 1 or the longest sections that `pdf` lists, never the rules. Copy this into the reply and tick it off:
+Look at every section at 1440 px and at the PDF's slides side by side (the deck is read on a laptop, a tablet or a projector; at 390 px the slides only shrink, so that shot shows the page doesn't break, not that it reads): a slide that is mostly empty or set in one small block of text is a slide to merge or to give an image. When the PDF is over budget, cut in the order the `pdf` error gives: part 1's photo slides first, then the longest sections it lists, never the rules. Copy this into the reply and tick it off:
 
 ```md
 - [ ] direction chosen at the stop (or assumptions recorded); page budget kept
@@ -91,7 +91,7 @@ Look at every section at 1440 px and at the PDF's slides side by side (the deck 
 | "change this colour" | the HEX, CMYK back to `converted` or `proposed`, rebuild, read the contrast matrix again |
 | "make it like this case study" | only the presentation changes (headlines, order of part 1, images); the rules and values stay, the reference stays unnamed |
 | "it's boring" | images first: cover, intro, worlds, product photos, billboard; then `meta.cover_colour` and `strategy.tagline`; the layout stays the template's |
-| "too long" | cut part 1 first; send a designer the link with `?reader=designer` |
+| "too long" | cut part 1 first, slide by slide: the mood photos (`slot` `other`), the billboard, then the worlds (both parts come from the same data, so they leave the web book too); send a designer the link with `?reader=designer` |
 | "the printer wants the file" | the designer prepares it from the print section; `labels/*.pdf` are templates |
 | "the proof is back" | CMYK `proofed` with the date, Pantone values, close the decision |
 | "is this label legal?" | no verdict and no brand book: measure it (`render.mjs measure`), audit it with `references/labels-eu.md` section 7 and answer in the shape given there |

@@ -479,7 +479,7 @@ async function pdf(file, out) {
   console.log(`${out}: ${pages} pages, ${(statSync(out).size / 1e6).toFixed(1)} MB`);
   console.log(`pages per section: ${per.join(", ")}`);
   if (statSync(out).size > 20e6) warn(`${out} is over 20 MB; too big to email`);
-  if (maxPages && pages > Number(maxPages)) err(`the PDF has ${pages} pages, the budget is ${maxPages}: shorten part 1 or the longest sections above, don't cut the rules`);
+  if (maxPages && pages > Number(maxPages)) err(`the PDF has ${pages} pages, the budget is ${maxPages}: cut part 1 in this order: the mood photos (imagery.images with slot other), the billboard, then the worlds (the overview goes with the last one), then the longest sections above; never the rules`);
 }
 
 async function shots(file, dir) {
