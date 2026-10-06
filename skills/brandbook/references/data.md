@@ -18,6 +18,7 @@ Read when you fill or change `brand.json`. Start from `assets/brand.example.json
 - `meta.name`: the exact spelling. `name_confirmed`: true only after the user confirmed it.
 - `meta.language`: `pl` or `en`, the language of the book's own labels ("Czytam jako", "Pobierz"). The content is in whatever language you write it.
 - `meta.version`, `date` (YYYY-MM-DD), `owner` (who answers questions about the book), `contact`, `status` (`draft` or `approved`), optional `made_by`.
+- `meta.cover_colour` (optional): the colour id for the cover and the part pages; by default the accent when text on it reads, otherwise the text colour.
 - `meta.label_approver`: the person who approves labels before print (the regulatory role); `"(do wskazania)"` until someone is named. The book prints it under every label.
 - `sections`: one headline per section, written as the rule the reader should remember. Keys: `strategy`, `voice`, `applications`, `logo`, `colour`, `type`, `imagery`, `labels`, `print`, `files`, `decisions`. A missing key falls back to the topic name, and `check_brand.py` warns.
 
