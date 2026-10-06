@@ -23,16 +23,18 @@ Read when the brand has labels for food, supplements or cosmetics, and when you 
 | `cosmetic` | `responsible_person`, `nominal_content`, `durability_or_pao`, `precautions`, `batch`, `function`, `ingredients_inci` |
 | `other` | none checked; say in `01-verify.md` which rules might apply (e.g. CLP pictograms on candles or cleaning products) and that nobody checked them |
 
-Add keys for what applies to the product: `allergens` notes, `origin`, `usage`, `alcohol`, `quid`, `warnings`.
+Add keys for what applies to the product: `allergens` notes, `origin`, `alcohol`, `quid`, `warnings`. Instructions for use go into `info[]`; put them in `legal[]` under the key `usage` only when they're needed to use the food safely, because everything in `legal[]` is measured against the minimum x-height.
 
 ## 2. Food
 
 Mandatory particulars (1169/2011, art. 9): the name of the food; the list of ingredients with allergens emphasised in it (bold, for example); the quantity of certain ingredients where the name or picture highlights them; the net quantity; the date of minimum durability or the "use by" date; special storage or use conditions; the name and address of the food business operator; the country of origin where required; instructions for use where needed; the alcohol content above 1.2%; the nutrition declaration. A lot number is required by Directive 2011/91/EU.
 
-- **Same field of vision:** the name, the net quantity and (for drinks) the alcohol content (art. 13(5)). On the front, next to the name.
-- **Dates:** with the day: "Najlepiej spożyć przed: 12.05.2027"; with month and year only: "Najlepiej spożyć przed końcem: 05.2027" (Annex X).
+- **Same field of vision:** the name, the net quantity and (for drinks) the alcohol content (art. 13(5)). On the front, next to the name. On a round pack, flag it whenever the two sit in different zones and give the distance along the circumference; the regulatory person decides.
+- **Net quantity figures** have a minimum height by quantity: 2 mm up to 50 g or ml, 3 mm up to 200, 4 mm up to 1000, 6 mm above (Directive 76/211/EEC, Annex I 3.1; in Poland the law on prepackaged goods). `render.mjs check` measures them; confirm the rule with the regulatory person.
+- **Dates:** with the day: "Najlepiej spożyć przed: 12.05.2027"; with month and year only: "Najlepiej spożyć przed końcem: 05.2027" (Annex X). When the date depends on the packing day, the label may say where it is instead ("Najlepiej spożyć przed końcem: patrz dno puszki") with the date coded next to the lot; a date printed on the label goes out of date with every reprint.
 - **Nutrition declaration exemptions** (Annex V) include single-ingredient unprocessed products, herbs and spices, whole or ground coffee beans, herbal and fruit infusions and tea, salt, and foods whose largest surface is under 25 cm². Write the exemption and its basis in `nutrition_exempt_reason` and flag it for confirmation.
 - **Language:** the particulars must be in a language consumers understand; in Poland, Polish.
+- **Organic terms:** "eko", "bio", "ekologiczny" and "organic" are reserved for certified products (Regulation (EU) 2018/848); keep them out of names, labels and posts without a certificate.
 
 ## 3. Food supplements
 
@@ -47,6 +49,7 @@ Regulation (EC) 1223/2009, art. 19: the name and address of the responsible pers
 - A health or nutrition claim on food is allowed only in the wording of the EU register (Regulation 1924/2006, list in Regulation 432/2012) and only when the product meets its conditions. In `brand.json` every claim has `register_ref`; without it `check_brand.py` errors.
 - Claims about plants (botanicals) are "on hold" at EU level: none is authorised, and whether one may be used under the transitional rules is the regulatory person's call. Never write one into a label or the voice section yourself; flag it.
 - The voice section lists banned words (treats, cures, prevents, detox, "before and after", "approved by…").
+- The same claim rules apply to every commercial message, not only the label: posts, the website, a newsletter, a stand at a fair. Say so in the voice section, because posts are often written by someone who never sees the label.
 - Never generate a nutrition or supplement facts panel in an image: keep the approved label artwork.
 
 ## 6. Legibility
@@ -67,4 +70,8 @@ Compare the label with the product data and with sections 2–6, and write each 
 - claims without a register entry, or claims about plants;
 - the measured x-height of the small print against 1.2 or 0.9 mm (measure from a vector file or a scan at a known scale, give the tolerance).
 
+- on a wrap-around label, mandatory text inside the overlap, where the other end covers it.
+
 Show an existing label in the book only as an example of layout, with the words "layout only, content to be corrected" next to it, until those findings are resolved.
+
+**When the question is only "is this label OK, can we print it?"**, don't build a brand book. Measure the label (`render.mjs measure`), go through the list above, and answer in this order: no verdict, and who decides; what doesn't match the client's own data or measurement (these need fixing whatever the legal reading); the legal flags for the regulatory person; reprinting this file and selling stock already printed as two separate decisions; the questions you need answered; what you didn't check. Keep the findings in `brand/01-verify.md`.

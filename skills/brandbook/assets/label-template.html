@@ -34,6 +34,7 @@ body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 .g-safe { position: absolute; border: 0.2mm dashed #1b75bb; }
 .g-zone { position: absolute; top: 0; bottom: 0; border-left: 0.2mm dotted #333; }
 .g-tag { position: absolute; font: 600 2.4mm/1 system-ui, sans-serif; color: #333; white-space: nowrap; }
+.g-overlap { position: absolute; top: 0; bottom: 0; background: repeating-linear-gradient(45deg, rgba(27,117,187,.28) 0 1mm, transparent 1mm 2.4mm); }
 .legend { position: absolute; font: 2.5mm/1.35 system-ui, sans-serif; color: #333; }
 </style>
 </head>
@@ -71,6 +72,9 @@ const fam = (r) => { const x = (BR.families || []).find((q) => q.role === r); re
 const variants = BR.logo_variants || [];
 const logo = variants.find((v) => (v.on || []).includes(field.id)) || (dark ? variants.find((v) => /neg|white|light|inverse/i.test(v.id)) : null) || variants[0];
 const legalPt = Number(L.legal_pt) || 7.5;
+// A wrap-around label: one end is covered by the other, so no content sits in the overlap.
+const ov = Number(f.overlap_mm) || 0, ovSide = f.overlap_side === "left" ? "left" : "right";
+const ROLE = PL ? { front: "front", info: "informacje", legal: "treści obowiązkowe" } : { front: "front", info: "information", legal: "mandatory content" };
 
 const page = document.getElementById("page");
 const sheet = h("div", { class: "sheet", style: { left: mm(pad), top: mm(pad), width: mm(f.w_mm + 2 * b), height: mm(f.h_mm + 2 * b), background: field.hex, color: ink, fontFamily: fam("text") } });
@@ -111,7 +115,9 @@ function legalBlock() {
 
 zones.forEach((z, idx) => {
   const zone = h("div", { class: "zone", "data-zone": z.id, "data-role": z.role, style: { left: mm(b + z.x_mm), width: mm(z.w_mm) } });
-  const inner = h("div", { class: "inner", style: { left: mm(safe), right: mm(safe), top: mm(b + safe), bottom: mm(b + safe), gap: "2mm" } });
+  const atLeft = z.x_mm <= 0.01, atRight = z.x_mm + z.w_mm >= f.w_mm - 0.01;
+  const padL = safe + (ov && ovSide === "left" && atLeft ? ov : 0), padR = safe + (ov && ovSide === "right" && atRight ? ov : 0);
+  const inner = h("div", { class: "inner", style: { left: mm(padL), right: mm(padR), top: mm(b + safe), bottom: mm(b + safe), gap: "2mm" } });
   const last = idx === zones.length - 1;
   const takesInfo = z.role === "info" || (last && !hasInfo);
   const takesLegal = z.role === "legal" || (last && !hasLegal);
@@ -126,15 +132,24 @@ if (mode === "guides") {
   const g = h("div", { class: "guides", style: { left: mm(pad), top: mm(pad), width: mm(f.w_mm + 2 * b), height: mm(f.h_mm + 2 * b) } });
   g.append(h("div", { class: "g-bleed", style: { left: 0, top: 0, right: 0, bottom: 0 } }));
   g.append(h("div", { class: "g-trim", style: { left: mm(b), top: mm(b), width: mm(f.w_mm), height: mm(f.h_mm) } }));
-  for (const z of zones) {
-    g.append(h("div", { class: "g-safe", style: { left: mm(b + z.x_mm + safe), top: mm(b + safe), width: mm(z.w_mm - 2 * safe), height: mm(f.h_mm - 2 * safe) } }));
+  zones.forEach((z, i) => {
+    const atLeft = z.x_mm <= 0.01, atRight = z.x_mm + z.w_mm >= f.w_mm - 0.01;
+    const l = safe + (ov && ovSide === "left" && atLeft ? ov : 0), r = safe + (ov && ovSide === "right" && atRight ? ov : 0);
+    g.append(h("div", { class: "g-safe", style: { left: mm(b + z.x_mm + l), top: mm(b + safe), width: mm(z.w_mm - l - r), height: mm(f.h_mm - 2 * safe) } }));
     if (z.x_mm > 0) g.append(h("div", { class: "g-zone", style: { left: mm(b + z.x_mm) } }));
-    g.append(h("div", { class: "g-tag", style: { left: mm(b + z.x_mm + 1), top: mm(-5) } }, `${z.id}: ${z.role}, ${z.w_mm} mm`));
+    // Tags alternate between two rows, so a narrow zone's tag doesn't run into its neighbour's.
+    g.append(h("div", { class: "g-tag", style: { left: mm(b + z.x_mm + 1), top: mm(i % 2 ? -9.5 : -5) } }, `${z.id}: ${ROLE[z.role] || z.role}, ${z.w_mm} mm`));
+  });
+  const end = Math.max(...zones.map((z) => z.x_mm + z.w_mm));
+  if (end < f.w_mm - 0.01) g.append(h("div", { class: "g-zone", style: { left: mm(b + end) } }));
+  if (ov) {
+    g.append(h("div", { class: "g-overlap", style: { left: mm(ovSide === "left" ? b : b + f.w_mm - ov), width: mm(ov) } }));
+    g.append(h("div", { class: "g-tag", style: { left: mm(ovSide === "left" ? b : b + f.w_mm - ov), top: mm(f.h_mm + 2 * b + 1) } }, PL ? `zakładka ${ov} mm` : `overlap ${ov} mm`));
   }
   page.append(g);
-  page.append(h("div", { class: "legend", style: { left: mm(pad), top: mm(pad + f.h_mm + 2 * b + 4), width: mm(Math.max(f.w_mm + 2 * b, 60)) } },
-    PL ? `Czerwona: linia cięcia ${f.w_mm} × ${f.h_mm} mm. Niebieska ciągła: spad ${b} mm. Niebieska przerywana: margines bezpieczeństwa ${safe} mm. Szablon, nie plik do druku.`
-       : `Red: trim ${f.w_mm} × ${f.h_mm} mm. Solid blue: ${b} mm bleed. Dashed blue: ${safe} mm safe margin. A template, not a print file.`));
+  page.append(h("div", { class: "legend", style: { left: mm(pad), top: mm(pad + f.h_mm + 2 * b + (ov ? 5.5 : 4)), width: mm(Math.max(f.w_mm + 2 * b, 60)) } },
+    PL ? `Czerwona: linia cięcia ${f.w_mm} × ${f.h_mm} mm. Niebieska ciągła: spad ${b} mm. Niebieska przerywana: margines bezpieczeństwa ${safe} mm.${ov ? ` Kreskowanie: zakładka ${ov} mm, bez treści.` : ""} Szablon, nie plik do druku.`
+       : `Red: trim ${f.w_mm} × ${f.h_mm} mm. Solid blue: ${b} mm bleed. Dashed blue: ${safe} mm safe margin.${ov ? ` Hatched: ${ov} mm overlap, no content.` : ""} A template, not a print file.`));
 }
 document.title = `${BR.name}: ${L.product} (${mode})`;
 // ?fit=1 (the book's preview): scale the label to the frame's width on screen; print and checks use real millimetres.

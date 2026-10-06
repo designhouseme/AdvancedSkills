@@ -141,6 +141,11 @@ def check(brand, root):
     lang = meta.get("language", "pl")
 
     sections = brand.get("sections") or {}
+    purpose = str((brand.get("strategy") or {}).get("purpose", "")).strip().rstrip(".").lower()
+    if purpose and str(sections.get("strategy", "")).strip().rstrip(".").lower() == purpose:
+        warn("sections.strategy repeats strategy.purpose, so the purpose shows three times (cover, headline, lead); write the strategy headline as a different rule")
+    if brand.get("labels") and not meta.get("label_approver"):
+        warn("meta.label_approver is missing: name who approves labels before print; if nobody is named yet, write \"(do wskazania)\" and ask in the reply")
     present = {"strategy": brand.get("strategy"), "voice": brand.get("voice"), "applications": brand.get("applications"),
                "logo": brand.get("logo"), "colour": brand.get("colours"), "type": brand.get("type"),
                "imagery": brand.get("imagery"), "labels": brand.get("labels"), "print": brand.get("print"),
@@ -289,8 +294,15 @@ def check(brand, root):
             warn(f"label {lid}: format.largest_surface_cm2 is missing; it decides between 1.2 and 0.9 mm x-height")
         w = fmt.get("w_mm") or 0
         for z in label.get("zones") or []:
+            if z.get("role") not in ("front", "info", "legal"):
+                error(f"label {lid}: zone {z.get('id')} has the role {z.get('role')!r}; use front, info or legal (an overlap is format.overlap_mm, not a zone)")
             if z.get("x_mm", 0) < 0 or z.get("x_mm", 0) + z.get("w_mm", 0) > w + 0.01:
                 error(f"label {lid}: zone {z.get('id')} lies outside the {w} mm width")
+        if fmt.get("overlap_mm") is not None:
+            if not isinstance(fmt["overlap_mm"], (int, float)) or fmt["overlap_mm"] < 0 or fmt.get("overlap_side") not in ("left", "right"):
+                error(f"label {lid}: overlap_mm needs a number and overlap_side left or right")
+        elif len(label.get("zones") or []) > 2:
+            warn(f"label {lid}: looks like a wrap-around label but has no overlap_mm; ask the printer which end is covered and by how much")
         front = label.get("front") or {}
         if not front.get("name"):
             error(f"label {lid}: front.name is missing")
@@ -331,9 +343,13 @@ def check(brand, root):
         if not fin.get("layer"):
             warn(f"finish {fin.get('type')}: no layer name; finishes go on separate named spot layers")
     for f in brand.get("files") or []:
-        target = root / str(f.get("path", ""))
-        if not target.exists():
-            error(f"file listed but not found: {f.get('path')}")
+        rel = str(f.get("path", ""))
+        if not (root / rel).exists():
+            # Built and rendered files appear after build_book.py and render.mjs; anything else is missing.
+            if rel == "tokens.css" or rel.split("/")[0] in ("book", "labels", "out"):
+                warn(f"{rel} is listed but not built or rendered yet; run build_book.py and render.mjs, then check again")
+            else:
+                error(f"file listed but not found: {rel}")
     for d in brand.get("decisions") or []:
         if not d.get("who") or not d.get("by"):
             warn(f"decision {d.get('what')!r} has no person or date")
@@ -344,6 +360,8 @@ def check(brand, root):
                 error(f"the reference {n!r} is named in {path}; references stay internal")
         if "—" in value:
             warn(f"em dash in {path}; use a comma, colon or full stop")
+        if not path.startswith(("voice.words_avoid", "imagery.dont", "imagery.ai.banned", "strategy.rejected")) and re.search(r"\b(eko|bio|ekologiczn\w*|organic|organiczn\w*)\b", value, re.I):
+            warn(f"{path} uses an organic term ({value[:50]!r}); eko, bio and ekologiczny are protected for certified products (Regulation (EU) 2018/848)")
     if not brand.get("changelog"):
         warn("no changelog; the book needs a version history")
 

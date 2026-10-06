@@ -1,6 +1,6 @@
 ---
 name: brandbook
-description: Builds a brand book from a brief, logo files and product data, delivered as one interactive web page that the owner, designers, printers and marketing can browse (filtered by reader, values to copy, live contrast, label previews) and a PDF printed from the same page, plus label templates in millimetres with bleed and zones, design tokens and an internal list of what to verify before print. Use when someone asks for a brand book, brandbook, brand guidelines, a style guide, a visual identity manual or "księga znaku", label or packaging guidelines for designers, or a change to such a brand book (a new product or colour, a page, another presentation). Not for designing a logo from nothing, a website (that's business-website), a video (that's motion-design), a legal check of a label, or one-off social graphics.
+description: Builds a brand book from a brief, logo files and product data, delivered as one interactive web page that the owner, designers, printers and marketing can browse (filtered by reader, values to copy, live contrast, label previews) and a PDF printed from the same page, plus label templates in millimetres with bleed and zones, design tokens and an internal list of what to verify before print. Use when someone asks for a brand book, brandbook, brand guidelines, a style guide, a visual identity manual or "księga znaku", label or packaging guidelines for designers, or a change to such a brand book (a new product or colour, a page, another presentation). Not for designing a logo from nothing, a legal opinion on a label (it only lists what to check and who decides), a website (that's business-website), a video (that's motion-design), or one-off social graphics.
 license: CC-BY-4.0
 metadata:
   author: Design House
@@ -23,19 +23,19 @@ Goal: a brand book that the person who uses it after the designer has left can w
 - **Labels first, images second.** In the 2026 project the labels changed after the photos were generated, and the photos showed outdated fronts. Generated images get the caption from `imagery.ai.label`, people stay sketches until a real shoot with model releases, and the product comes from the approved label render.
 - **Type and colour are decisions.** Choose the typeface with `../ui-without-slop/references/typefaces.md` (sibling skill) or record the client's reason in `reflex_reason`; check the palette against the model defaults (cream with terracotta, near-black with an acid accent). Every face must have the language's accented letters.
 - **The name is one parameter.** Three spellings in the brief, the data and the logo are a question for your first message, not a silent choice.
-- **No logo from nothing.** Without a logo file, set the name in the display face as a temporary wordmark, mark it as temporary and say a designer should draw the mark.
+- **The client's logo stays the client's.** Fix only a technical fault, in a copy, and record it: a viewBox that cuts letters off, a negative made by recolouring. Never change the shapes; live text in a logo file goes to a designer to outline. Without a logo, set the name in the display face as a temporary wordmark and say a designer should draw the mark.
 
 ## Workflow
 
-Working files live in `brand/` (pick another folder only if the project has one): `00-input.md` (the brief verbatim, a "was / now" table of renamed client files), `01-verify.md` (internal: inconsistencies, legal flags, placeholders, who decides; not for the client in this form), `02-system.md` (the decisions with reasons), `brand.json`, and `logo/`, `fonts/`, `images/`, `prompts/`.
+Working files live in `brand/` (pick another folder only if the project has one), in the user's language: `00-input.md` (the brief verbatim, a "was / now" table of renamed client files), `01-verify.md` (inconsistencies, legal flags, placeholders, each with who decides; internal when the user is the agency, so offer a clean version when the user is the brand owner), `02-system.md` (the decisions with reasons), `brand.json`, and `input/` (the client's originals, untouched), `logo/`, `fonts/`, `images/`, `prompts/`.
 
 ### 1. Intake and audit
 
-Copy the client's files into `brand/` under readable names. Compare them with each other and with `references/labels-eu.md`: spellings, numbers, the content and x-height of any existing label, claims, missing data. Write `01-verify.md`.
+Copy the client's files into `brand/input/` and working copies under readable names. Compare them with each other and with `references/labels-eu.md`: spellings, numbers, the content and x-height of any existing label (`node $SK/scripts/render.mjs measure label.svg --surface 156` measures live text in an SVG), claims, missing data. When nobody is named to approve labels, write `"label_approver": "(do wskazania)"` and ask. Write `01-verify.md`.
 
 ### 2. Direction (the one stop)
 
-Read `references/canon.md`. Write the reader matrix (page, question, reader), three default looks you reject, then 2–3 directions: palette with roles, typeface pair with a reason, the signature element, how the label system varies. Recommend one and propose the page budget. Show the user the directions, your recommendation, the budget and the spelling question, and wait. With "no questions" or nobody at the keyboard, choose and record the assumptions.
+Read `references/canon.md`. Write the reader matrix (page, question, reader), three default looks you reject, then 2–3 directions: palette with roles, typeface pair with a reason, the signature element, how the label system varies. Recommend one and propose the page budget: the PDF takes about ten pages for the cover and both parts, plus about one per label; the web book has no page limit. Show the user the directions, your recommendation, the budget and the spelling question, and wait. With "no questions" or nobody at the keyboard, choose and record the assumptions.
 
 ### 3. System
 
@@ -43,9 +43,9 @@ Fill `brand.json` field by field with `references/data.md`, starting from `asset
 
 ```bash
 SK=<this skill's folder>
-python3 $SK/scripts/check_brand.py brand/brand.json        # data: colours, contrast, logo, type, labels, leaks
 python3 $SK/scripts/build_book.py brand/brand.json         # book/index.html, labels/*.html, tokens.css
-node $SK/scripts/render.mjs check brand/book/index.html    # render: overflow, fonts, x-height, logo minimums
+python3 $SK/scripts/check_brand.py brand/brand.json        # data: colours, contrast, logo, type, labels, leaks
+node $SK/scripts/render.mjs check brand/book/index.html    # render: overflow, fonts, x-height, net figures, logo files
 ```
 
 Requirements: Python 3, Node 22+ and Chrome or Chromium; no npm packages, no network.
@@ -66,10 +66,10 @@ Follow `references/images.md`: prompts in `prompts/` with the label version in t
 
 ```bash
 node $SK/scripts/render.mjs shots brand/book/index.html brand/out/shots   # sections/<id>-1440.jpg and -390.jpg
-node $SK/scripts/render.mjs pdf brand/book/index.html brand/out/brandbook.pdf
+node $SK/scripts/render.mjs pdf brand/book/index.html brand/out/brandbook.pdf --max-pages 20   # pages per section
 ```
 
-Look at every section at both widths. Run `ui-without-slop` on the book's own layout only, never on the brand's specimens: a dot in a variant name on a pack is the brand's decision. Copy this into the reply and tick it off:
+Look at every section at both widths. When the PDF is over budget, cut part 1 or the longest sections that `pdf` lists, never the rules. Run `ui-without-slop` on the book's own layout only, never on the brand's specimens (a dot in a variant name on a pack is the brand's decision); the layout is the template's, so report its findings in the reply instead of editing the built file. Copy this into the reply and tick it off:
 
 ```md
 - [ ] direction chosen at the stop (or assumptions recorded); page budget kept
@@ -92,7 +92,7 @@ Look at every section at both widths. Run `ui-without-slop` on the book's own la
 | "too long" | cut part 1 first; send a designer the link with `?reader=designer` |
 | "the printer wants the file" | the designer prepares it from the print section; `labels/*.pdf` are templates |
 | "the proof is back" | CMYK `proofed` with the date, Pantone values, close the decision |
-| "is this label legal?" | not this skill's call: list the points in `01-verify.md` and name who approves |
+| "is this label legal?" | no verdict and no brand book: measure it (`render.mjs measure`), audit it with `references/labels-eu.md` section 7 and answer in the shape given there |
 
 ## Pitfalls
 

@@ -64,7 +64,8 @@ The brand book defines the print file; the designer makes it.
 
 - The dieline comes from the printer or converter, never drawn by eye. Until it arrives, the template's format is an assumption: say so in the decisions.
 - Bleed: 3 mm is the offset default; label printers often want about 1.5–2 mm. Safe margin: keep text and logos at least as far from the cut as the printer requires (3 mm is a safe default).
-- Keep barcodes and mandatory text inside the safe zone and away from folds and the overlap of a wrap-around label.
+- Keep barcodes and mandatory text inside the safe zone and away from folds. On a wrap-around label one end covers the other: ask the printer which end and by how much, and set `overlap_mm` and `overlap_side` so the template keeps content out of it.
+- On a round pack the barcode bends with the surface; agree its orientation and position with the printer against GS1 guidance for curved surfaces.
 - EAN-13: the number comes from the client's GS1 membership. Nominal size 37.29 × 25.93 mm at 100%; 80% (29.83 × 20.74 mm) is a common minimum. Keep the quiet zones; dark bars on a light background. Never generate a barcode image yourself: the template reserves the space and the designer or printer makes the code.
 - Minimum line widths and type sizes for foil, embossing and spot UV depend on the converter: write "to confirm" instead of a number.
 - The front hierarchy, as a numbered list: brand, product name or category, the main benefit, the variant marker (colour, number, illustration), the net quantity in the same field of vision as the name for food.

@@ -29,7 +29,7 @@ button { font: inherit; color: inherit; }
 .bar { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line);
   display: flex; align-items: center; gap: 20px; padding: 10px 24px; flex-wrap: wrap; }
 .bar .brand { display: flex; align-items: center; gap: 12px; min-width: 0; text-decoration: none; }
-.bar .brand img { height: 28px; width: auto; }
+.bar .brand img { height: auto; }
 .bar .brand span { font-size: 14px; color: var(--ink-2); white-space: nowrap; }
 .readers { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-left: auto; }
 .readers .lab { font-size: 14px; color: var(--ink-2); margin-right: 4px; }
@@ -65,7 +65,7 @@ p.lead { font-size: 19px; max-width: 62ch; margin: 0 0 20px; }
 .g2 { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
 .g3 { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
 .card { border: 1px solid var(--line); border-radius: 12px; padding: 18px; background: var(--bg); break-inside: avoid; }
-.card h4 { margin: 0 0 6px; font: 600 17px/1.3 var(--text); }
+.card h4, .ccard h4 { margin: 0 0 6px; font: 600 17px/1.3 var(--text); }
 .rows { border-top: 1px solid var(--line); }
 .row { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 2fr); gap: 6px 20px; padding: 12px 0; border-bottom: 1px solid var(--line); break-inside: avoid; }
 .row > :first-child { font-weight: 600; }
@@ -124,12 +124,16 @@ figcaption .gen { color: var(--ink); font-weight: 600; }
 
 /* labels */
 .labelview { border: 1px solid var(--line); border-radius: 12px; background: var(--panel); padding: 16px; }
+.labelview .fw { overflow-x: auto; }
 .labelview iframe { width: 100%; border: 0; display: block; background: transparent; margin: 0 auto; }
+.labelview .open { display: inline-block; margin-top: 10px; font-size: 14px; }
 .modes { display: flex; gap: 6px; margin: 0 0 12px; }
 .modes button { border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 6px 11px; font-size: 14px; cursor: pointer; }
 .modes button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .check { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 15px; break-inside: avoid; }
 .check b { min-width: 74px; font-size: 13px; }
+.lgrid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0 32px; }
+@media (min-width: 760px) { .lgrid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); } }
 .missing { font-weight: 700; }
 
 .toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 8px 14px; border-radius: 8px; font-size: 14px; opacity: 0; transition: opacity .15s; pointer-events: none; }
@@ -154,15 +158,50 @@ footer.colophon { max-width: var(--max); border-top: 1px solid var(--line); marg
 }
 @media print {
   @page { size: 297mm 210mm; margin: 12mm; }
-  body { font-size: 11pt; }
-  .bar, nav.toc, .modes, .readers, .menu, .toast, .skip, .no-print { display: none !important; }
+  body { font-size: 10pt; line-height: 1.45; }
+  .bar, nav.toc, .modes, .readers, .menu, .toast, .skip, .no-print, .labelview .open { display: none !important; }
   .wrap { display: block; }
   main { padding: 0; }
-  .cover { min-height: 0; height: 180mm; padding: 0; }
-  .part, section.s { break-before: page; border-top: 0; padding-top: 0; margin-top: 0; max-width: none; }
-  .part { display: flex; flex-direction: column; justify-content: flex-end; height: 180mm; }
-  section.s h2 { font-size: 26pt; }
-  .card, .ccard, .row, figure, .mock, .labelview, .scale-row { break-inside: avoid; }
+  /* One page for the cover, a new page for each part; sections flow, so the page count follows the content. */
+  .cover { min-height: 0; height: 184mm; padding: 0; }
+  .part { break-before: page; max-width: none; margin: 0 0 5mm; padding: 3mm 0 0; }
+  .part + section.s { border-top: 0; }
+  section.s { max-width: none; padding: 7mm 0 0; }
+  section.s h2 { font-size: 19pt; break-after: avoid; }
+  section.s .topic { margin-bottom: 4mm; }
+  h3 { font-size: 12.5pt; margin: 5mm 0 2mm; break-after: avoid; }
+  p.lead { font-size: 12pt; }
+  .row { padding: 1.6mm 0; }
+  .card { padding: 4mm; }
+  .card, .ccard, .row, figure, .mock, .scale-row, .check, .pair, .labelview { break-inside: avoid; }
+  .labelcard { break-inside: auto; }
+  .labelview { padding: 0; background: none; border: 0; }
+  .grid.g3 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .grid.g2 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .swatch { height: 16mm; }
+  .logobox { min-height: 28mm; padding: 5mm; }
+  .spec { font-size: 24pt; margin: 2mm 0; }
+  .alpha { font-size: 10.5pt; }
+  .scale-row { padding: 2mm 0; }
+  table.matrix .cell { width: 19mm; padding: 1.4mm; }
+  table.matrix .cell b { font-size: 13pt; }
+  table.matrix th { padding: 1mm 2mm; }
+  .lgrid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); }
+  .lgrid h3 { margin-top: 3mm; }
+  .spec-card .rows { columns: 2; column-gap: 8mm; border-top: 0; }
+  .labelview iframe { max-height: 72mm; }
+  section.s > h2, section.s > .topic, h3 { break-after: avoid; }
+  section.s > h2, h3, .lhead { break-inside: avoid; }
+  .row { grid-template-columns: 50mm minmax(0, 1fr); }
+  .labelcard { padding: 3mm 4mm; }
+  .labelcard .note { padding: 2mm 3mm; font-size: 8.5pt; margin: 2mm 0; }
+  .labelcard h3 { margin-top: 2mm; }
+  .check { padding: 1.2mm 0; font-size: 9pt; }
+  .spec { font-size: 18pt; }
+  .alpha { font-size: 9pt; }
+  .ccard .body { padding: 2.5mm 3mm; }
+  .ccard .vals { font-size: 8.5pt; }
+  .mock + figcaption, figcaption { font-size: 8.5pt; }
   a { text-decoration: none; }
 }
 </style>
@@ -200,12 +239,14 @@ const T = {
     v: { aaa: "każdy tekst", aa: "tekst", large: "tylko duży tekst", fail: "nie używać" },
     cmykStatus: { proposed: "proponowane, do potwierdzenia na próbnym wydruku", converted: "przeliczone z profilu, bez próbnego wydruku", proofed: "potwierdzone na próbnym wydruku" },
     roles: { background: "tło", text: "tekst", "secondary-text": "tekst pomocniczy", accent: "akcent", line: "linie", support: "dodatkowy" },
+    zoneRoles: { front: "front", info: "informacje", legal: "treści obowiązkowe" }, famRoles: { display: "nagłówki", text: "tekst", numerals: "liczby" },
+    bleedL: "Spad", safeL: "Margines bezpieczeństwa", openLabel: "Otwórz etykietę w pełnym rozmiarze", approver: "Etykietę przed drukiem zatwierdza",
     families: "Kroje", why: "Dlaczego ten krój", licence: "Licencja", source: "Źródło", substitute: "Zamiennik w Word, Google Docs i Canvie", weights: "Grubości", scale: "Skala", reflex: "Powód mimo popularności",
     params: { light: "Światło", composition: "Kompozycja", casting: "Ludzie", props: "Rekwizyty", styling: "Stylizacja", grading: "Kolor zdjęć" },
     doLabel: "Tak", dontLabel: "Nie", ai: "Obrazy z AI", aiAllowed: "Wolno", aiBanned: "Nie wolno", aiLabel: "Podpis pod każdym obrazem z generatora", aiApprover: "Zatwierdza", images: "Przykłady",
     preview: "Podgląd", guides: "Siatka i strefy", format: "Format", bleed: "spad", safe: "margines bezpieczeństwa", zones: "Strefy", front: "Front, od najważniejszego", brandMark: "Marka (logo)", net: "Ilość netto", mandatory: "Treści obowiązkowe", present: "jest", missingT: "brak", templateNote: "To szablon do pracy, nie plik do druku. Plik do druku przygotowuje grafik według specyfikacji druku.", exempt: "Zwolnienie",
     printSpec: "Specyfikacja", handoff: "Przed wysłaniem do drukarni", printer: "Drukarnia", technology: "Technologia", pdf: "Plik", profile: "Profil CMYK", smallText: "Drobny tekst", finishes: "Uszlachetnienia", proofL: "Próbny wydruk", notChosen: "jeszcze nie wybrana",
-    filePath: "Plik", what: "Co to jest", printReady: "Do druku", yes: "tak", noWord: "nie, podgląd",
+    filePath: "Plik", what: "Co to jest", printReady: "Do druku", yes: "tak", noWord: "nie",
     decWhat: "Decyzja", decWho: "Kto", decBy: "Do kiedy", decRec: "Nasza rekomendacja", changelog: "Historia zmian",
     colophon: (b) => `${b.meta.name}, brandbook ${b.meta.version}, ${b.meta.date}.`
   },
@@ -223,12 +264,14 @@ const T = {
     v: { aaa: "any text", aa: "text", large: "large text only", fail: "do not use" },
     cmykStatus: { proposed: "proposed, to confirm on a proof", converted: "converted from the profile, no proof yet", proofed: "confirmed on a proof" },
     roles: { background: "background", text: "text", "secondary-text": "secondary text", accent: "accent", line: "lines", support: "support" },
+    zoneRoles: { front: "front", info: "information", legal: "mandatory content" }, famRoles: { display: "headings", text: "text", numerals: "numerals" },
+    bleedL: "Bleed", safeL: "Safe margin", openLabel: "Open the label at full size", approver: "Approved before print by",
     families: "Typefaces", why: "Why this typeface", licence: "Licence", source: "Source", substitute: "Substitute in Word, Google Docs and Canva", weights: "Weights", scale: "Scale", reflex: "Reason despite popularity",
     params: { light: "Light", composition: "Composition", casting: "People", props: "Props", styling: "Styling", grading: "Colour grading" },
     doLabel: "Do", dontLabel: "Don't", ai: "AI images", aiAllowed: "Allowed", aiBanned: "Not allowed", aiLabel: "Caption under every generated image", aiApprover: "Approved by", images: "Examples",
     preview: "Preview", guides: "Grid and zones", format: "Format", bleed: "bleed", safe: "safe margin", zones: "Zones", front: "Front, most important first", brandMark: "Brand (logo)", net: "Net quantity", mandatory: "Mandatory content", present: "present", missingT: "missing", templateNote: "This is a working template, not a print file. The designer prepares the print file from the print specification.", exempt: "Exemption",
     printSpec: "Specification", handoff: "Before sending to the printer", printer: "Printer", technology: "Technology", pdf: "File", profile: "CMYK profile", smallText: "Small text", finishes: "Finishes", proofL: "Proof", notChosen: "not chosen yet",
-    filePath: "File", what: "What it is", printReady: "Print-ready", yes: "yes", noWord: "no, preview",
+    filePath: "File", what: "What it is", printReady: "Print-ready", yes: "yes", noWord: "no",
     decWhat: "Decision", decWho: "Who", decBy: "By", decRec: "Our recommendation", changelog: "Changelog",
     colophon: (b) => `${b.meta.name}, brand book ${b.meta.version}, ${b.meta.date}.`
   }
@@ -271,7 +314,7 @@ function contrast(a, b) { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p);
 function verdict(r) { return r >= 7 ? "aaa" : r >= 4.5 ? "aa" : r >= 3 ? "large" : "fail"; }
 const fmt = (r) => (LANG === "pl" ? r.toFixed(1).replace(".", ",") : r.toFixed(1)) + ":1";
 const isDark = (hex) => lum(hex) < 0.2;
-function fam(role) { const f = (B.type && B.type.families || []).find((x) => x.role === role); return f ? `"${f.family}"` : null; }
+function fam(role) { const f = (B.type && B.type.families || []).find((x) => x.role === role); return f ? `"${f.family}", ${f.fallback || "system-ui, sans-serif"}` : null; }
 function logoFor(bgId) {
   const vs = (B.logo && B.logo.variants) || [];
   const bg = byId[bgId];
@@ -297,8 +340,8 @@ root.setProperty("--ink-2", ink2 ? ink2.hex : `color-mix(in srgb, var(--ink) 68%
 root.setProperty("--line", line ? line.hex : `color-mix(in srgb, var(--ink) 18%, var(--bg))`);
 root.setProperty("--panel", `color-mix(in srgb, var(--ink) 6%, var(--bg))`);
 if (accent) root.setProperty("--accent", accent.hex);
-if (fam("display")) root.setProperty("--display", `${fam("display")}, ${fam("text") || "system-ui"}, sans-serif`);
-if (fam("text")) root.setProperty("--text", `${fam("text")}, system-ui, sans-serif`);
+if (fam("display")) root.setProperty("--display", fam("display"));
+if (fam("text")) root.setProperty("--text", fam("text"));
 document.title = `${B.meta.name}: brandbook ${B.meta.version}`;
 
 /* sections */
@@ -334,7 +377,7 @@ const build = {
   voice() {
     const v = B.voice;
     return [
-      v.traits && v.traits.length ? [h("h3", {}, T.traits), h("div", { class: "grid g2" }, v.traits.map((t) => h("div", { class: "card" }, h("h4", {}, t.is), h("div", { class: "muted" }, `${T.isNot} ${t.is_not}`))))] : null,
+      v.traits && v.traits.length ? [h("h3", {}, T.traits), rows(v.traits.map((t) => [t.is, `${T.isNot} ${t.is_not}`]))] : null,
       v.tone && v.tone.length ? [h("h3", {}, T.tone), rows(v.tone.map((t) => [t.channel, h("div", {}, h("div", {}, t.how), t.example ? h("div", { class: "muted" }, `„${t.example}”`) : null)]))] : null,
       (v.words_use || v.words_avoid) ? h("div", { class: "pair", style: { marginTop: "28px" } },
         h("div", {}, h("span", { class: "h" }, T.wordsUse), (v.words_use || []).join(", ")),
@@ -405,7 +448,7 @@ const build = {
           return h("td", { class: declared.has(`${t.id}|${b.id}`) ? "ok-mark" : null },
             h("div", { class: "cell", style: { background: b.hex, color: t.hex } }, h("b", {}, "Aa"), h("span", {}, fmt(r)), h("span", { class: "verdict" }, T.v[v])));
         })))))),
-      (B.pairs || []).length ? rows((B.pairs || []).map((p) => [`${(byId[p.text] || {}).name || p.text} / ${(byId[p.background] || {}).name || p.background}`, `${p.use || ""} (${fmt(contrast((byId[p.text] || {}).hex || "#000", (byId[p.background] || {}).hex || "#fff"))})`])) : null
+      (B.pairs || []).length ? h("div", { style: { marginTop: "20px" } }, rows((B.pairs || []).map((p) => [`${(byId[p.text] || {}).name || p.text} / ${(byId[p.background] || {}).name || p.background}`, `${p.use || ""} (${fmt(contrast((byId[p.text] || {}).hex || "#000", (byId[p.background] || {}).hex || "#fff"))})`]))) : null
     ];
   },
   type() {
@@ -414,8 +457,8 @@ const build = {
     const alpha = LANG === "pl" ? "AĄBCĆDEĘFGHIJKLŁMNŃOÓPRSŚTUWYZŹŻ aąbcćdeęfghijklłmnńoóprsśtuwyzźż 0123456789 „”–?!&" : "ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789 “”–?!&";
     return [
       h("h3", {}, T.families),
-      fs.map((f) => h("div", { class: "card", style: { marginBottom: "14px" } },
-        h("div", { class: "muted small" }, `${f.family}, ${f.role}`),
+      fs.map((f) => h("div", { class: "card spec-card", style: { marginBottom: "14px" } },
+        h("div", { class: "muted small" }, `${f.family}, ${T.famRoles[f.role] || f.role}`),
         h("div", { class: "spec", style: { fontFamily: `"${f.family}", var(--text)`, fontWeight: (f.weights || [])[(f.weights || []).length - 1] || 600 }, "data-font": f.family }, sample),
         h("div", { class: "alpha", style: { fontFamily: `"${f.family}", var(--text)` } }, alpha),
         rows([[T.why, f.why], [T.weights, (f.weights || []).join(", ")], [T.licence, f.licence], [T.source, f.source], [T.substitute, f.office_substitute], [T.reflex, f.reflex_reason]]))),
@@ -451,30 +494,35 @@ const build = {
         const w = f.w_mm + 2 * f.bleed_mm + 2 * pad, hh = f.h_mm + 2 * f.bleed_mm + 2 * pad + (mode === "guides" ? 10 : 0);
         frame.style.aspectRatio = `${w} / ${hh}`;
         frame.style.maxWidth = `${Math.round(620 * w / hh)}px`;
+        frame.style.minWidth = w / hh > 2.2 ? "620px" : "0";
       };
       size("preview");
       const modes = h("div", { class: "modes", role: "group" }, ["preview", "guides"].map((m) => h("button", { type: "button", "aria-pressed": m === "preview" ? "true" : "false", onclick: (e) => {
         for (const b of modes.children) b.setAttribute("aria-pressed", b === e.currentTarget ? "true" : "false");
         frame.src = asset(`labels/${l.id}.html?mode=${m}&fit=1`); size(m);
       } }, T[m])));
-      return h("div", { class: "card", style: { marginBottom: "22px" } },
-        h("h3", { style: { marginTop: 0 } }, l.product),
-        h("p", { class: "muted small" }, `${T.format}: ${f.name ? `${f.name}, ` : ""}${f.w_mm} × ${f.h_mm} mm, ${T.bleed} ${f.bleed_mm} mm, ${T.safe} ${f.safe_mm} mm`),
-        h("div", { class: "labelview" }, modes, frame),
-        h("div", { class: "note" }, T.templateNote),
-        h("h3", {}, T.front), h("ol", { class: "plain" }, h("li", {}, T.brandMark), [l.front.name, l.front.variant, l.front.benefit].filter(Boolean).map((x) => h("li", {}, x)), l.front.net ? h("li", {}, `${T.net}: ${l.front.net}`) : null),
-        (l.zones || []).length > 1 ? [h("h3", {}, T.zones), rows(l.zones.map((z) => [`${z.id}: ${z.role}`, `${z.x_mm}–${z.x_mm + z.w_mm} mm`]))] : null,
+      return h("div", { class: "card labelcard", style: { marginBottom: "22px" } },
+        h("div", { class: "lhead" },
+          h("h3", { style: { marginTop: 0 } }, l.product),
+          h("p", { class: "muted small" }, `${T.format}: ${f.name ? `${f.name}, ` : ""}${f.w_mm} × ${f.h_mm} mm, ${T.bleed} ${f.bleed_mm} mm, ${T.safe} ${f.safe_mm} mm`),
+          h("div", { class: "labelview" }, modes, h("div", { class: "fw" }, frame), h("a", { class: "open", href: asset(`labels/${l.id}.html?mode=guides`), target: "_blank" }, T.openLabel)),
+          h("div", { class: "note" }, T.templateNote, M.label_approver ? ` ${T.approver}: ${M.label_approver}.` : "")),
+        h("div", { class: "lgrid" },
+          h("div", {},
+            h("h3", {}, T.front), h("ol", { class: "plain" }, h("li", {}, T.brandMark), [l.front.name, l.front.variant, l.front.benefit].filter(Boolean).map((x) => h("li", {}, x)), l.front.net ? h("li", {}, `${T.net}: ${l.front.net}`) : null),
+            (l.zones || []).length > 1 ? [h("h3", {}, T.zones), rows(l.zones.map((z) => [`${z.id}: ${T.zoneRoles[z.role] || z.role}`, `${z.x_mm}–${z.x_mm + z.w_mm} mm`])), f.overlap_mm ? h("p", { class: "small muted" }, `${LANG === "pl" ? "Zakładka" : "Overlap"}: ${f.overlap_mm} mm (${f.overlap_side || "?"})`) : null] : null),
+          h("div", {},
         req.length ? [h("h3", {}, T.mandatory), req.map((k) => {
           const item = (l.legal || []).find((x) => x.key === k);
           return h("div", { class: "check" }, h("b", { class: keys.has(k) ? null : "missing" }, keys.has(k) ? T.present : T.missingT), h("span", {}, item ? `${item.label}: ${item.text}` : k));
-        }), l.nutrition_exempt_reason ? h("div", { class: "check" }, h("b", {}, T.exempt), h("span", {}, l.nutrition_exempt_reason)) : null] : null);
+        }), l.nutrition_exempt_reason ? h("div", { class: "check" }, h("b", {}, T.exempt), h("span", {}, l.nutrition_exempt_reason)) : null] : null)));
     });
   },
   print() {
     const p = B.print;
     return [
       h("h3", {}, T.printSpec),
-      rows([[T.printer, p.printer || T.notChosen], [T.technology, p.technology], [T.pdf, p.pdf], [T.profile, p.profile], [T.bleed, p.bleed_mm !== undefined ? `${p.bleed_mm} mm` : null], [T.safe, p.safe_mm !== undefined ? `${p.safe_mm} mm` : null], [T.smallText, p.small_text], [T.finishes, (p.finishes || []).map((x) => `${x.type}${x.colour ? ` (${x.colour})` : ""}${x.layer ? `, ${x.layer}` : ""}`).join("; ")], [T.proofL, p.proof]]),
+      rows([[T.printer, p.printer || T.notChosen], [T.technology, p.technology], [T.pdf, p.pdf], [T.profile, p.profile], [T.bleedL, p.bleed_mm !== undefined ? `${p.bleed_mm} mm` : null], [T.safeL, p.safe_mm !== undefined ? `${p.safe_mm} mm` : null], [T.smallText, p.small_text], [T.finishes, (p.finishes || []).map((x) => `${x.type}${x.colour ? ` (${x.colour})` : ""}${x.layer ? `, ${x.layer}` : ""}`).join("; ")], [T.proofL, p.proof]]),
       h("h3", {}, T.handoff),
       h("ol", { class: "plain" }, (LANG === "pl" ? [
         `Eksport do ${p.pdf || "PDF/X-4"} z profilem ${p.profile || "ustalonym z drukarnią"}.`,
@@ -494,7 +542,7 @@ const build = {
     ];
   },
   files() {
-    return rows([[T.filePath, h("span", {}, T.what, " / ", T.printReady)], ...(B.files || []).map((f) => [h("a", { href: asset(f.path) }, f.path), `${f.what} / ${f.print_ready ? T.yes : T.noWord}`])]);
+    return rows([[T.filePath, h("span", {}, T.what, " / ", T.printReady)], ...(B.files || []).map((f) => [h("a", { href: asset(f.path) }, f.path), `${f.what}${f.print_ready === true ? ` / ${T.yes}` : f.print_ready === false ? ` / ${T.noWord}` : ""}`])]);
   },
   decisions() {
     const d = B.decisions || [];
@@ -506,9 +554,9 @@ const build = {
 };
 
 function dontCard(d, primary) {
-  const st = { height: "52px", width: "auto" };
+  const st = { maxHeight: "52px", maxWidth: "58%", width: "auto", height: "auto" };
   let box = { background: bg ? bg.hex : "#fff" };
-  if (d.demo === "stretch") st.transform = "scaleX(1.6)";
+  if (d.demo === "stretch") st.transform = "scaleX(1.5)";
   if (d.demo === "rotate") st.transform = "rotate(-16deg)";
   if (d.demo === "shadow") st.filter = "drop-shadow(5px 5px 0 rgba(0,0,0,.45))";
   if (d.demo === "recolor") st.filter = "hue-rotate(150deg) saturate(3)";
@@ -529,13 +577,13 @@ function mockup(a) {
     web: { w: 1440, h: 810, view: 1, bgId: (bg || {}).id }
   };
   const k = kinds[a.kind] || kinds.post;
-  const bgc = byId[k.bgId] || bg || { hex: "#fff" };
+  const bgc = byId[a.background] || byId[k.bgId] || bg || { hex: "#fff" };
   const fg = isDark(bgc.hex) ? (bg || { hex: "#fff" }).hex : (ink || { hex: "#111" }).hex;
   const lv = logoFor(bgc.id) || {};
   const minPx = k.mm ? Math.ceil((lv.min_mm || 20) * 3.7795) : (lv.min_px || 96);
   const logoW = Math.max(minPx, Math.round(k.w * (k.mm ? 0.42 : 0.2)));
   const canvas = h("div", { class: "canvas", style: { width: `${k.w}px`, height: `${k.h}px`, background: bgc.hex, color: fg, padding: `${Math.round(k.w * 0.07)}px`, display: "flex", flexDirection: "column", justifyContent: "space-between", boxSizing: "border-box" } },
-    a.image ? h("img", { src: asset(a.image), alt: "", style: { position: "absolute", inset: "0", width: "100%", height: "100%", objectFit: "cover", opacity: "0.9" } }) : null,
+    a.image ? h("img", { src: asset(a.image), alt: "", style: { position: "absolute", inset: "0", width: "100%", height: "100%", objectFit: "cover" } }) : null,
     h("img", { src: asset(lv.file), alt: B.meta.name, "data-logo": "", "data-min-px": minPx, style: { width: `${logoW}px`, height: "auto", position: "relative" } }),
     h("div", { style: { position: "relative" } },
       h("div", { style: { fontFamily: "var(--display)", fontWeight: 600, fontSize: `${Math.round(k.w * (k.mm ? 0.07 : 0.075))}px`, lineHeight: 1.05 } }, a.headline || ""),
@@ -583,7 +631,7 @@ for (const it of tocItems) {
   menuLinks.append(h("a", { href: `#${it.id}`, "data-for": it.id, onclick: () => (document.getElementById("menu").open = false) }, `${it.code} ${it.title}`));
 }
 const barBrand = document.getElementById("bar-brand");
-barBrand.append(primary ? h("img", { src: asset(primary.file), alt: M.name }) : M.name, h("span", {}, `brandbook ${M.version}`));
+barBrand.append(primary ? h("img", { src: asset(primary.file), alt: M.name, "data-logo": "", "data-min-px": primary.min_px, "data-scale": 1, style: { width: `${primary.min_px || 96}px` } }) : M.name, h("span", {}, `brandbook ${M.version}`));
 
 /* reader filter: a real state, kept in the URL so a link can open the designer's view */
 const readersEl = document.getElementById("readers");

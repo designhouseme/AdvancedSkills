@@ -8,15 +8,21 @@
 //   node render.mjs pdf    brand/book/index.html brand/out/brandbook.pdf
 //   node render.mjs shots  brand/book/index.html brand/out/shots  # book-1440.jpg, book-390.jpg, first screens
 //   node render.mjs labels brand/labels brand/out/labels          # <id>.pdf at trim + bleed, <id>-preview.png, <id>-guides.png
+//   node render.mjs measure client-label.svg --surface 156        # x-height and figure height of live text in a client's SVG
 //
 // check, book (at 1440 and 390 px): horizontal scroll, images that didn't load, page errors, each brand font
 // loaded and covering the language's letters (ą ć ę ł ń ó ś ź ż „ ” for Polish; the text is measured with two
 // different fallbacks, equal widths mean no fallback glyph was used), logos in mockups smaller than their own
 // min_px, generated images without the caption, text under 12 px (warning).
 // check, labels: zone overflow in both axes, mandatory text ([data-legal]) x-height measured in the browser
-// against 1.2 mm (0.9 mm when the largest surface is under 80 cm²) for food and supplements, fonts, images.
+// against 1.2 mm (0.9 mm when the largest surface is under 80 cm²) for food and supplements, the height of the
+// net quantity's figures (2/3/4/6 mm by quantity), text contrast on the label colour, fonts, images.
+// check, logo files: content outside the SVG's viewBox (clipped letters), live <text> that needs outlining.
+// pdf: the page count in total and per section (each printed alone); --max-pages N makes an overrun an error.
 //
-// Options: --chrome /path/to/chrome. Exit code: 0 = no errors, 1 = errors or a render error, 2 = bad input.
+// Options: --chrome /path/to/chrome, --timeout 120 (seconds per page load; one retry), --max-pages N (pdf),
+// --surface cm² and --category food|supplement|cosmetic (measure).
+// Exit code: 0 = no errors, 1 = errors or a render error, 2 = bad input.
 
 import { spawn } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
@@ -32,8 +38,12 @@ if (typeof WebSocket === "undefined") fail(`Node 22 or newer is required (built-
 const argv = process.argv.slice(2);
 const opt = (name) => { const i = argv.indexOf(`--${name}`); return i >= 0 ? argv.splice(i, 2)[1] : undefined; };
 const chromeArg = opt("chrome");
+const TIMEOUT = Number(opt("timeout") || 120) * 1000;
+const maxPages = opt("max-pages");
+const surfaceArg = opt("surface");
+const categoryArg = opt("category") || "food";
 const [mode, input, output] = argv;
-if (!["check", "pdf", "shots", "labels"].includes(mode) || !input) fail("usage: node render.mjs check|pdf|shots|labels <input> [output]");
+if (!["check", "pdf", "shots", "labels", "measure"].includes(mode) || !input) fail("usage: node render.mjs check|pdf|shots|labels|measure <input> [output]");
 
 function findChrome() {
   if (chromeArg || process.env.CHROME) return chromeArg || process.env.CHROME;
@@ -138,13 +148,28 @@ async function openPage(url, width, height, { mobile = false, scale = 1, media =
   await s("Emulation.setEmulatedMedia", { media });
   const loaded = browser.once("Page.loadEventFired", sessionId);
   await s("Page.navigate", { url });
-  await within(30000, loaded, `loading ${url}`);
+  await within(TIMEOUT, loaded, `loading ${url}`);
   const evaluate = async (expression) => {
     const r = await s("Runtime.evaluate", { expression, awaitPromise: true, returnByValue: true });
     if (r.exceptionDetails) throw new Error(r.exceptionDetails.exception?.description ?? r.exceptionDetails.text);
     return r.result.value;
   };
   return { s, evaluate, problems, close: () => browser.send("Target.closeTarget", { targetId }) };
+}
+
+// A busy machine can stall one load: one retry, and the timeout is an option.
+async function openLoaded(url, width, height, opts, what) {
+  for (let k = 1; ; k++) {
+    const p = await openPage(url, width, height, opts);
+    try {
+      await within(TIMEOUT, p.evaluate(LOAD_ALL), what);
+      return p;
+    } catch (e) {
+      await p.close().catch(() => {});
+      if (k >= 2) throw new Error(`${e.message} (twice; try --timeout 300 on a busy machine)`);
+      console.error(`${e.message}, retrying`);
+    }
+  }
 }
 
 // Lazy images and label iframes would stay empty in a PDF or a full-page shot: load them all first.
@@ -229,13 +254,23 @@ const LABEL_PROBE = `(() => {
     const xh = ctx.measureText("x").actualBoundingBoxAscent / pxmm;
     return { key: el.dataset.legal, xh, pt: parseFloat(cs.fontSize) * 0.75 };
   });
+  const netEl = document.querySelector('[data-legal="net"]');
+  let net = null;
+  if (netEl) {
+    const cs = getComputedStyle(netEl);
+    ctx.font = cs.fontWeight + " " + cs.fontSize + " " + cs.fontFamily;
+    const digits = (netEl.textContent.match(/[0-9]/g) || ["0"]).join("");
+    const m = netEl.textContent.match(/([0-9]+(?:[.,][0-9]+)?)[^0-9a-z]{0,2}(kg|mg|ml|cl|g|l)(?![a-z])/i);
+    const q = m ? parseFloat(m[1].replace(",", ".")) * ({ kg: 1000, l: 1000, cl: 10, mg: 0.001 }[m[2].toLowerCase()] || 1) : null;
+    net = { text: netEl.textContent.trim(), mm: ctx.measureText(digits).actualBoundingBoxAscent / pxmm, pt: parseFloat(cs.fontSize) * 0.75, q };
+  }
   const broken = [...document.images].filter((i) => i.complete && i.naturalWidth === 0).map((i) => i.getAttribute("src"));
   const rgb = (s) => (s.match(/[0-9.]+/g) || []).slice(0, 3).map(Number);
   const lin = (c) => { c /= 255; return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; };
   const lum = (s) => { const [r, g, b] = rgb(s); return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b); };
   const sheet = getComputedStyle(document.querySelector(".sheet"));
   const [la, lb] = [lum(sheet.color), lum(sheet.backgroundColor)].sort((a, b) => b - a);
-  return { id: L.id, category: L.category, surface: f.largest_surface_cm2, over, xs, broken, contrast: (la + 0.05) / (lb + 0.05) };
+  return { id: L.id, category: L.category, surface: f.largest_surface_cm2, over, xs, net, broken, contrast: (la + 0.05) / (lb + 0.05) };
 })()`;
 
 function fontReport(fonts, where) {
@@ -248,8 +283,7 @@ function fontReport(fonts, where) {
 async function checkBook(file) {
   const url = pathToFileURL(file).href;
   for (const [w, hgt, mobile] of [[1440, 900, false], [390, 844, true]]) {
-    const p = await openPage(url, w, hgt, { mobile });
-    await within(60000, p.evaluate(LOAD_ALL), "loading the book");
+    const p = await openLoaded(url, w, hgt, { mobile }, "loading the book");
     const r = await p.evaluate(BOOK_PROBE);
     const where = `book at ${w} px`;
     if (r.wide.length) err(`${where}: the page scrolls sideways; too wide: ${r.wide.join(", ")}`);
@@ -269,8 +303,7 @@ async function checkLabels(dir) {
   const files = readdirSync(dir).filter((f) => f.endsWith(".html")).sort();
   if (!files.length) warn(`no label files in ${dir}`);
   for (const f of files) {
-    const p = await openPage(`${pathToFileURL(join(dir, f)).href}?mode=preview`, 1200, 1200);
-    await within(60000, p.evaluate(LOAD_ALL), `loading ${f}`);
+    const p = await openLoaded(`${pathToFileURL(join(dir, f)).href}?mode=preview`, 1200, 1200, {}, `loading ${f}`);
     const r = await p.evaluate(LABEL_PROBE);
     fontReport(await p.evaluate(FONT_PROBE), `label ${r.id}`);
     for (const o of r.over) err(`label ${r.id}, zone ${o.zone}: content overflows by ${o.v > 0.2 ? `${o.v.toFixed(1)} mm vertically` : ""}${o.v > 0.2 && o.h > 0.2 ? " and " : ""}${o.h > 0.2 ? `${o.h.toFixed(1)} mm horizontally` : ""}; shorten optional text or change the format, don't shrink mandatory text`);
@@ -288,38 +321,89 @@ async function checkLabels(dir) {
       const min = Math.min(...r.xs.map((x) => x.xh));
       console.log(`label ${r.id}: smallest mandatory x-height ${min.toFixed(2)} mm (needs ${need} mm)`);
     }
+    // Directive 76/211/EEC, Annex I 3.1 (applied in Poland by the law on prepackaged goods): minimum figure height.
+    if (r.net && r.net.q !== null && ["food", "supplement", "cosmetic"].includes(r.category)) {
+      const needNet = r.net.q <= 50 ? 2 : r.net.q <= 200 ? 3 : r.net.q <= 1000 ? 4 : 6;
+      if (r.net.mm + 0.02 < needNet) err(`label ${r.id}: the figures of the net quantity "${r.net.text}" are ${r.net.mm.toFixed(2)} mm high, need ${needNet} mm for this quantity: set net_pt to at least ${(needNet / (r.net.mm / r.net.pt)).toFixed(1)} (Directive 76/211/EEC, Annex I 3.1; confirm with the regulatory person)`);
+    }
     for (const pr of [...new Set(p.problems)]) err(`label ${r.id}: page error: ${pr}`);
     await p.close();
   }
 }
 
+// Logo files: letters cut off by a too-small viewBox, and live text that a print file can't carry.
+const LOGO_PROBE = `(() => {
+  const s = document.documentElement;
+  if (!s || s.tagName.toLowerCase() !== "svg") return { svg: false };
+  const vb = s.viewBox && s.viewBox.baseVal;
+  const bb = s.getBBox();
+  return { svg: true, vb: vb && vb.width ? { x: vb.x, y: vb.y, w: vb.width, h: vb.height } : null, bb: { x: bb.x, y: bb.y, w: bb.width, h: bb.height }, texts: s.querySelectorAll("text").length };
+})()`;
+
+async function checkLogos(bookFile) {
+  const html = (await import("node:fs")).readFileSync(bookFile, "utf8");
+  const m = html.match(/<script id="brand-data" type="application\/json">([\s\S]*?)<\/script>/);
+  if (!m) return;
+  const data = JSON.parse(m[1].replace(/<\\\//g, "</"));
+  const root = resolve(bookFile, "../..");
+  for (const v of (data.logo && data.logo.variants) || []) {
+    const file = resolve(root, v.file || "");
+    if (!existsSync(file)) continue;
+    if (!/\.svg$/i.test(file)) { warn(`logo ${v.id}: ${v.file} is not a vector (SVG); ask the client for the vector file`); continue; }
+    const p = await openPage(pathToFileURL(file).href, 800, 600);
+    const r = await p.evaluate(LOGO_PROBE);
+    await p.close();
+    if (!r.svg) continue;
+    if (!r.vb) warn(`logo ${v.id}: ${v.file} has no viewBox; it won't scale predictably`);
+    else {
+      const tol = 0.005 * Math.max(r.vb.w, r.vb.h);
+      if (r.bb.x < r.vb.x - tol || r.bb.y < r.vb.y - tol || r.bb.x + r.bb.w > r.vb.x + r.vb.w + tol || r.bb.y + r.bb.h > r.vb.y + r.vb.h + tol)
+        err(`logo ${v.id}: the drawing (${r.bb.x.toFixed(0)} ${r.bb.y.toFixed(0)} ${r.bb.w.toFixed(0)}×${r.bb.h.toFixed(0)}) runs outside the viewBox (${r.vb.x} ${r.vb.y} ${r.vb.w}×${r.vb.h}), so part of it is cut off wherever the file is used; widen the viewBox in a copy and record the fix`);
+    }
+    if (r.texts) warn(`logo ${v.id}: ${v.file} contains ${r.texts} live <text> element(s); the letters depend on installed fonts and a printer can't use it. A designer outlines the text (the shapes stay the same)`);
+  }
+}
+
+const countPages = (b64) => (Buffer.from(b64, "base64").toString("latin1").match(/\/Type\s*\/Page[^s]/g) || []).length;
+
 async function pdf(file, out) {
-  const p = await openPage(pathToFileURL(file).href, 1440, 900, { media: "print" });
-  await within(90000, p.evaluate(LOAD_ALL), "loading for PDF");
+  const url = pathToFileURL(file).href;
+  const p = await openLoaded(url, 1440, 900, { media: "print" }, "loading for PDF");
   await p.evaluate(`(window.dispatchEvent(new Event("beforeprint")), true)`);
-  const { data } = await within(120000, p.s("Page.printToPDF", { printBackground: true, preferCSSPageSize: true }), "printing to PDF");
+  const { data } = await within(TIMEOUT, p.s("Page.printToPDF", { printBackground: true, preferCSSPageSize: true }), "printing to PDF");
   writeFileSync(out, Buffer.from(data, "base64"));
-  await p.close();
-  const pages = (Buffer.from(data, "base64").toString("latin1").match(/\/Type\s*\/Page[^s]/g) || []).length;
+  const pages = countPages(data);
   console.log(`${out}: ${pages} pages, ${(statSync(out).size / 1e6).toFixed(1)} MB`);
+  // Each section printed alone shows where the pages go, without having to look at the PDF.
+  const ids = await p.evaluate(`[...document.querySelectorAll("main > .cover, main > section.s")].map((el) => el.id)`);
+  const per = [];
+  for (const id of ids) {
+    await p.evaluate(`(() => { const keep = document.getElementById(${JSON.stringify(id)}); for (const el of document.querySelectorAll("main > *")) el.style.display = el === keep ? "" : "none"; return true; })()`);
+    const r = await within(TIMEOUT, p.s("Page.printToPDF", { printBackground: true, preferCSSPageSize: true }), `printing ${id}`);
+    per.push(`${id === "top" ? "cover" : id} ${countPages(r.data)}`);
+  }
+  await p.close();
+  console.log(`pages per section, each printed alone: ${per.join(", ")}`);
   if (statSync(out).size > 20e6) warn(`${out} is over 20 MB; too big to email`);
+  if (maxPages && pages > Number(maxPages)) err(`the PDF has ${pages} pages, the budget is ${maxPages}: shorten part 1 or the longest sections above, don't cut the rules`);
 }
 
 async function shots(file, dir) {
   mkdirSync(dir, { recursive: true });
   for (const [w, hgt, mobile] of [[1440, 900, false], [390, 844, true]]) {
-    const p = await openPage(pathToFileURL(file).href, w, hgt, { mobile });
-    await within(60000, p.evaluate(LOAD_ALL), "loading the book");
+    const p = await openLoaded(pathToFileURL(file).href, w, hgt, { mobile }, "loading the book");
     const first = await p.s("Page.captureScreenshot", { format: "png" });
     writeFileSync(join(dir, `first-${w}.png`), Buffer.from(first.data, "base64"));
-    const full = Math.min(await p.evaluate("document.documentElement.scrollHeight"), 30000);
+    const height = await p.evaluate("document.documentElement.scrollHeight");
+    const full = Math.min(height, 60000);
+    if (height > full) console.log(`book-${w}.jpg is cut at ${full} px of ${height}; the section images below cover the rest`);
     await p.evaluate(`(document.getElementById("toast")?.remove(), document.querySelector(".bar") && (document.querySelector(".bar").style.position = "static"), true)`);
     const { data } = await p.s("Page.captureScreenshot", { format: "jpeg", quality: 80, captureBeyondViewport: true, clip: { x: 0, y: 0, width: w, height: full, scale: 1 } });
     writeFileSync(join(dir, `book-${w}.jpg`), Buffer.from(data, "base64"));
     console.log(join(dir, `book-${w}.jpg`), `${w} × ${full}`);
     // One image per section: a whole book in one picture is too small to read.
     mkdirSync(join(dir, "sections"), { recursive: true });
-    const rects = await p.evaluate(`[...document.querySelectorAll(".cover, section.s")].map((el) => { const r = el.getBoundingClientRect(); return { id: el.id || "cover", x: r.left, y: r.top + scrollY, w: r.width, h: Math.min(r.height, 6000) }; })`);
+    const rects = await p.evaluate(`[...document.querySelectorAll(".cover, section.s")].map((el) => { const r = el.getBoundingClientRect(); return { id: el.id === "top" || !el.id ? "cover" : el.id, x: r.left, y: r.top + scrollY, w: r.width, h: Math.min(r.height, 6000) }; })`);
     for (const r of rects) {
       const shot = await p.s("Page.captureScreenshot", { format: "jpeg", quality: 82, captureBeyondViewport: true, clip: { x: Math.max(0, r.x - 16), y: Math.max(0, r.y - 8), width: Math.min(w, r.w + 32), height: r.h + 16, scale: 1 } });
       writeFileSync(join(dir, "sections", `${r.id}-${w}.jpg`), Buffer.from(shot.data, "base64"));
@@ -335,8 +419,7 @@ async function labels(dir, out) {
     const id = basename(f, ".html");
     for (const m of ["preview", "guides"]) {
       const url = `${pathToFileURL(join(dir, f)).href}?mode=${m}`;
-      const p = await openPage(url, 1200, 1200, { media: m === "preview" ? "print" : "screen" });
-      await within(60000, p.evaluate(LOAD_ALL), `loading ${f}`);
+      const p = await openLoaded(url, 1200, 1200, { media: m === "preview" ? "print" : "screen" }, `loading ${f}`);
       const size = await p.evaluate(`(() => { const r = document.getElementById("page").getBoundingClientRect(); return { w: r.width, h: r.height }; })()`);
       const shot = await p.s("Page.captureScreenshot", { format: "png", captureBeyondViewport: true, clip: { x: 0, y: 0, width: size.w, height: size.h, scale: 4 } });
       writeFileSync(join(out, `${id}-${m}.png`), Buffer.from(shot.data, "base64"));
@@ -348,18 +431,64 @@ async function labels(dir, out) {
   }
 }
 
+// measure: live text in a client's SVG label (width/height in mm and a viewBox). Outlined text can't be measured.
+const MEASURE_PROBE = `(() => {
+  const svg = document.documentElement;
+  if (svg.tagName.toLowerCase() !== "svg") return { error: "not an SVG document" };
+  const unit = (v) => { const m = String(v || "").trim().match(/^([0-9.]+)\\s*(mm|cm|in|pt|px)?$/); if (!m) return null; const n = parseFloat(m[1]); return ({ mm: n, cm: n * 10, in: n * 25.4, pt: n * 25.4 / 72, px: n * 25.4 / 96 })[m[2] || "px"]; };
+  const vb = svg.viewBox && svg.viewBox.baseVal && svg.viewBox.baseVal.width ? svg.viewBox.baseVal : null;
+  const wmm = unit(svg.getAttribute("width"));
+  if (!vb || !wmm) return { error: "the SVG needs a viewBox and a width in a physical unit (e.g. width=\\"260mm\\")" };
+  const mmPerUnit = wmm / vb.width;
+  const rootScale = Math.hypot(svg.getScreenCTM().a, svg.getScreenCTM().b);
+  const ctx = new OffscreenCanvas(8, 8).getContext("2d"); // an SVG document has no HTML canvas element
+  const rows = [];
+  for (const el of svg.querySelectorAll("text")) {
+    const text = el.textContent.replace(/\\s+/g, " ").trim();
+    if (!text) continue;
+    const cs = getComputedStyle(el);
+    const rel = Math.hypot(el.getScreenCTM().a, el.getScreenCTM().b) / rootScale;
+    const sizeMm = parseFloat(cs.fontSize) * rel * mmPerUnit;
+    ctx.font = cs.fontWeight + " 100px " + cs.fontFamily;
+    const xh = ctx.measureText("x").actualBoundingBoxAscent / 100, fig = ctx.measureText("0").actualBoundingBoxAscent / 100;
+    rows.push({ text: text.slice(0, 60), family: cs.fontFamily, sizeMm, xMm: sizeMm * xh, figMm: sizeMm * fig });
+  }
+  return { wmm, rows, outlined: !rows.length && !!svg.querySelector("path") };
+})()`;
+
+async function measure(file) {
+  const p = await openLoaded(pathToFileURL(file).href, 1600, 1000, {}, `loading ${file}`);
+  const r = await p.evaluate(MEASURE_PROBE);
+  await p.close();
+  if (r.error) return err(`${file}: ${r.error}`);
+  if (r.outlined) return warn(`${file}: no live text (outlined or an image); measure the x-height from the vector by hand`);
+  const need = surfaceArg && Number(surfaceArg) < 80 ? 0.9 : 1.2;
+  console.log(`${basename(file)}: ${r.wmm} mm wide, ${r.rows.length} text lines; mandatory text needs ${need} mm x-height${surfaceArg ? ` (largest surface ${surfaceArg} cm²)` : " (pass --surface to apply 0.9 mm under 80 cm²)"}`);
+  for (const row of r.rows) {
+    const q = row.text.match(/([0-9]+(?:[.,][0-9]+)?)\s*(kg|mg|ml|cl|g|l)\b/i);
+    const qty = q ? parseFloat(q[1].replace(",", ".")) * ({ kg: 1000, l: 1000, cl: 10, mg: 0.001 }[q[2].toLowerCase()] || 1) : null;
+    const needFig = qty === null ? null : qty <= 50 ? 2 : qty <= 200 ? 3 : qty <= 1000 ? 4 : 6;
+    const flags = [row.xMm + 0.005 < need ? `x-height below ${need} mm` : "", needFig && row.figMm + 0.02 < needFig ? `figures below ${needFig} mm for ${q[0]}` : ""].filter(Boolean).join("; ");
+    console.log(`${flags ? "WARNING: " : "  "}${row.xMm.toFixed(2)} mm x-height, ${row.figMm.toFixed(2)} mm figures, ${row.sizeMm.toFixed(2)} mm size: "${row.text}"${flags ? ` (${flags}; only matters if this line is mandatory for ${categoryArg})` : ""}`);
+    if (flags) warnings.push(row.text);
+  }
+  console.log("The font is the one installed here; with a substitute, give the tolerance (measure with each candidate face).");
+}
+
 const src = resolve(input);
 if (!existsSync(src)) fail(`not found: ${src}`);
 try {
   browser = await within(60000, Chrome.launch(), "Chromium start");
   if (mode === "check") {
     await checkBook(src);
+    await checkLogos(src);
     const labelDir = output ? resolve(output) : resolve(src, "../../labels");
     if (existsSync(labelDir)) await checkLabels(labelDir);
     console.log(`Checked: the book${existsSync(labelDir) ? " and labels" : ""}. Result: ${errors.length} ${errors.length === 1 ? "error" : "errors"}, ${warnings.length} ${warnings.length === 1 ? "warning" : "warnings"}.`);
   } else if (mode === "pdf") await pdf(src, resolve(output ?? "brandbook.pdf"));
   else if (mode === "shots") await shots(src, resolve(output ?? "shots"));
   else if (mode === "labels") await labels(src, resolve(output ?? "labels-out"));
+  else if (mode === "measure") await measure(src);
 } catch (e) {
   console.error(`ERROR: ${e.message}`);
   browser?.kill();

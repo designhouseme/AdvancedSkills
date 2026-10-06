@@ -17,7 +17,8 @@ Read when you fill or change `brand.json`. Start from `assets/brand.example.json
 
 - `meta.name`: the exact spelling. `name_confirmed`: true only after the user confirmed it.
 - `meta.language`: `pl` or `en`, the language of the book's own labels ("Czytam jako", "Pobierz"). The content is in whatever language you write it.
-- `meta.version`, `date` (YYYY-MM-DD), `owner` (who answers questions about the book), `contact`, `made_by`, `status` (`draft` or `approved`).
+- `meta.version`, `date` (YYYY-MM-DD), `owner` (who answers questions about the book), `contact`, `status` (`draft` or `approved`), optional `made_by`.
+- `meta.label_approver`: the person who approves labels before print (the regulatory role); `"(do wskazania)"` until someone is named. The book prints it under every label.
 - `sections`: one headline per section, written as the rule the reader should remember. Keys: `strategy`, `voice`, `applications`, `logo`, `colour`, `type`, `imagery`, `labels`, `print`, `files`, `decisions`. A missing key falls back to the topic name, and `check_brand.py` warns.
 
 ## 2. strategy and voice
@@ -42,29 +43,29 @@ Read when you fill or change `brand.json`. Start from `assets/brand.example.json
 
 ## 5. type
 
-- `families[]` (one or two): `family` (the CSS name), `role` (`display`, `text`, `numerals`), `files` (paths, or objects `{file, weight, style}` for static weights; a plain path is treated as a variable font 100–900), `weights`, `licence`, `licence_file`, `source`, `why` (one sentence, this brand), `office_substitute` (a font available in Word, Google Docs and Canva), `reflex_reason` (only when the family is on the reflex list).
+- `families[]` (one or two): `family` (the CSS name), `role` (`display`, `text`, `numerals`), `fallback` (the CSS stack after it, e.g. `Georgia, serif` for a serif; default `system-ui, sans-serif`), `files` (paths, or objects `{file, weight, style}` for static weights; a plain path is treated as a variable font 100–900), `weights`, `licence`, `licence_file`, `source`, `why` (one sentence, this brand), `office_substitute` (a font available in Word, Google Docs and Canva), `reflex_reason` (only when the family is on the reflex list).
 - `scale[]`: `level`, `role`, `px`, `pt`, `line`, `use`.
 - `sample`: a sentence with the language's accented letters, shown in every face.
 
 ## 6. imagery and applications
 
 - `imagery`: `light`, `composition`, `casting`, `props`, `styling`, `grading` (all six, each a rule a photographer can follow), `do[]`, `dont[]`, `images[]` (`file`, `alt`, `generated`, `caption`, `prompt`), `ai` (`allowed`, `banned`, `label`, `approver`).
-- `applications[]`: `id`, `kind` (`post`, `card`, `email`, `web`), `title`, `headline`, `text`, optional `image`. The book draws each one at its real size from the tokens and places the logo at no less than its minimum, so a mockup can't break the book's own rule.
+- `applications[]`: `id`, `kind` (`post`, `card`, `email`, `web`), `title`, `headline`, `text`, optional `background` (a colour id; a post defaults to the text colour, the rest to the background) and `image` (covers the mockup). The book draws each one at its real size from the tokens and places the logo at no less than its minimum, so a mockup can't break the book's own rule.
 
 ## 7. labels
 
 - `id` (lowercase letters, digits, hyphens: it becomes the file name), `product`, `category` (`food`, `supplement`, `cosmetic`, `other`), `colour` (a colour id for the label field), `status` (`template`).
-- `format`: `name`, `w_mm`, `h_mm` (trim size), `bleed_mm`, `safe_mm`, `largest_surface_cm2` (decides 1.2 or 0.9 mm x-height).
+- `format`: `name`, `w_mm`, `h_mm` (trim size), `bleed_mm`, `safe_mm`, `largest_surface_cm2` (decides 1.2 or 0.9 mm x-height), and for a wrap-around label `overlap_mm` and `overlap_side` (`left` or `right`: the end the other one covers). Zones may span the full width; the template keeps content out of the overlap and hatches it in the guides.
 - `zones[]`: `id`, `role` (`front`, `info`, `legal`), `x_mm`, `w_mm`, laid left to right across the width (a wrap-around label: legal, front, info). One `front` zone carries everything when there is nothing else; then the net quantity sits under the name.
 - `front`: `name`, `variant`, `benefit`, `net`. `info[]`: `label` + `text` (usage, origin, roast date). `legal[]`: `key` + `label` + `text`; the keys per category are in `references/labels-eu.md`.
 - `nutrition_exempt_reason` when a food is exempt from the nutrition declaration (with the legal basis, to confirm).
 - `barcode`: `ean` (13 digits from the client, or null) and `note`. The template draws a box with the size, never bars.
-- `legal_pt`, optional `name_pt`, `variant_pt`, `net_pt`: type sizes in points. `render.mjs check` measures the real x-height of the mandatory text.
+- `legal_pt`, optional `name_pt`, `variant_pt`, `net_pt`: type sizes in points. `render.mjs check` measures the real x-height of the mandatory text and the height of the net quantity's figures, and tells you the size to set.
 
 ## 8. print, files, decisions, references, changelog
 
 - `print`: `printer` (null until chosen), `technology`, `pdf`, `profile`, `bleed_mm`, `safe_mm`, `small_text`, `finishes[]` (`type`, `colour`, `layer`), `proof`.
-- `files[]`: `path`, `what`, `print_ready` (true only for files a printer can use as they are).
+- `files[]`: `path` (a file or a folder), `what`, `print_ready` (true only for files a printer can use as they are; leave it out for files where the question doesn't apply). Built and rendered files (`book/`, `labels/`, `out/`, `tokens.css`) only warn until they exist.
 - `decisions[]`: `what`, `who`, `by` (date), `recommendation`. Every open question gets your recommendation, so the client confirms or overrides instead of starting from nothing.
 - `references[]`: `name`, `layer` (`structure`, `presentation`, `photography`), `borrow`, `not`. Internal: never shown in the book.
 - `changelog[]`: `version`, `date`, `change`.

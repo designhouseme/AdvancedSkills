@@ -72,7 +72,7 @@ def tokens_css(brand, families):
     for c in colours:
         lines.append(f"  --colour-{c['id']}: {c['hex']};  /* {c.get('name', '')}, {c.get('role', '')} */")
     for fam in families:
-        lines.append(f'  --font-{fam.get("role", "text")}: "{fam["family"]}", system-ui, sans-serif;')
+        lines.append(f'  --font-{fam.get("role", "text")}: "{fam["family"]}", {fam.get("fallback") or "system-ui, sans-serif"};')
     lines.append("}")
     return "\n".join(lines) + "\n"
 
