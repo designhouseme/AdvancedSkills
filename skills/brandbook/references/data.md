@@ -1,6 +1,6 @@
 # brand.json, field by field
 
-Read when you fill or change `brand.json`. Start from `assets/brand.example.json`, a fictional coffee roastery that uses every field. JSON has no comments, so the rules for each field are here. Paths in the file are relative to the folder that holds `brand.json`.
+Read when you fill or change `brand.json`. Start from `assets/brand.example.json`, a fictional coffee roastery that uses every field except the photographs (a fictional brand has none; the image fields are below). JSON has no comments, so the rules for each field are here. Paths in the file are relative to the folder that holds `brand.json`.
 
 ## Contents
 
@@ -18,13 +18,16 @@ Read when you fill or change `brand.json`. Start from `assets/brand.example.json
 - `meta.name`: the exact spelling. `name_confirmed`: true only after the user confirmed it.
 - `meta.language`: `pl` or `en`, the language of the book's own labels ("Czytam jako", "Pobierz"). The content is in whatever language you write it.
 - `meta.version`, `date` (YYYY-MM-DD), `owner` (who answers questions about the book), `contact`, `status` (`draft` or `approved`), optional `made_by`.
-- `meta.cover_colour` (optional): the colour id for the cover and the part pages; by default the accent when text on it reads, otherwise the text colour.
+- `meta.cover_colour` (optional): the colour id for the dark feature tiles, the "Rules" divider and the closing slide; by default the accent when text on it reads, otherwise the text colour.
+- `meta.radius` (optional): the tile corner radius in px on a 1920 × 1080 slide; 20 by default, 0 for a hard-edged brand.
 - `meta.label_approver`: the person who approves labels before print (the regulatory role); `"(do wskazania)"` until someone is named. The book prints it under every label.
 - `sections`: one headline per section, written as the rule the reader should remember. Keys: `strategy`, `voice`, `applications`, `logo`, `colour`, `type`, `imagery`, `labels`, `print`, `files`, `decisions`. A missing key falls back to the topic name, and `check_brand.py` warns.
 
 ## 2. strategy and voice
 
-- `strategy.purpose`: one sentence, why the brand exists; it also goes on the cover.
+- `strategy.tagline`: the brand's line, short (best under 35 characters); it is the cover and the closing slide. Without it the cover shows the name.
+- `strategy.purpose`: one or two sentences, why the brand exists; the intro slide leads with it.
+- `strategy.story` (optional): two or three sentences under the purpose. `strategy.fact` (optional): `{value, label}`, one big true number or fact from the brief ("od 2019", "4 sezony").
 - `audience`, `instead_of` (what the customer would use otherwise), `proof` (facts from the brief only), `values` (`value` + `behaviour`: what people do, not an adjective), `decision_rules` (2–3 for cases the book doesn't cover), `signature` (the one element that belongs only to this brand), `rejected` (default looks you rejected and what instead).
 - `voice.traits`: pairs `is` / `is_not` ("plainly", "not dryly"). `tone`: per channel, `how` and a real `example`. `words_use`, `words_avoid`, `before_after`, `name_rule`.
 - `voice.claims`: health or nutrition claims the brand may use, each with `register_ref` (the EU register entry). Without one, `check_brand.py` errors. Leave it empty rather than invent.
@@ -50,12 +53,14 @@ Read when you fill or change `brand.json`. Start from `assets/brand.example.json
 
 ## 6. imagery and applications
 
-- `imagery`: `light`, `composition`, `casting`, `props`, `styling`, `grading` (all six, each a rule a photographer can follow), `do[]`, `dont[]`, `images[]` (`file`, `alt`, `generated`, `caption`, `prompt`), `ai` (`allowed`, `banned`, `label`, `approver`).
-- `applications[]`: `id`, `kind` (`post`, `card`, `email`, `web`), `title`, `headline`, `text`, optional `background` (a colour id; a post defaults to the text colour, the rest to the background) and `image` (covers the mockup). The book draws each one at its real size from the tokens and places the logo at no less than its minimum, so a mockup can't break the book's own rule.
+- `imagery`: `light`, `composition`, `casting`, `props`, `styling`, `grading` (all six, each a rule a photographer can follow), `do[]`, `dont[]`, `ai` (`allowed`, `banned`, `label`, `approver`).
+- `imagery.images[]`: `file`, `alt`, `generated`, `caption`, `pos` (CSS object-position), `slot`: `cover` (the cover photo, landscape), `intro` (the intro slide, portrait), anything else goes into the photo mosaic. `imagery.hero_on`: the colour id the cover logo should suit.
+- `imagery.worlds[]` (optional, the strongest slides when the brand has variants): `name`, `colour` (id), `image` (a scene in that colour, landscape), `detail` (a portrait or close-up), `line`, `generated`. One overview slide and one slide per world, up to four.
+- `applications[]`: `id`, `kind` (`post`, `card`, `email`, `web`, `billboard`), `title`, `headline`, `text`, optional `background` (a colour id; a post defaults to the text colour, the rest to the background) and `image` (covers the mockup). A `billboard` needs an `image` and gets a full slide with the headline and the logo (`logo_on`: the colour id the logo variant should suit). The book draws each one at its real size from the tokens and places the logo at no less than its minimum, so a mockup can't break the book's own rule.
 
 ## 7. labels
 
-- `id` (lowercase letters, digits, hyphens: it becomes the file name), `product`, `category` (`food`, `supplement`, `cosmetic`, `other`), `colour` (a colour id for the label field), `status` (`template`).
+- `id` (lowercase letters, digits, hyphens: it becomes the file name), `product`, `category` (`food`, `supplement`, `cosmetic`, `other`), `colour` (a colour id for the label field), `status` (`template`), optional `image` (a product photo for the product-line slide; without it the slide shows the label template on its colour).
 - `format`: `name`, `w_mm`, `h_mm` (trim size), `bleed_mm`, `safe_mm`, `largest_surface_cm2` (decides 1.2 or 0.9 mm x-height), and for a wrap-around label `overlap_mm` and `overlap_side` (`left` or `right`: the end the other one covers). Zones may span the full width; the template keeps content out of the overlap and hatches it in the guides.
 - `zones[]`: `id`, `role` (`front`, `info`, `legal`), `x_mm`, `w_mm`, laid left to right across the width (a wrap-around label: legal, front, info). One `front` zone carries everything when there is nothing else; then the net quantity sits under the name.
 - `front`: `name`, `variant`, `benefit`, `net`. `info[]`: `label` + `text` (usage, origin, roast date). `legal[]`: `key` + `label` + `text`; the keys per category are in `references/labels-eu.md`.

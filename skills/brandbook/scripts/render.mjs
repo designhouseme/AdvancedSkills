@@ -18,7 +18,7 @@
 // against 1.2 mm (0.9 mm when the largest surface is under 80 cm²) for food and supplements, the height of the
 // net quantity's figures (2/3/4/6 mm by quantity), text contrast on the label colour, fonts, images.
 // check, logo files: content outside the SVG's viewBox (clipped letters), live <text> that needs outlining.
-// pdf: the page count in total and per section (each printed alone); --max-pages N makes an overrun an error.
+// pdf: printed one slide at a time and joined; the page count in total and per section; --max-pages N makes an overrun an error.
 //
 // Options: --chrome /path/to/chrome, --timeout 120 (seconds per page load; one retry), --max-pages N (pdf),
 // --surface cm² and --category food|supplement|cosmetic (measure).
@@ -27,7 +27,7 @@
 import { spawn } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { homedir, tmpdir } from "node:os";
-import { basename, join, resolve } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
 const fail = (msg, code = 2) => {
@@ -78,6 +78,8 @@ class Chrome {
       "--headless=new", "--remote-debugging-port=0", "--remote-debugging-address=127.0.0.1", `--user-data-dir=${profile}`,
       "--no-first-run", "--no-default-browser-check", "--disable-extensions", "--disable-background-networking", "--mute-audio",
       "--hide-scrollbars", "--force-color-profile=srgb", "--allow-file-access-from-files",
+      // Without it, headless Chrome on macOS hung in Page.printToPDF on any page with a photo (JPG or PNG).
+      "--disable-gpu",
       ...(process.getuid?.() === 0 ? ["--no-sandbox"] : []),
       "about:blank",
     ];
@@ -218,10 +220,14 @@ const BOOK_PROBE = `(() => {
       if (r.right > vw + 1 && !el.closest(".scroll") && getComputedStyle(el).position !== "fixed") wide.push(el.tagName.toLowerCase() + (el.className ? "." + String(el.className).split(" ")[0] : "") + " " + Math.round(r.right - vw) + "px");
     }
   const broken = [...document.images].filter((i) => i.complete && i.naturalWidth === 0).map((i) => i.getAttribute("src"));
+  // offsetWidth is the logo's own layout width, before the slide and mockup scaling.
   const logos = [...document.querySelectorAll("[data-logo]")].map((el) => {
-    const s = Number(el.dataset.scale || 1), w = el.getBoundingClientRect().width / s;
-    return { w: Math.round(w), min: Number(el.dataset.minPx), where: el.closest("figure,section")?.id || el.closest("figure")?.querySelector("figcaption")?.textContent || "" };
-  }).filter((x) => x.min && x.w + 0.5 < x.min);
+    return { w: Math.round(el.offsetWidth), min: Number(el.dataset.minPx), where: el.closest("section")?.id || el.closest(".frame")?.className || "" };
+  }).filter((x) => x.min && x.w && x.w + 0.5 < x.min);
+  // Text tiles on slides: anything cut off by the tile's edge.
+  const cut = [...document.querySelectorAll(".t[data-text]")].filter((el) => el.offsetParent && (el.scrollHeight > el.clientHeight + 2 || el.scrollWidth > el.clientWidth + 2 ||
+    [...el.querySelectorAll(".abs")].some((a) => { const r = a.getBoundingClientRect(), b = el.getBoundingClientRect(); return r.bottom > b.bottom + 2 || r.right > b.right + 2; })))
+    .map((el) => { const fr = el.closest(".frame"); return "slide " + (fr ? fr.querySelector(".pno")?.textContent : "?") + " (" + (el.closest("section")?.id || "cover") + "): " + JSON.stringify(el.textContent.trim().slice(0, 50)); });
   const d = JSON.parse(document.getElementById("brand-data").textContent);
   const label = (d.imagery && d.imagery.ai && d.imagery.ai.label) || "";
   const uncaptioned = [...document.querySelectorAll('figure[data-generated="true"]')].filter((f) => {
@@ -236,7 +242,7 @@ const BOOK_PROBE = `(() => {
     const fs = parseFloat(getComputedStyle(p).fontSize);
     if (fs < 12) { small++; if (smallEx.length < 3) smallEx.push(n.textContent.trim().slice(0, 30) + " (" + fs + "px)"); }
   }
-  return { wide: wide.slice(0, 6), broken, logos, uncaptioned, small, smallEx };
+  return { wide: wide.slice(0, 6), broken, logos, uncaptioned, small, smallEx, cut };
 })()`;
 
 const LABEL_PROBE = `(() => {
@@ -292,6 +298,7 @@ async function checkBook(file) {
       for (const b of r.broken) err(`book: image did not load: ${b}`);
       for (const l of r.logos) err(`book: a logo in "${l.where.trim().slice(0, 40)}" is ${l.w} px wide at full size, below its own minimum of ${l.min} px`);
       for (const u of r.uncaptioned) err(`book: generated image without the caption: ${u}`);
+      for (const c of r.cut) err(`book: text runs out of its tile on ${c}; shorten it in brand.json`);
       if (r.small) warn(`book: ${r.small} text fragments under 12 px, e.g. ${r.smallEx.join("; ")}`);
       for (const pr of [...new Set(p.problems)]) err(`book: page error: ${pr}`);
     }
@@ -364,26 +371,113 @@ async function checkLogos(bookFile) {
   }
 }
 
-const countPages = (b64) => (Buffer.from(b64, "base64").toString("latin1").match(/\/Type\s*\/Page[^s]/g) || []).length;
+const countPages = (buf) => (buf.toString("latin1").match(/\/Type\s*\/Page[^s]/g) || []).length;
+
+// Chrome stalls in printToPDF on a document with photos on several pages, while one slide takes about
+// a second. So the deck is printed one slide at a time and the parts are joined here.
+// Chrome writes PDF 1.4 with a classic xref table and no object streams, which keeps the join simple:
+// every object is copied with new numbers, and one page tree points at all the pages.
+function parsePdf(buf) {
+  const s = buf.toString("latin1");
+  const sx = s.lastIndexOf("startxref");
+  const xrefAt = parseInt(s.slice(sx + 9).trim(), 10);
+  if (!s.startsWith("xref", xrefAt)) throw new Error("unexpected PDF structure (no classic xref table)");
+  const lines = s.slice(xrefAt, sx).split(/\r?\n/);
+  const offsets = new Map();
+  let i = 1;
+  while (i < lines.length && !lines[i].startsWith("trailer")) {
+    const [start, count] = lines[i].trim().split(/\s+/).map(Number);
+    i++;
+    for (let k = 0; k < count; k++, i++) {
+      const [off, , type] = lines[i].trim().split(/\s+/);
+      if (type === "n") offsets.set(start + k, Number(off));
+    }
+  }
+  const trailer = s.slice(s.indexOf("trailer", xrefAt), sx);
+  const root = Number(trailer.match(/\/Root (\d+) 0 R/)[1]);
+  const info = (trailer.match(/\/Info (\d+) 0 R/) || [])[1];
+  const bodyOf = (n) => { const off = offsets.get(n); const head = s.indexOf("obj", off) + 3; return { off, head }; };
+  const objs = new Map();
+  for (const n of offsets.keys()) {
+    const { head } = bodyOf(n);
+    const endAt = s.indexOf("endobj", head), streamAt = s.indexOf("stream", head);
+    if (streamAt !== -1 && streamAt < endAt) {
+      const dict = s.slice(head, streamAt);
+      const m = dict.match(/\/Length (\d+)( 0 R)?/);
+      let len = Number(m[1]);
+      if (m[2]) { const lh = bodyOf(len).head; len = parseInt(s.slice(lh, s.indexOf("endobj", lh)).trim(), 10); }
+      let at = streamAt + 6;
+      if (s[at] === "\r") at++;
+      if (s[at] === "\n") at++;
+      objs.set(n, { dict, stream: buf.subarray(at, at + len) });
+    } else objs.set(n, { dict: s.slice(head, endAt), stream: null });
+  }
+  return { objs, root, info: info ? Number(info) : null };
+}
+
+function mergePdfs(parts) {
+  let next = 1;
+  const out = [], kids = [];
+  for (const part of parts) {
+    const { objs, root, info } = parsePdf(part);
+    const pagesRef = Number(objs.get(root).dict.match(/\/Pages (\d+) 0 R/)[1]);
+    const leaf = (n) => {
+      const d = objs.get(n).dict;
+      return /\/Type\s*\/Pages/.test(d) ? [...d.match(/\/Kids\s*\[([^\]]*)\]/)[1].matchAll(/(\d+) 0 R/g)].flatMap((x) => leaf(Number(x[1]))) : [n];
+    };
+    const pages = leaf(pagesRef);
+    const skip = new Set([root, info, ...[...objs.keys()].filter((n) => /\/Type\s*\/Pages/.test(objs.get(n).dict))]);
+    const map = new Map();
+    for (const n of objs.keys()) if (!skip.has(n)) map.set(n, next++);
+    for (const [n, o] of objs) {
+      if (skip.has(n)) continue;
+      const dict = o.dict.replace(/(\d+) 0 R/g, (m, x) => (map.has(Number(x)) ? `${map.get(Number(x))} 0 R` : skip.has(Number(x)) ? "@PAGES@" : m));
+      out.push({ id: map.get(n), dict, stream: o.stream });
+    }
+    kids.push(...pages.map((n) => map.get(n)));
+  }
+  const pagesId = next++, catalogId = next++;
+  const chunks = [Buffer.from("%PDF-1.4\n%\xE2\xE3\xCF\xD3\n", "latin1")];
+  let pos = chunks[0].length;
+  const offs = [];
+  const push = (b) => { chunks.push(b); pos += b.length; };
+  for (const o of out.sort((a, b) => a.id - b.id)) {
+    offs[o.id] = pos;
+    push(Buffer.from(`${o.id} 0 obj${o.dict.replace(/@PAGES@/g, `${pagesId} 0 R`)}`, "latin1"));
+    if (o.stream) { push(Buffer.from("stream\n", "latin1")); push(o.stream); push(Buffer.from("\nendstream", "latin1")); }
+    push(Buffer.from("\nendobj\n", "latin1"));
+  }
+  offs[pagesId] = pos;
+  push(Buffer.from(`${pagesId} 0 obj\n<</Type /Pages /Count ${kids.length} /Kids [${kids.map((k) => `${k} 0 R`).join(" ")}]>>\nendobj\n`, "latin1"));
+  offs[catalogId] = pos;
+  push(Buffer.from(`${catalogId} 0 obj\n<</Type /Catalog /Pages ${pagesId} 0 R>>\nendobj\n`, "latin1"));
+  const xrefAt = pos;
+  let xref = `xref\n0 ${next}\n0000000000 65535 f \n`;
+  for (let n = 1; n < next; n++) xref += `${String(offs[n] || 0).padStart(10, "0")} 00000 n \n`;
+  push(Buffer.from(`${xref}trailer\n<</Size ${next} /Root ${catalogId} 0 R>>\nstartxref\n${xrefAt}\n%%EOF\n`, "latin1"));
+  return Buffer.concat(chunks);
+}
 
 async function pdf(file, out) {
-  const url = pathToFileURL(file).href;
-  const p = await openLoaded(url, 1440, 900, { media: "print" }, "loading for PDF");
+  const p = await openLoaded(pathToFileURL(file).href, 1440, 900, { media: "print" }, "loading for PDF");
   await p.evaluate(`(window.dispatchEvent(new Event("beforeprint")), true)`);
-  const { data } = await within(TIMEOUT, p.s("Page.printToPDF", { printBackground: true, preferCSSPageSize: true }), "printing to PDF");
-  writeFileSync(out, Buffer.from(data, "base64"));
-  const pages = countPages(data);
-  console.log(`${out}: ${pages} pages, ${(statSync(out).size / 1e6).toFixed(1)} MB`);
-  // Each section printed alone shows where the pages go, without having to look at the PDF.
-  const ids = await p.evaluate(`[...document.querySelectorAll("main > .cover, main > section.s")].map((el) => el.id)`);
-  const per = [];
-  for (const id of ids) {
-    await p.evaluate(`(() => { const keep = document.getElementById(${JSON.stringify(id)}); for (const el of document.querySelectorAll("main > *")) el.style.display = el === keep ? "" : "none"; return true; })()`);
-    const r = await within(TIMEOUT, p.s("Page.printToPDF", { printBackground: true, preferCSSPageSize: true }), `printing ${id}`);
-    per.push(`${id === "top" ? "cover" : id} ${countPages(r.data)}`);
-  }
+  const n = await p.evaluate(`document.querySelectorAll(".frame").length`);
+  const printRange = async (from, to) => {
+    // The printed slide alone, without its page break (it would add a blank page).
+    await p.evaluate(`(document.querySelectorAll(".frame").forEach((f, k) => { f.style.display = k >= ${from} && k < ${to} ? "" : "none"; f.style.breakAfter = k === ${to} - 1 ? "auto" : ""; }), true)`);
+    const r = await within(Math.min(TIMEOUT, 60000), p.s("Page.printToPDF", { printBackground: true, preferCSSPageSize: true }), `printing slides ${from + 1}–${to}`);
+    return Buffer.from(r.data, "base64");
+  };
+  const parts = [];
+  for (let k = 0; k < n; k++) parts.push(await printRange(k, k + 1));
+  const per = await p.evaluate(`[...document.querySelectorAll("main > .cover, main > section.s")].map((el) => (el.id === "top" ? "cover" : el.id) + " " + (el.classList.contains("frame") ? 1 : el.querySelectorAll(".frame").length))`);
   await p.close();
-  console.log(`pages per section, each printed alone: ${per.join(", ")}`);
+  const merged = parts.length === 1 ? parts[0] : mergePdfs(parts);
+  mkdirSync(dirname(out), { recursive: true });
+  writeFileSync(out, merged);
+  const pages = countPages(merged);
+  console.log(`${out}: ${pages} pages, ${(statSync(out).size / 1e6).toFixed(1)} MB`);
+  console.log(`pages per section: ${per.join(", ")}`);
   if (statSync(out).size > 20e6) warn(`${out} is over 20 MB; too big to email`);
   if (maxPages && pages > Number(maxPages)) err(`the PDF has ${pages} pages, the budget is ${maxPages}: shorten part 1 or the longest sections above, don't cut the rules`);
 }

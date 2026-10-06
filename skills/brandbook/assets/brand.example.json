@@ -26,6 +26,12 @@
   },
   "strategy": {
     "purpose": "Świeżo palona kawa z jednego pieca nad Odrą, wysyłana dzień po paleniu.",
+    "tagline": "Palone we wtorek.",
+    "story": "Palimy małe partie w poniedziałki i wtorki, w jednym piecu nad rzeką. Na każdej paczce jest data palenia i nazwa farmy.",
+    "fact": {
+      "value": "24 h",
+      "label": "od palenia do wysyłki"
+    },
     "audience": "Ludzie, którzy parzą kawę w domu i chcą wiedzieć, kiedy i skąd jest.",
     "instead_of": "Zamiast kawy z marketu bez daty palenia i kawiarnianych sieciówek.",
     "proof": [

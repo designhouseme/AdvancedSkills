@@ -272,6 +272,27 @@ def check(brand, root):
             error(f"image not found: {img.get('file')}")
         if img.get("generated") and not (img.get("caption") or ai.get("label")):
             error(f"generated image {img.get('file')} has no caption; label it (e.g. \"Wizualizacja\")")
+    for w in imagery.get("worlds") or []:
+        for key in ("image", "detail"):
+            if w.get(key) and not (root / str(w[key])).is_file():
+                error(f"world {w.get('name')}: {key} not found: {w[key]}")
+        if w.get("colour") and w["colour"] not in by_id:
+            error(f"world {w.get('name')}: colour {w['colour']!r} is not a colour id")
+    for a in brand.get("applications") or []:
+        if a.get("image") and not (root / str(a["image"])).is_file():
+            error(f"application {a.get('id')}: image not found: {a['image']}")
+        if a.get("kind") == "billboard" and not a.get("image"):
+            error(f"application {a.get('id')}: a billboard needs an image")
+    for l in brand.get("labels") or []:
+        if l.get("image") and not (root / str(l["image"])).is_file():
+            error(f"label {l.get('id')}: image not found: {l['image']}")
+    tagline = str((brand.get("strategy") or {}).get("tagline", ""))
+    if not tagline:
+        warn("strategy.tagline is missing; the cover and the closing slide show only the name")
+    elif len(tagline) > 60:
+        warn(f"strategy.tagline has {len(tagline)} characters; the cover sets it large, keep it under about 35")
+    if not imagery.get("images") and not imagery.get("worlds") and not any(l.get("image") for l in brand.get("labels") or []):
+        warn("no photographs at all: the deck falls back to colour and type. Ask the client for photos or, with an image tool, generate visualisations (references/images.md)")
     if any(i.get("generated") for i in imagery.get("images") or []) and not ai:
         error("the book uses generated images but imagery.ai (allowed, banned, label, approver) is missing")
     for key in ("light", "composition", "casting", "props", "styling", "grading"):

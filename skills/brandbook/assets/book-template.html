@@ -1,9 +1,9 @@
 <!doctype html>
 <!-- SPDX-License-Identifier: CC-BY-4.0 · © 2026 Design House (https://designhouse.me)
      Brand book template. Don't edit the built copy: change brand.json and run build_book.py.
-     Everything on the page is rendered from the JSON in #brand-data; the PDF is this page printed.
-     Look: editorial. The brand's own colours as full fields, its typefaces at large sizes, rules as
-     headlines, hairlines and space instead of boxes. -->
+     A deck of 1920 × 1080 slides built from the JSON in #brand-data: a mosaic of rounded tiles
+     (margin 40, gap 16), photographs where the brand has them, its colours as full tiles, its
+     display face large. On screen the slides scale to the window; printed, one slide per page. -->
 <html lang="pl">
 <head>
 <meta charset="utf-8">
@@ -13,297 +13,128 @@
 <style>
 /*__FONT_FACES__*/
 :root {
-  --bg: #ffffff; --ink: #161616; --ink-2: #5e5e5e; --line: #dcdcdc; --accent: #2f2f2f; --panel: #f3f3f3;
-  --feature: #161616; --on-feature: #ffffff;
-  --display: system-ui, sans-serif; --text: system-ui, sans-serif;
-  --nav: 232px; --gut: 56px; --max: 1120px; --indent: 120px;
+  --bg: #f6f2ea; --ink: #1d1a17; --ink-2: #57514a; --ink-3: #8a837a; --line: #d9d2c6; --accent: #2f2f2f; --panel: #ece6db;
+  --feature: #1d1a17; --on-feature: #f6f2ea; --desk: #d8d1c5;
+  --display: Georgia, serif; --text: system-ui, sans-serif; --r: 20px;
 }
-* { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
-body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.6 var(--text); font-kerning: normal; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
-a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 3px; }
-img { max-width: 100%; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { background: var(--desk); -webkit-text-size-adjust: 100%; }
+body { font: 17px/1.55 var(--text); color: var(--ink); -webkit-font-smoothing: antialiased; font-kerning: normal; }
+a { color: inherit; text-underline-offset: 3px; }
 button { font: inherit; color: inherit; }
-p { margin: 0 0 14px; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 :lang(pl) q { quotes: "„" "”" "‚" "’"; }
 .skip { position: absolute; left: -999px; top: 8px; background: var(--ink); color: var(--bg); padding: 8px 12px; z-index: 10; }
 .skip:focus { left: 8px; }
-.muted { color: var(--ink-2); }
-.small { font-size: 14px; }
-.k { font-size: 14px; color: var(--ink-2); margin: 0 0 8px; }
 
-/* bar */
-.bar { position: sticky; top: 0; z-index: 5; min-height: 60px; display: flex; align-items: center; gap: 24px; padding: 0 var(--gut) 0 28px; background: var(--bg); border-bottom: 1px solid var(--line); }
-.bar .brand { display: flex; align-items: center; gap: 16px; text-decoration: none; min-width: 0; }
-.bar .brand img { height: auto; display: block; }
+/* viewer chrome */
+.bar { position: sticky; top: 0; z-index: 5; min-height: 56px; display: flex; align-items: center; gap: 22px; padding: 0 28px; background: var(--bg); border-bottom: 1px solid var(--line); }
+.bar .brand { display: flex; align-items: center; gap: 14px; text-decoration: none; }
+.bar .brand img { display: block; height: auto; }
 .bar .brand span { font-size: 14px; color: var(--ink-2); white-space: nowrap; }
-.readers { margin-left: auto; display: flex; align-items: center; gap: 22px; }
+.readers { margin-left: auto; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
 .readers .lab { font-size: 14px; color: var(--ink-2); }
-.readers button { background: none; border: 0; border-bottom: 2px solid transparent; padding: 18px 0 16px; font-size: 15px; color: var(--ink-2); cursor: pointer; }
+.readers button { background: none; border: 0; border-bottom: 2px solid transparent; padding: 16px 0 14px; font-size: 15px; color: var(--ink-2); cursor: pointer; }
 .readers button:hover { color: var(--ink); }
 .readers button[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--ink); }
 .menu { display: none; }
-
-/* layout */
-.wrap { display: grid; grid-template-columns: var(--nav) minmax(0, 1fr); }
-nav.toc { position: sticky; top: 60px; align-self: start; height: calc(100vh - 60px); overflow: auto; padding: 48px 20px 48px 28px; }
-nav.toc p { margin: 30px 0 8px; font-size: 13px; color: var(--ink-2); }
+.wrap { display: grid; grid-template-columns: 216px minmax(0, 1fr); }
+nav.toc { position: sticky; top: 56px; align-self: start; height: calc(100vh - 56px); overflow: auto; padding: 36px 16px 36px 28px; }
+nav.toc p { margin: 26px 0 8px; font-size: 13px; color: var(--ink-2); }
 nav.toc p:first-child { margin-top: 0; }
-nav.toc a { display: flex; gap: 12px; padding: 5px 0; font-size: 15px; line-height: 1.35; text-decoration: none; color: var(--ink-2); }
+nav.toc a { display: flex; gap: 10px; padding: 5px 0; font-size: 15px; line-height: 1.35; text-decoration: none; color: var(--ink-2); }
 nav.toc a .n { min-width: 26px; font-variant-numeric: tabular-nums; }
 nav.toc a:hover, nav.toc a[aria-current="true"] { color: var(--ink); }
-nav.toc a[aria-current="true"] .t { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 5px; }
-main { min-width: 0; padding: 0 var(--gut) 160px; }
+nav.toc a[aria-current="true"] .t2 { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 5px; }
+nav.toc .keys { margin-top: 28px; font-size: 12.5px; color: var(--ink-3); }
+main { min-width: 0; padding: 28px 32px 120px; }
+section.s { scroll-margin-top: 72px; }
 
-/* cover and parts: the brand's colour as a full field */
-.cover { margin: 0 calc(var(--gut) * -1); min-height: calc(100vh - 61px); background: var(--feature); color: var(--on-feature); padding: 72px var(--gut) 56px; display: flex; flex-direction: column; }
-.cover img.logo { height: clamp(48px, 7vw, 104px); width: auto; align-self: flex-start; }
-.cover .word { font: 500 clamp(40px, 6vw, 80px)/1 var(--display); }
-.cover .purpose { margin: auto 0 0; padding-top: 80px; font: 500 clamp(40px, 6vw, 96px)/1.02 var(--display); letter-spacing: -0.025em; max-width: 15ch; text-wrap: balance; }
-.cover .meta { margin-top: 56px; display: flex; flex-wrap: wrap; gap: 8px 40px; font-size: 15px; opacity: 0.85; }
-.part { margin: 150px calc(var(--gut) * -1) 0; padding: 140px var(--gut) 72px; background: var(--feature); color: var(--on-feature); min-height: 64vh; display: flex; flex-direction: column; justify-content: flex-end; }
-.part .no { font-size: 15px; opacity: 0.8; margin: 0; }
-.part h1 { margin: 10px 0 0; font: 500 clamp(64px, 10vw, 160px)/0.95 var(--display); letter-spacing: -0.035em; }
-.part .lead2 { margin: 28px 0 0; max-width: 46ch; font-size: 20px; opacity: 0.9; }
+/* slides */
+.frame { position: relative; width: 100%; max-width: 1920px; aspect-ratio: 16 / 9; margin: 0 auto 26px; scroll-margin-top: 72px; }
+.slide { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; background: var(--bg); overflow: hidden; box-shadow: 0 18px 50px rgba(0, 0, 0, 0.13); }
+.t { position: absolute; border-radius: var(--r); overflow: hidden; }
+.t > img.ph { width: 100%; height: 100%; object-fit: cover; display: block; }
+.abs { position: absolute; }
+.disp { font-family: var(--display); font-weight: 400; letter-spacing: -0.015em; }
+.h-cover { font: 400 150px/0.94 var(--display); letter-spacing: -0.025em; }
+.h-slide { font: 400 52px/1.06 var(--display); letter-spacing: -0.015em; }
+.lead { font: 400 22px/1.45 var(--text); }
+.body { font: 400 17px/1.55 var(--text); }
+.small { font: 400 14.5px/1.5 var(--text); }
+.cap { font: 500 13px/1.3 var(--text); letter-spacing: 0.01em; color: var(--ink-3); }
+.soft { opacity: 0.78; }
+.foot { position: absolute; bottom: 13px; font: 400 12.5px/1 var(--text); color: var(--ink-3); }
+.rule { position: absolute; height: 1px; background: var(--line); }
+ol.n2, ul.d2 { list-style: none; }
+ol.n2 { counter-reset: n; }
+ol.n2 li, ul.d2 li { position: relative; padding-left: 34px; margin: 0 0 12px; }
+ol.n2 li::before { counter-increment: n; content: counter(n); position: absolute; left: 0; top: 0; font-variant-numeric: tabular-nums; opacity: 0.6; }
+ul.d2 li::before { content: ""; position: absolute; left: 0; top: 0.78em; width: 16px; height: 1.5px; background: currentColor; opacity: 0.7; }
+s { text-decoration-thickness: 2px; }
+.tb { width: 100%; border-collapse: collapse; }
+.tb th { font: 500 14px/1.2 var(--text); text-align: left; padding: 0 14px 10px 0; opacity: 0.6; white-space: nowrap; }
+.tb td { padding: 10px 14px 10px 0; border-top: 1px solid color-mix(in srgb, currentColor 16%, transparent); font: 400 17px/1.35 var(--text); vertical-align: top; }
+.tb td:first-child { font-weight: 500; }
 
-/* sections */
-section.s { max-width: var(--max); padding: 150px 0 0; scroll-margin-top: 80px; }
-.part + section.s { padding-top: 120px; }
-.s-head { display: grid; grid-template-columns: calc(var(--indent) - 24px) minmax(0, 1fr); gap: 0 24px; margin: 0 0 72px; }
-.s-head .n { font: 400 22px/1.3 var(--display); color: var(--ink-2); padding-top: 0.4em; font-variant-numeric: tabular-nums; }
-.s-head h2 { margin: 0; font: 500 clamp(36px, 4.4vw, 64px)/1.04 var(--display); letter-spacing: -0.022em; max-width: 17ch; text-wrap: balance; }
-.s-head .topic { margin: 18px 0 0; font-size: 15px; color: var(--ink-2); }
-.body { margin-left: var(--indent); }
-h3 { font: 500 24px/1.25 var(--display); letter-spacing: -0.01em; margin: 96px 0 28px; padding-top: 22px; border-top: 1px solid var(--line); }
-.body > h3:first-child, .body > .first { margin-top: 0; }
-h4 { margin: 0 0 6px; font: 500 22px/1.25 var(--display); letter-spacing: -0.01em; }
-
-/* rows: a definition list with hairlines */
-.rows { border-top: 1px solid var(--line); }
-.row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2.4fr); gap: 6px 32px; padding: 18px 0; border-bottom: 1px solid var(--line); }
-.row > :first-child { color: var(--ink-2); font-size: 15px; padding-top: 2px; }
-.row > :last-child { font-size: 18px; }
-.cols { display: grid; gap: 40px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
-.col .v { font: 400 23px/1.35 var(--display); letter-spacing: -0.005em; margin: 0; }
-ol.big, ul.big { list-style: none; margin: 0; padding: 0; counter-reset: n; }
-ol.big li, ul.big li { position: relative; padding: 20px 0 20px 56px; border-bottom: 1px solid var(--line); font: 400 22px/1.4 var(--display); }
-ol.big li:first-child, ul.big li:first-child { border-top: 1px solid var(--line); }
-ol.big li::before { counter-increment: n; content: counter(n); position: absolute; left: 0; top: 24px; font: 400 16px/1 var(--text); color: var(--ink-2); }
-ul.big li::before { content: ""; position: absolute; left: 0; top: 36px; width: 28px; height: 1px; background: var(--ink-2); }
-ol.plain { margin: 0; padding-left: 1.2em; }
-ol.plain li { margin: 6px 0; }
-
-/* strategy */
-.values { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 48px; }
-.values h4 { font-size: 30px; margin-bottom: 10px; }
-.values p { font-size: 18px; color: var(--ink-2); max-width: 36ch; margin: 0; }
-
-/* voice */
-.traits { display: grid; gap: 14px; }
-.trait { margin: 0; font: 400 clamp(28px, 3.4vw, 46px)/1.15 var(--display); letter-spacing: -0.02em; }
-.trait .isnot { color: var(--ink-2); }
-.trait s { text-decoration-thickness: 2px; }
-.tone { border-top: 1px solid var(--line); }
-.tone-row { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr) minmax(0, 1.6fr); gap: 8px 32px; padding: 24px 0; border-bottom: 1px solid var(--line); }
-.tone-row h4 { font-size: 22px; margin: 0; }
-.tone-row p { margin: 0; }
-.tone-row q { font: 400 22px/1.4 var(--display); }
-.words { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
-.words ul { list-style: none; margin: 0; padding: 0; font: 400 26px/1.45 var(--display); }
-.words .no li { color: var(--ink-2); text-decoration: line-through; text-decoration-thickness: 2px; }
-.ba { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; padding: 24px 0; border-bottom: 1px solid var(--line); }
-.ba:first-of-type { border-top: 1px solid var(--line); }
-.ba p { margin: 0; font: 400 24px/1.35 var(--display); }
-.ba .before { color: var(--ink-2); text-decoration: line-through; text-decoration-thickness: 2px; }
-.ba p.k { font: 14px/1.4 var(--text); color: var(--ink-2); margin: 0 0 8px; text-decoration: none; }
-
-/* applications */
-.mocks { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 40px 32px; }
-.mock { position: relative; overflow: hidden; }
-.mock .canvas { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
-figure { margin: 0; }
-figcaption { margin-top: 12px; font-size: 14px; color: var(--ink-2); }
-figcaption .gen { color: var(--ink); font-weight: 600; }
+/* colour values */
+.vals { display: grid; font: 400 14px/1.3 var(--text); font-variant-numeric: tabular-nums; }
+.vals > * { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-top: 1px solid color-mix(in srgb, currentColor 22%, transparent); }
+.vals button { all: unset; cursor: pointer; display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-top: 1px solid color-mix(in srgb, currentColor 22%, transparent); }
+.vals button:hover .v, .vals button:focus-visible .v { text-decoration: underline; }
+.vals .kk { opacity: 0.72; }
+table.matrix { border-collapse: separate; border-spacing: 4px; }
+table.matrix th { font: 500 13px/1.2 var(--text); color: var(--ink-3); text-align: left; padding: 4px 6px; white-space: nowrap; }
+table.matrix td { padding: 0; }
+table.matrix .cell { border-radius: 10px; padding: 10px; display: flex; flex-direction: column; }
+table.matrix .cell b { font: 400 30px/1 var(--display); }
+table.matrix .cell span { margin-top: auto; font: 400 12.5px/1.3 var(--text); }
+table.matrix .ok .cell { box-shadow: inset 0 0 0 3px var(--bg), inset 0 0 0 5px var(--ink); }
 
 /* logo */
-.lpanels { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px; }
-.lpanel { aspect-ratio: 4 / 3; display: grid; place-items: center; padding: 10%; }
-.lpanel img { width: 64%; height: auto; max-height: 64%; object-fit: contain; }
-.lcap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 20px; margin-top: 14px; font-size: 15px; }
-.lcap b { font-weight: 600; }
-.clearpanel { background: var(--panel); display: grid; place-items: center; padding: 96px 24px; }
-.clear { position: relative; display: inline-block; outline: 1px dashed var(--ink-2); }
-.clear img { display: block; height: clamp(56px, 8vw, 104px); width: auto; }
-.clear .x { position: absolute; font: 500 14px/1 var(--text); color: var(--ink-2); background: var(--panel); padding: 2px 6px; }
-.minrow { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 32px 64px; }
-.minrow img { display: block; height: auto; }
-.donts { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 28px 24px; }
-.dont .p { position: relative; aspect-ratio: 4 / 3; display: grid; place-items: center; overflow: hidden; background: var(--panel); }
-.dont .p img { max-width: 56%; max-height: 40%; }
-.dont .p::after { content: ""; position: absolute; left: -10%; right: -10%; top: 50%; height: 1.5px; background: var(--ink-2); transform: rotate(-24deg); opacity: 0.6; }
-.dont p { margin: 12px 0 0; font-size: 16px; }
-
-/* colour */
-.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
-.tile { min-height: 340px; padding: 22px 22px 18px; display: flex; flex-direction: column; }
-.tile h4 { font-size: 28px; margin: 0 0 4px; }
-.tile .role { font-size: 14px; opacity: 0.8; margin: 0; }
-.tile .vals { margin-top: auto; padding-top: 24px; display: grid; font-size: 14px; font-variant-numeric: tabular-nums; }
-.tile .vals > * { display: flex; justify-content: space-between; gap: 12px; padding: 5px 0; border-top: 1px solid color-mix(in srgb, currentColor 24%, transparent); }
-.tile .vals button { all: unset; cursor: pointer; display: flex; justify-content: space-between; gap: 12px; padding: 5px 0; border-top: 1px solid color-mix(in srgb, currentColor 24%, transparent); }
-.tile .vals button:hover .v, .tile .vals button:focus-visible .v { text-decoration: underline; }
-.tile .vals .kk { opacity: 0.75; }
-.tile .status { margin: 10px 0 0; font-size: 12.5px; opacity: 0.8; }
-.band { display: flex; height: 76px; }
-.band div { display: flex; align-items: flex-end; padding: 10px 12px; font-size: 13px; overflow: hidden; white-space: nowrap; }
-.scroll { overflow-x: auto; }
-table.matrix { border-collapse: separate; border-spacing: 3px; font-size: 13px; margin-left: -3px; }
-table.matrix th { font-weight: 500; text-align: left; padding: 6px 8px; white-space: nowrap; color: var(--ink-2); }
-table.matrix td { padding: 0; }
-table.matrix .cell { width: 120px; height: 108px; padding: 12px; display: flex; flex-direction: column; }
-table.matrix .cell b { font: 500 30px/1 var(--display); }
-table.matrix .cell .r { margin-top: auto; font-size: 13px; line-height: 1.3; }
-table.matrix .ok-mark .cell { box-shadow: inset 0 0 0 3px var(--bg), inset 0 0 0 5px var(--ink); }
-table.matrix .same { color: var(--ink-2); display: grid; place-items: center; }
-
-/* type */
-.specimen { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.6fr); gap: 32px 56px; padding: 40px 0 56px; border-top: 1px solid var(--line); }
-.specimen .aa { font-size: clamp(120px, 15vw, 220px); line-height: 0.9; letter-spacing: -0.04em; }
-.specimen h4 { font-size: 30px; }
-.specimen .sample { font-size: clamp(26px, 3vw, 40px); line-height: 1.15; margin: 18px 0; overflow-wrap: anywhere; }
-.specimen .glyphs { font-size: 19px; line-height: 1.55; color: var(--ink-2); overflow-wrap: anywhere; margin-bottom: 28px; }
-.scale { border-top: 1px solid var(--line); }
-.scale-row { display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 24px; padding: 22px 0; border-bottom: 1px solid var(--line); align-items: baseline; }
-.scale-row .meta { font-size: 14px; color: var(--ink-2); }
-.scale-row .ex { overflow-wrap: anywhere; }
-
-/* imagery */
-.imgs { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px; }
-figure img { display: block; width: 100%; height: auto; }
-.dodont { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+.clear { position: relative; display: inline-block; outline: 1.5px dashed currentColor; }
+.clear img { display: block; width: auto; }
+.clear .x { position: absolute; font: 500 14px/1 var(--text); padding: 2px 6px; transform: translate(-50%, -50%); background: var(--panel); }
+.strike::after { content: ""; position: absolute; left: -10%; right: -10%; top: 50%; height: 2px; background: currentColor; opacity: 0.45; transform: rotate(-22deg); }
 
 /* labels */
-.label + .label { margin-top: 112px; }
-.label h4 { font-size: 30px; }
-.lview { background: var(--panel); padding: 28px; margin-top: 24px; }
-.modes { display: flex; gap: 24px; margin: 0 0 18px; }
-.modes button { background: none; border: 0; border-bottom: 2px solid transparent; padding: 4px 0; font-size: 15px; color: var(--ink-2); cursor: pointer; }
+.lview { position: absolute; inset: 0; display: grid; place-items: center; padding: 70px 40px 40px; }
+.lview iframe { border: 0; display: block; background: transparent; }
+.modes { position: absolute; left: 40px; top: 26px; display: flex; gap: 22px; z-index: 1; }
+.modes button { background: none; border: 0; border-bottom: 2px solid transparent; padding: 2px 0; font-size: 15px; color: var(--ink-2); cursor: pointer; }
 .modes button[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--ink); }
-.fw { overflow-x: auto; }
-.lview iframe { width: 100%; border: 0; display: block; background: transparent; margin: 0 auto; }
-.lview .open { display: inline-block; margin-top: 16px; font-size: 14px; }
-.note { margin: 20px 0 0; padding-left: 16px; border-left: 2px solid var(--ink); font-size: 15px; max-width: 70ch; }
-.lgrid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0 56px; margin-top: 40px; }
-@media (min-width: 900px) { .lgrid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); } }
-.lgrid h5 { font: 500 18px/1.3 var(--display); margin: 28px 0 12px; }
-.lgrid h5:first-child { margin-top: 0; }
-.check { display: flex; gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
-.check b { min-width: 84px; font-size: 13px; font-weight: 600; color: var(--ink-2); padding-top: 2px; }
-.check b.missing { color: var(--ink); }
+.lopen { position: absolute; right: 40px; top: 28px; font-size: 14px; z-index: 1; }
+.chk { display: flex; gap: 12px; padding: 7px 0; break-inside: avoid; border-top: 1px solid color-mix(in srgb, currentColor 16%, transparent); font: 400 14.5px/1.35 var(--text); }
+.chk b { min-width: 46px; font-weight: 600; opacity: 0.65; }
+.chk b.miss { opacity: 1; }
 
-.toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 8px 14px; font-size: 14px; opacity: 0; transition: opacity 0.15s; pointer-events: none; }
+figure { margin: 0; }
+.chip { position: absolute; left: 18px; bottom: 16px; padding: 5px 10px; border-radius: 8px; font: 500 13px/1.2 var(--text); background: var(--bg); color: var(--ink); }
+.toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 8px 14px; border-radius: 8px; font-size: 14px; opacity: 0; transition: opacity 0.15s; pointer-events: none; z-index: 9; }
 .toast.on { opacity: 1; }
 [hidden] { display: none !important; }
-footer.colophon { max-width: var(--max); margin: 160px 0 0 var(--indent); padding-top: 22px; border-top: 1px solid var(--line); font-size: 14px; color: var(--ink-2); }
 
 @media (max-width: 1023px) {
-  :root { --gut: 20px; --indent: 0px; }
   .wrap { grid-template-columns: minmax(0, 1fr); }
   nav.toc { display: none; }
-  .bar { flex-wrap: wrap; padding: 10px 20px 0; gap: 4px 16px; }
-  .readers { margin-left: 0; width: 100%; gap: 2px 16px; flex-wrap: wrap; }
+  main { padding: 16px 12px 80px; }
+  .frame { margin-bottom: 14px; }
+  .bar { flex-wrap: wrap; padding: 10px 16px 0; gap: 4px 16px; }
+  .readers { margin-left: 0; width: 100%; gap: 2px 16px; }
   .readers .lab { width: 100%; font-size: 13px; }
   .readers button { padding: 8px 0; white-space: nowrap; font-size: 14.5px; }
-  .menu { display: block; width: 100%; order: 3; }
+  .menu { display: block; width: 100%; }
   .menu summary { cursor: pointer; font-size: 15px; padding: 10px 0; }
   .menu a { display: block; padding: 10px 0; text-decoration: none; border-top: 1px solid var(--line); font-size: 15px; }
-  .cover { min-height: 86vh; padding: 48px 20px 40px; }
-  .part { margin-top: 96px; padding: 96px 20px 48px; min-height: 48vh; }
-  section.s { padding-top: 96px; }
-  .s-head { grid-template-columns: minmax(0, 1fr); margin-bottom: 40px; }
-  .s-head .n { padding: 0 0 10px; font-size: 18px; }
-  h3 { margin-top: 72px; }
-  .row, .tone-row { grid-template-columns: minmax(0, 1fr); }
-  .words, .ba, .dodont, .specimen { grid-template-columns: minmax(0, 1fr); gap: 16px; }
-  .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .tile { min-height: 250px; padding: 14px; }
-  .tile h4 { font-size: 21px; }
-  .tile .vals { font-size: 12.5px; }
-  .scale-row { grid-template-columns: minmax(0, 1fr); gap: 6px; }
-  table.matrix .cell { width: 86px; height: 88px; padding: 8px; }
-  table.matrix .cell b { font-size: 22px; }
-  .lview { padding: 14px; }
-  .lpanels, .mocks, .imgs { grid-template-columns: minmax(0, 1fr); }
 }
 @media print {
-  @page { size: 297mm 210mm; margin: 12mm; }
-  @page :first { margin: 0; }
-  body { font-size: 9.5pt; line-height: 1.45; }
-  .bar, nav.toc, .modes, .readers, .menu, .toast, .skip, .no-print, .lview .open { display: none !important; }
+  @page { size: 1920px 1080px; margin: 0; }
+  html { background: none; }
+  .bar, nav.toc, .menu, .toast, .skip, .modes, .lopen, .no-print { display: none !important; }
   .wrap { display: block; }
   main { padding: 0; }
-  :root { --indent: 0px; }
-  /* A full-colour cover, a coloured band at the top of each part's first page; sections flow. */
-  .cover { margin: 0; width: 297mm; height: 210mm; min-height: 0; padding: 18mm 20mm; break-after: page; }
-  .cover .purpose { font-size: 40pt; padding-top: 0; }
-  .part { margin: 0 0 8mm; min-height: 0; padding: 12mm 10mm 8mm; break-before: page; }
-  .part h1 { font-size: 40pt; }
-  .part .lead2 { font-size: 11pt; margin-top: 3mm; }
-  section.s { max-width: none; padding: 8mm 0 0; }
-  .part + section.s { padding-top: 0; }
-  .s-head { grid-template-columns: 12mm minmax(0, 1fr); margin-bottom: 5mm; }
-  .s-head .n { font-size: 12pt; padding-top: 0.3em; }
-  .s-head h2 { font-size: 20pt; max-width: none; }
-  .s-head .topic { margin-top: 1mm; font-size: 8.5pt; }
-  h3 { font-size: 12.5pt; margin: 6mm 0 3mm; padding-top: 2mm; }
-  h4 { font-size: 11pt; }
-  section.s > .s-head, h3, h5, .lhead { break-inside: avoid; break-after: avoid; }
-  .row { padding: 1.5mm 0; grid-template-columns: 46mm minmax(0, 1fr); }
-  .row > :first-child { font-size: 8.5pt; }
-  .row > :last-child { font-size: 9.5pt; }
-  .col .v, ol.big li, ul.big li, .tone-row q, .ba p, .words ul { font-size: 11pt; }
-  ol.big li, ul.big li { padding: 2mm 0 2mm 9mm; }
-  ol.big li::before { top: 2.4mm; font-size: 8pt; }
-  ul.big li::before { top: 4.6mm; width: 5mm; }
-  .values { gap: 5mm; } .values h4 { font-size: 13pt; } .values p { font-size: 9.5pt; }
-  .trait { font-size: 17pt; }
-  .tone-row, .ba { padding: 2.5mm 0; }
-  .mocks { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5mm; }
-  .lpanels { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4mm; }
-  .lpanel { aspect-ratio: auto; height: 38mm; }
-  .clearpanel { padding: 9mm; }
-  .clear img { height: 16mm; }
-  .donts { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4mm; }
-  .dont .p { aspect-ratio: auto; height: 26mm; }
-  .dont p { font-size: 8.5pt; }
-  .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .tile { min-height: 44mm; padding: 3mm; }
-  .tile h4 { font-size: 12pt; }
-  .tile .vals { font-size: 7.5pt; padding-top: 3mm; }
-  .tile .vals > *, .tile .vals button { padding: 0.6mm 0; }
-  .tile .status { font-size: 7pt; }
-  .band { height: 11mm; }
-  table.matrix .cell { width: 18mm; height: 15mm; padding: 1.4mm; }
-  table.matrix .cell b { font-size: 12pt; }
-  table.matrix .cell .r { font-size: 7pt; }
-  .specimen { padding: 4mm 0; grid-template-columns: 46mm minmax(0, 1fr); gap: 6mm; }
-  .specimen .aa { font-size: 60pt; }
-  .specimen .sample { font-size: 16pt; margin: 2mm 0; }
-  .specimen .glyphs { font-size: 8.5pt; margin-bottom: 3mm; }
-  .specimen .rows { columns: 2; column-gap: 8mm; border-top: 0; }
-  .scale-row { padding: 2mm 0; }
-  .label + .label { margin-top: 8mm; }
-  .label h4 { font-size: 13pt; }
-  .lview { padding: 3mm; margin-top: 2mm; }
-  .lview iframe { max-height: 70mm; }
-  .note { margin-top: 2mm; font-size: 8.5pt; }
-  .lgrid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); margin-top: 4mm; }
-  .lgrid h5 { font-size: 10pt; margin: 3mm 0 1.5mm; }
-  .check { padding: 1mm 0; font-size: 8.5pt; }
-  figure, .mock, .scale-row, .check, .row, .tile, .dont, .specimen, .tone-row, .ba, .lview, .values > div, .lpanels > figure { break-inside: avoid; }
-  footer.colophon { margin: 10mm 0 0; }
-  a { text-decoration: none; }
+  .frame { width: 1920px; height: 1080px; max-width: none; aspect-ratio: auto; margin: 0; break-after: page; }
+  .slide { transform: none !important; box-shadow: none; }
 }
 </style>
 </head>
@@ -331,7 +162,7 @@ const T = {
     readers: { all: "Wszystko", owner: "Właściciel", designer: "Grafik", printer: "Drukarnia", marketing: "Marketing" },
     part1: "Marka", part1Lead: "Po co marka istnieje, jak mówi i jak wygląda w użyciu.",
     part2: "Zasady", part2Lead: "Logo, kolor, pismo, zdjęcia, etykiety i druk. Liczby, pliki i zakazy.",
-    topics: { strategy: "Strategia", voice: "Język", applications: "Zastosowania", logo: "Logo", colour: "Kolor", type: "Pismo", imagery: "Zdjęcia i obrazy", labels: "Etykiety", print: "Druk", files: "Pliki", decisions: "Decyzje i wersje" },
+    topics: { strategy: "Strategia", voice: "Język", applications: "Zastosowania", logo: "Logo", colour: "Kolor", type: "Pismo", imagery: "Zdjęcia i obrazy", labels: "Etykiety", print: "Druk", files: "Pliki i wersje", decisions: "Decyzje" },
     version: "Wersja", date: "Data", owner: "Właściciel", contact: "Kontakt", madeBy: "Przygotował", status: "Status", draft: "wersja robocza", approved: "zatwierdzony",
     purpose: "Po co istniejemy", audience: "Dla kogo", insteadOf: "Zamiast czego", proof: "Na dowód", values: "Wartości w działaniu", rules: "Gdy księga nie wie", signature: "Nasz znak rozpoznawczy", rejected: "Czego świadomie unikamy",
     traits: "Jak brzmimy", isNot: "ale nie", tone: "Ton w kanałach", channel: "Kanał", how: "Jak", example: "Przykład", wordsUse: "Mówimy", wordsAvoid: "Nie mówimy", beforeAfter: "Przed i po", before: "Było", after: "Jest", nameRule: "Pisownia nazwy", claims: "Oświadczenia, których wolno używać", registerRef: "rejestr",
@@ -356,7 +187,7 @@ const T = {
     readers: { all: "Everything", owner: "Owner", designer: "Designer", printer: "Printer", marketing: "Marketing" },
     part1: "Brand", part1Lead: "Why the brand exists, how it speaks and how it looks in use.",
     part2: "Rules", part2Lead: "Logo, colour, type, imagery, labels and print. Numbers, files and don'ts.",
-    topics: { strategy: "Strategy", voice: "Voice", applications: "Applications", logo: "Logo", colour: "Colour", type: "Type", imagery: "Imagery", labels: "Labels", print: "Print", files: "Files", decisions: "Decisions and versions" },
+    topics: { strategy: "Strategy", voice: "Voice", applications: "Applications", logo: "Logo", colour: "Colour", type: "Type", imagery: "Imagery", labels: "Labels", print: "Print", files: "Files and versions", decisions: "Decisions" },
     version: "Version", date: "Date", owner: "Owner", contact: "Contact", madeBy: "Made by", status: "Status", draft: "draft", approved: "approved",
     purpose: "Why we exist", audience: "For whom", insteadOf: "Instead of", proof: "Proof", values: "Values in action", rules: "When the book doesn't say", signature: "Our signature", rejected: "What we avoid on purpose",
     traits: "How we sound", isNot: "but not", tone: "Tone by channel", channel: "Channel", how: "How", example: "Example", wordsUse: "We say", wordsAvoid: "We don't say", beforeAfter: "Before and after", before: "Before", after: "After", nameRule: "Spelling the name", claims: "Claims we may use", registerRef: "register",
@@ -377,7 +208,17 @@ const T = {
     colophon: (b) => `${b.meta.name}, brand book ${b.meta.version}, ${b.meta.date}.`
   }
 }[LANG];
-Object.assign(T, LANG === "pl" ? { partWord: "Część", copyHint: "Kliknij wartość na kafelku, żeby ją skopiować." } : { partWord: "Part", copyHint: "Click a value on a tile to copy it." });
+Object.assign(T, LANG === "pl" ? {
+  partWord: "Część", keys: "Strzałki w górę i w dół przechodzą między slajdami.", viz: "Wizualizacja", vizMany: "Zdjęcia to wizualizacje",
+  rulesLead: "Logo, kolor, pismo, zdjęcia, etykiety i druk: zasady dla osób, które projektują i drukują materiały marki.",
+  labelSlide: "Etykieta", more: "ciąg dalszy", products: "Linia produktów", templateShort: "Szablon etykiety, nie plik do druku.",
+  howWe: "Jak fotografujemy", aiShort: "Obrazy z AI"
+} : {
+  partWord: "Part", keys: "The up and down arrow keys move between slides.", viz: "Visualisation", vizMany: "The photos are visualisations",
+  rulesLead: "Logo, colour, type, imagery, labels and print: rules for the people who design and print the brand's materials.",
+  labelSlide: "Label", more: "continued", products: "The product line", templateShort: "A label template, not a print file.",
+  howWe: "How we photograph", aiShort: "AI images"
+});
 document.documentElement.lang = LANG;
 
 /* Mandatory label content by category. Keep in sync with check_brand.py (REQUIRED). */
@@ -388,12 +229,12 @@ const REQUIRED = {
 };
 const READERS = {
   strategy: ["owner", "marketing", "designer"], voice: ["marketing", "owner"], applications: ["owner", "marketing", "designer"],
-  logo: ["designer", "printer", "marketing"], colour: ["designer", "printer", "marketing"], type: ["designer", "marketing"],
-  imagery: ["marketing", "designer"], labels: ["designer", "printer"], print: ["printer", "designer"],
+  imagery: ["marketing", "designer"], logo: ["designer", "printer", "marketing"], colour: ["designer", "printer", "marketing"],
+  type: ["designer", "marketing"], labels: ["designer", "printer"], print: ["printer", "designer"],
   files: ["owner", "designer", "printer", "marketing"], decisions: ["owner", "designer"]
 };
 
-/* helpers */
+/* ---------- helpers ---------- */
 function h(tag, attrs, ...kids) {
   const el = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs || {})) {
@@ -417,17 +258,18 @@ function verdict(r) { return r >= 7 ? "aaa" : r >= 4.5 ? "aa" : r >= 3 ? "large"
 const fmt = (r) => (LANG === "pl" ? r.toFixed(1).replace(".", ",") : r.toFixed(1)) + ":1";
 const isDark = (hex) => lum(hex) < 0.2;
 function fam(role) { const f = (B.type && B.type.families || []).find((x) => x.role === role); return f ? `"${f.family}", ${f.fallback || "system-ui, sans-serif"}` : null; }
+const bg = firstRole("background"), ink = firstRole("text"), ink2 = firstRole("secondary-text"), line = firstRole("line"), accent = firstRole("accent");
+function textOn(hex) {
+  const options = [bg && bg.hex, ink && ink.hex, "#ffffff", "#111111"].filter(Boolean);
+  return options.reduce((best, c) => (contrast(c, hex) > contrast(best, hex) + 0.5 ? c : best), options[0]);
+}
+const edge = (hex) => (bg && hex && hex.startsWith("#") && contrast(hex, bg.hex) < 1.2 ? "inset 0 0 0 1.5px var(--line)" : null);
+const mix = (hex, pct) => `color-mix(in srgb, ${hex} ${pct}%, var(--bg))`;
 function logoFor(bgId) {
   const vs = (B.logo && B.logo.variants) || [];
   const c = byId[bgId];
   return vs.find((v) => (v.on || []).includes(bgId)) || (c && isDark(c.hex) ? vs.find((v) => /neg|white|light|inverse/i.test(v.id)) : null) || vs[0];
 }
-/* The clearest text colour on a field: the brand's own background or ink first, then white or black. */
-function textOn(hex) {
-  const options = [bg && bg.hex, ink && ink.hex, "#ffffff", "#111111"].filter(Boolean);
-  return options.reduce((best, c) => (contrast(c, hex) > contrast(best, hex) + 0.5 ? c : best), options[0]);
-}
-const edge = (hex) => (bg && contrast(hex, bg.hex) < 1.25 ? "inset 0 0 0 1px var(--line)" : null);
 let toastTimer;
 function toast(msg) { const t = document.getElementById("toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("on"), 1400); }
 async function copy(text) {
@@ -437,333 +279,546 @@ async function copy(text) {
   }
   toast(`${T.copied}: ${text}`);
 }
-const rows = (pairs) => h("div", { class: "rows" }, pairs.filter(([, v]) => v !== undefined && v !== null && v !== "").map(([k, v]) => h("div", { class: "row" }, h("div", {}, k), h("div", {}, v))));
+const chunk = (arr, n) => { const out = []; for (let i = 0; i < arr.length; i += n) out.push(arr.slice(i, i + n)); return out; };
 
-/* tokens */
+/* ---------- tokens ---------- */
 const root = document.documentElement.style;
-const bg = firstRole("background"), ink = firstRole("text"), ink2 = firstRole("secondary-text"), line = firstRole("line"), accent = firstRole("accent");
 if (bg) root.setProperty("--bg", bg.hex);
 if (ink) root.setProperty("--ink", ink.hex);
-root.setProperty("--ink-2", ink2 ? ink2.hex : `color-mix(in srgb, var(--ink) 66%, var(--bg))`);
+root.setProperty("--ink-2", ink2 ? ink2.hex : `color-mix(in srgb, var(--ink) 74%, var(--bg))`);
+root.setProperty("--ink-3", `color-mix(in srgb, var(--ink) 52%, var(--bg))`);
 root.setProperty("--line", line ? line.hex : `color-mix(in srgb, var(--ink) 16%, var(--bg))`);
-root.setProperty("--panel", `color-mix(in srgb, var(--ink) 5%, var(--bg))`);
+root.setProperty("--panel", `color-mix(in srgb, var(--ink) 6%, var(--bg))`);
+root.setProperty("--desk", `color-mix(in srgb, var(--ink) 13%, var(--bg))`);
 if (accent) root.setProperty("--accent", accent.hex);
-/* The cover and part pages: meta.cover_colour, or the accent when text on it reads, or the text colour. */
-const feature = byId[(B.meta || {}).cover_colour] || [accent, ink].filter(Boolean).find((c) => bg && contrast(c.hex, bg.hex) >= 4.5) || ink || { hex: "#161616" };
-const onFeature = textOn(feature.hex);
+if (B.meta && B.meta.radius !== undefined) root.setProperty("--r", `${Number(B.meta.radius)}px`);
+const feature = byId[(B.meta || {}).cover_colour] || [accent, ink].filter(Boolean).find((c) => bg && contrast(c.hex, bg.hex) >= 4.5) || ink || { hex: "#1d1a17" };
 root.setProperty("--feature", feature.hex);
-root.setProperty("--on-feature", onFeature);
+root.setProperty("--on-feature", textOn(feature.hex));
 if (fam("display")) root.setProperty("--display", fam("display"));
 if (fam("text")) root.setProperty("--text", fam("text"));
 document.title = `${B.meta.name}: brandbook ${B.meta.version}`;
+/* Colours for tiles: everything but the page colour and lines, the accent first. */
+const PAL = [accent, ...colours.filter((c) => c !== accent && c !== bg && c.role !== "line")].filter(Boolean);
+const featureLogo = logoFor(feature.id);
+const primary = ((B.logo || {}).variants || [])[0];
+const images = (B.imagery && B.imagery.images) || [];
+const imgSlot = (slot) => images.find((i) => i.slot === slot);
+const aiLabel = (B.imagery && B.imagery.ai && B.imagery.ai.label) || T.viz;
 
-/* sections */
-const sec = B.sections || {};
-const ORDER = [
-  { part: 1, items: ["strategy", "voice", "applications"] },
-  { part: 2, items: ["logo", "colour", "type", "imagery", "labels", "print", "files", "decisions"] }
-];
-const has = {
-  strategy: !!B.strategy, voice: !!B.voice, applications: (B.applications || []).length > 0, logo: !!B.logo, colour: colours.length > 0,
-  type: !!B.type, imagery: !!B.imagery, labels: (B.labels || []).length > 0, print: !!B.print, files: (B.files || []).length > 0, decisions: true
-};
-function section(id, code, body) {
-  return h("section", { class: "s", id, "data-readers": READERS[id].join(" "), "aria-labelledby": `${id}-h` },
-    h("header", { class: "s-head" },
-      h("span", { class: "n" }, code),
-      h("div", {}, h("h2", { id: `${id}-h` }, sec[id] || T.topics[id]), h("p", { class: "topic" }, T.topics[id]))),
-    h("div", { class: "body" }, body));
+/* ---------- slide geometry: 1920 × 1080, margin 40, gap 16 ---------- */
+const M = 40, G = 16, CW = 1840, CH = 1000, TOP = 200, CH2 = 1040 - TOP;
+const px = (v) => `${Math.round(v * 10) / 10}px`;
+/* A tile. o.bg: a colour, o.img: an image file; o.text marks a tile whose text must fit (render.mjs checks it). */
+function tile(x, y, w, hh, kids, o = {}) {
+  const st = { left: px(x), top: px(y), width: px(w), height: px(hh) };
+  if (o.bg) { st.background = o.bg; st.color = o.fg || (o.bg.startsWith("#") ? textOn(o.bg) : "var(--ink)"); if (edge(o.bg)) st.boxShadow = edge(o.bg); }
+  if (o.style) Object.assign(st, o.style);
+  return h(o.figure ? "figure" : "div", { class: `t${o.cls ? ` ${o.cls}` : ""}`, style: st, "data-text": o.text ? "" : null, "data-generated": o.generated ? "true" : null },
+    o.img ? h("img", { class: "ph", src: asset(o.img), alt: o.alt || "", style: { objectPosition: o.pos || "50% 50%" } }) : null, kids);
 }
-const sub = (title, ...kids) => [h("h3", {}, title), ...kids];
-
-const build = {
-  strategy() {
-    const s = B.strategy;
-    const facts = [[T.audience, s.audience], [T.insteadOf, s.instead_of], [T.signature, s.signature]].filter(([, v]) => v);
-    return [
-      facts.length ? h("div", { class: "cols first" }, facts.map(([k, v]) => h("div", { class: "col" }, h("p", { class: "k" }, k), h("p", { class: "v" }, v)))) : null,
-      s.values && s.values.length ? sub(T.values, h("div", { class: "values" }, s.values.map((v) => h("div", {}, h("h4", {}, v.value), h("p", {}, v.behaviour))))) : null,
-      s.proof && s.proof.length ? sub(T.proof, h("ul", { class: "big" }, s.proof.map((p) => h("li", {}, p)))) : null,
-      s.decision_rules && s.decision_rules.length ? sub(T.rules, h("ol", { class: "big" }, s.decision_rules.map((r) => h("li", {}, r)))) : null,
-      s.rejected && s.rejected.length ? sub(T.rejected, h("ul", { class: "big" }, s.rejected.map((r) => h("li", {}, r)))) : null
-    ];
-  },
-  voice() {
-    const v = B.voice;
-    return [
-      v.traits && v.traits.length ? h("div", { class: "traits first" }, v.traits.map((t) => h("p", { class: "trait" }, h("span", {}, `${t.is}, `), h("span", { class: "isnot" }, `${T.isNot} `, h("s", {}, t.is_not))))) : null,
-      v.tone && v.tone.length ? sub(T.tone, h("div", { class: "tone" }, v.tone.map((t) => h("div", { class: "tone-row" }, h("h4", {}, t.channel), h("p", { class: "muted" }, t.how), t.example ? h("p", {}, h("q", {}, t.example)) : h("p"))))) : null,
-      (v.words_use || v.words_avoid) ? sub(`${T.wordsUse} / ${T.wordsAvoid.toLowerCase()}`, h("div", { class: "words" },
-        h("div", {}, h("p", { class: "k" }, T.wordsUse), h("ul", {}, (v.words_use || []).map((w) => h("li", {}, w)))),
-        h("div", {}, h("p", { class: "k" }, T.wordsAvoid), h("ul", { class: "no" }, (v.words_avoid || []).map((w) => h("li", {}, w)))))) : null,
-      v.before_after && v.before_after.length ? sub(T.beforeAfter, v.before_after.map((p) => h("div", { class: "ba" },
-        h("div", {}, h("p", { class: "k" }, T.before), h("p", { class: "before" }, p.before)),
-        h("div", {}, h("p", { class: "k" }, T.after), h("p", {}, p.after))))) : null,
-      v.name_rule ? sub(T.nameRule, h("p", { class: "col" }, h("span", { class: "v" }, v.name_rule))) : null,
-      v.claims && v.claims.length ? sub(T.claims, h("ul", { class: "big" }, v.claims.map((c) => h("li", {}, c.text, c.register_ref ? h("span", { class: "muted small" }, ` (${T.registerRef}: ${c.register_ref})`) : null)))) : null
-    ];
-  },
-  applications() {
-    return h("div", { class: "mocks first" }, (B.applications || []).map(mockup));
-  },
-  logo() {
-    const L = B.logo, vs = L.variants || [];
-    const primary = vs[0];
-    const cs = L.clear_space || {};
-    const ratio = Number(cs.ratio) || 0.5;
-    return [
-      h("div", { class: "lpanels first" }, vs.map((v) => {
-        const c = byId[(v.on || [])[0]] || bg || { hex: "#fff" };
-        return h("figure", {},
-          h("div", { class: "lpanel", style: { background: c.hex, boxShadow: edge(c.hex) } }, h("img", { src: asset(v.file), alt: `${B.meta.name}: ${v.name || v.id}` })),
-          h("figcaption", { class: "lcap" }, h("span", {}, h("b", {}, v.name || v.id), v.use ? ` ${v.use}` : ""), h("span", {}, `${T.minSize}: ${v.min_px} px / ${v.min_mm} mm`)));
-      })),
-      primary ? sub(T.clearSpace, h("p", { style: { maxWidth: "60ch" } }, T.clearText(cs.defined_as || "?", ratio)),
-        h("div", { class: "clearpanel" },
-          h("span", { class: "clear", style: { padding: `calc(${ratio} * clamp(56px, 8vw, 104px))` } }, h("img", { src: asset(primary.file), alt: "" }),
-            ...[["50%", "0"], ["50%", "100%"], ["0", "50%"], ["100%", "50%"]].map(([l, t]) => h("span", { class: "x", style: { left: l, top: t, transform: "translate(-50%, -50%)" } }, "x"))))) : null,
-      primary ? sub(T.minSize, h("div", { class: "minrow" }, vs.map((v) => h("figure", {},
-        h("img", { src: asset(v.file), alt: "", "data-logo": "", "data-min-px": v.min_px, "data-scale": 1, style: { width: `${v.min_px}px`, background: (byId[(v.on || [])[0]] || {}).hex || "transparent", padding: "8px", boxSizing: "content-box" } }),
-        h("figcaption", {}, `${v.name || v.id}: ${v.min_px} px / ${v.min_mm} mm`))))) : null,
-      L.dont && L.dont.length && primary ? sub(T.donts, h("div", { class: "donts" }, L.dont.map((d) => dontCard(d, primary)))) : null,
-      L.finish && L.finish.type && L.finish.type !== "none" ? sub(T.finish, rows([[T.finish, L.finish.type], [T.minSize, L.finish.min_mm ? `${L.finish.min_mm} mm` : null], [LANG === "pl" ? "Najcieńsza linia" : "Thinnest line", L.finish.min_line_mm ? `${L.finish.min_line_mm} mm` : null]])) : null
-    ];
-  },
-  colour() {
-    const total = colours.reduce((a, c) => a + (Number(c.share) || 0), 0);
-    const tiles = colours.map((c) => {
-      const [r, g, b2] = rgbOf(c.hex);
-      const cm = c.cmyk || {}; const pt = c.pantone || {};
-      const vals = [["HEX", c.hex.toUpperCase()], ["RGB", `${r} ${g} ${b2}`]];
-      if (cm.value) vals.push([`CMYK ${cm.profile || "?"}`, cm.value.join(" ")]);
-      const pms = [pt.c ? `${pt.c} C` : null, pt.u ? `${pt.u} U` : null].filter(Boolean).join(" / ");
-      vals.push([T.pantone, pms || T.toDecide]);
-      return h("div", { class: "tile", style: { background: c.hex, color: textOn(c.hex), boxShadow: edge(c.hex) } },
-        h("h4", {}, c.name),
-        h("p", { class: "role" }, `${T.roles[c.role] || c.role}${c.share ? `, ${c.share}%` : ""}`),
-        h("div", { class: "vals" }, vals.map(([k, v]) => v === T.toDecide ? h("div", {}, h("span", { class: "kk" }, k), h("span", {}, v))
-          : h("button", { type: "button", onclick: () => copy(v), title: v }, h("span", { class: "kk" }, k), h("span", { class: "v" }, v)))),
-        cm.status ? h("p", { class: "status" }, `CMYK: ${T.cmykStatus[cm.status] || cm.status}${cm.date ? `, ${cm.date}` : ""}`) : null);
-    });
-    const textC = colours.filter((c) => ["text", "secondary-text", "accent", "background"].includes(c.role));
-    const bgC = colours.filter((c) => ["background", "text", "accent", "support"].includes(c.role));
-    const declared = new Set((B.pairs || []).map((p) => `${p.text}|${p.background}`));
-    return [
-      h("p", { class: "muted small no-print first" }, T.copyHint),
-      h("div", { class: "tiles" }, tiles),
-      total ? sub(T.share, h("div", { class: "band", role: "img", "aria-label": colours.map((c) => `${c.name} ${c.share || 0}%`).join(", ") },
-        colours.filter((c) => Number(c.share)).map((c) => h("div", { style: { background: c.hex, color: textOn(c.hex), flex: `${Number(c.share)} 0 0`, boxShadow: edge(c.hex) } }, Number(c.share) >= 8 ? `${c.name} ${c.share}%` : "")))) : null,
-      sub(T.matrix, h("p", { class: "muted", style: { maxWidth: "62ch" } }, T.matrixLead),
-        h("div", { class: "scroll" }, h("table", { class: "matrix" },
-          h("thead", {}, h("tr", {}, h("th", {}, T.textOn), bgC.map((b) => h("th", { scope: "col" }, b.name)))),
-          h("tbody", {}, textC.map((t) => h("tr", {}, h("th", { scope: "row" }, t.name), bgC.map((b) => {
-            if (t.id === b.id) return h("td", {}, h("div", { class: "cell same" }, "–"));
-            const r = contrast(t.hex, b.hex), v = verdict(r);
-            return h("td", { class: declared.has(`${t.id}|${b.id}`) ? "ok-mark" : null },
-              h("div", { class: "cell", style: { background: b.hex, color: t.hex, boxShadow: declared.has(`${t.id}|${b.id}`) ? null : edge(b.hex) } }, h("b", {}, "Aa"), h("span", { class: "r" }, fmt(r), h("br"), T.v[v])));
-          })))))),
-        (B.pairs || []).length ? h("div", { style: { marginTop: "28px" } }, rows((B.pairs || []).map((p) => [`${(byId[p.text] || {}).name || p.text} / ${(byId[p.background] || {}).name || p.background}`, `${p.use || ""} (${fmt(contrast((byId[p.text] || {}).hex || "#000", (byId[p.background] || {}).hex || "#fff"))})`]))) : null)
-    ];
-  },
-  type() {
-    const fs = (B.type.families || []);
-    const sample = B.type.sample || (LANG === "pl" ? "Zażółć gęślą jaźń" : "Sphinx of black quartz, judge my vow");
-    const glyphs = LANG === "pl" ? "AĄBCĆDEĘFGHIJKLŁMNŃOÓPRSŚTUWYZŹŻ aąbcćdeęfghijklłmnńoóprsśtuwyzźż 0123456789 „”–?!&" : "ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789 “”–?!&";
-    return [
-      fs.map((f, i) => {
-        const w = (f.weights || [])[(f.weights || []).length - 1] || 500;
-        return h("div", { class: `specimen${i === 0 ? " first" : ""}` },
-          h("div", { class: "aa", style: { fontFamily: `"${f.family}", var(--text)`, fontWeight: w }, "data-font": f.family }, "Aa"),
-          h("div", {},
-            h("p", { class: "k" }, T.famRoles[f.role] || f.role),
-            h("h4", {}, f.family),
-            h("p", { class: "sample", style: { fontFamily: `"${f.family}", var(--text)`, fontWeight: w } }, sample),
-            h("p", { class: "glyphs", style: { fontFamily: `"${f.family}", var(--text)` } }, glyphs),
-            rows([[T.why, f.why], [T.weights, (f.weights || []).join(", ")], [T.licence, f.licence], [T.source, f.source], [T.substitute, f.office_substitute], [T.reflex, f.reflex_reason]])));
-      }),
-      (B.type.scale || []).length ? sub(T.scale, h("div", { class: "scale" }, B.type.scale.map((s) => {
-        const f = fs.find((x) => x.role === s.role) || fs[0] || {};
-        return h("div", { class: "scale-row" }, h("div", { class: "meta" }, h("div", {}, h("b", {}, s.level)), `${s.px} px${s.pt ? ` / ${s.pt} pt` : ""}, × ${s.line}`),
-          h("div", { class: "ex", style: { fontFamily: `"${f.family}", var(--text)`, fontSize: `${Math.min(s.px, 72)}px`, lineHeight: s.line } }, s.use || sample));
-      }))) : null
-    ];
-  },
-  imagery() {
-    const im = B.imagery;
-    const p = Object.keys(T.params).filter((k) => im[k]).map((k) => [T.params[k], im[k]]);
-    return [
-      (im.images || []).length ? h("div", { class: "imgs first" }, im.images.map((i) => h("figure", { "data-generated": i.generated ? "true" : null },
-        h("img", { src: asset(i.file), alt: i.alt || "", loading: "lazy" }),
-        h("figcaption", {}, i.generated ? h("span", { class: "gen" }, `${i.caption || (im.ai && im.ai.label) || "Wizualizacja"}. `) : null, i.alt || "")))) : null,
-      p.length ? ((im.images || []).length ? sub(LANG === "pl" ? "Jak fotografujemy" : "How we photograph", rows(p)) : h("div", { class: "first" }, rows(p))) : null,
-      (im.do || im.dont) ? sub(`${T.doLabel} / ${T.dontLabel.toLowerCase()}`, h("div", { class: "dodont" },
-        h("div", {}, h("p", { class: "k" }, T.doLabel), h("ul", { class: "big" }, (im.do || []).map((x) => h("li", {}, x)))),
-        h("div", {}, h("p", { class: "k" }, T.dontLabel), h("ul", { class: "big" }, (im.dont || []).map((x) => h("li", {}, x)))))) : null,
-      im.ai ? sub(T.ai, rows([[T.aiAllowed, (im.ai.allowed || []).join("; ")], [T.aiBanned, (im.ai.banned || []).join("; ")], [T.aiLabel, im.ai.label], [T.aiApprover, im.ai.approver]])) : null
-    ];
-  },
-  labels() {
-    return (B.labels || []).map((l, li) => {
-      const f = l.format;
-      const req = REQUIRED[l.category] || [];
-      const keys = new Set((l.legal || []).filter((x) => x.text).map((x) => x.key));
-      const frame = h("iframe", { title: `${l.product}: ${T.preview}`, loading: "lazy", src: asset(`labels/${l.id}.html?mode=preview&fit=1`) });
-      const size = (mode) => {
-        const pad = mode === "guides" ? 16 : 0;
-        const w = f.w_mm + 2 * f.bleed_mm + 2 * pad, hh = f.h_mm + 2 * f.bleed_mm + 2 * pad + (mode === "guides" ? 10 : 0);
-        frame.style.aspectRatio = `${w} / ${hh}`;
-        frame.style.maxWidth = `${Math.round(620 * w / hh)}px`;
-        frame.style.minWidth = w / hh > 2.2 ? "620px" : "0";
-      };
-      size("preview");
-      const modes = h("div", { class: "modes", role: "group" }, ["preview", "guides"].map((m) => h("button", { type: "button", "aria-pressed": m === "preview" ? "true" : "false", onclick: (e) => {
-        for (const b of modes.children) b.setAttribute("aria-pressed", b === e.currentTarget ? "true" : "false");
-        frame.src = asset(`labels/${l.id}.html?mode=${m}&fit=1`); size(m);
-      } }, T[m])));
-      return h("div", { class: `label${li === 0 ? " first" : ""}` },
-        h("div", { class: "lhead" },
-          h("h4", {}, l.product),
-          h("p", { class: "muted small" }, `${f.name ? `${f.name}, ` : ""}${f.w_mm} × ${f.h_mm} mm, ${T.bleed} ${f.bleed_mm} mm, ${T.safe} ${f.safe_mm} mm${f.overlap_mm ? `, ${LANG === "pl" ? "zakładka" : "overlap"} ${f.overlap_mm} mm` : ""}`),
-          h("div", { class: "lview" }, modes, h("div", { class: "fw" }, frame), h("a", { class: "open", href: asset(`labels/${l.id}.html?mode=guides`), target: "_blank" }, T.openLabel)),
-          h("p", { class: "note" }, T.templateNote, B.meta.label_approver ? ` ${T.approver}: ${B.meta.label_approver}.` : "")),
-        h("div", { class: "lgrid" },
-          h("div", {},
-            h("h5", {}, T.front), h("ol", { class: "plain" }, h("li", {}, T.brandMark), [l.front.name, l.front.variant, l.front.benefit].filter(Boolean).map((x) => h("li", {}, x)), l.front.net ? h("li", {}, `${T.net}: ${l.front.net}`) : null),
-            (l.zones || []).length > 1 ? [h("h5", {}, T.zones), rows(l.zones.map((z) => [`${z.id}: ${T.zoneRoles[z.role] || z.role}`, `${z.x_mm}–${z.x_mm + z.w_mm} mm`]))] : null),
-          req.length ? h("div", {}, h("h5", {}, T.mandatory), req.map((k) => {
-            const item = (l.legal || []).find((x) => x.key === k);
-            return h("div", { class: "check" }, h("b", { class: keys.has(k) ? null : "missing" }, keys.has(k) ? T.present : T.missingT), h("span", {}, item ? `${item.label}: ${item.text}` : k));
-          }), l.nutrition_exempt_reason ? h("div", { class: "check" }, h("b", {}, T.exempt), h("span", {}, l.nutrition_exempt_reason)) : null) : null));
-    });
-  },
-  print() {
-    const p = B.print;
-    return [
-      h("div", { class: "first" }, rows([[T.printer, p.printer || T.notChosen], [T.technology, p.technology], [T.pdf, p.pdf], [T.profile, p.profile], [T.bleedL, p.bleed_mm !== undefined ? `${p.bleed_mm} mm` : null], [T.safeL, p.safe_mm !== undefined ? `${p.safe_mm} mm` : null], [T.smallText, p.small_text], [T.finishes, (p.finishes || []).map((x) => `${x.type}${x.colour ? ` (${x.colour})` : ""}${x.layer ? `, ${x.layer}` : ""}`).join("; ")], [T.proofL, p.proof]])),
-      sub(T.handoff, h("ol", { class: "big" }, (LANG === "pl" ? [
-        `Eksport do ${p.pdf || "PDF/X-4"} z profilem ${p.profile || "ustalonym z drukarnią"}.`,
-        `Spad ${p.bleed_mm ?? 3} mm i ${p.safe_mm ?? 3} mm marginesu bezpieczeństwa; wartości potwierdzić z drukarnią.`,
-        "Drobny tekst i kod kreskowy w 100% K z nadrukiem.",
-        "Uszlachetnienia i wykrojnik na osobnych warstwach, jako kolory dodatkowe nazwane tak, jak chce drukarnia.",
-        "Wykrojnik od drukarni, nie rysowany na oko.",
-        "Próbny wydruk na docelowym papierze przed zatwierdzeniem koloru."
-      ] : [
-        `Export to ${p.pdf || "PDF/X-4"} with the ${p.profile || "printer's"} profile.`,
-        `${p.bleed_mm ?? 3} mm bleed and ${p.safe_mm ?? 3} mm safe margin; confirm with the printer.`,
-        "Small text and barcode in 100% K, overprinting.",
-        "Finishes and dieline on separate layers, as spot colours named the way the printer wants.",
-        "The dieline from the printer, not drawn by eye.",
-        "A proof on the final paper before the colour is approved."
-      ]).map((x) => h("li", {}, x))))
-    ];
-  },
-  files() {
-    return h("div", { class: "first" }, rows((B.files || []).map((f) => [h("a", { href: asset(f.path) }, f.path), `${f.what}${f.print_ready === true ? ` (${T.printReady.toLowerCase()}: ${T.yes})` : f.print_ready === false ? ` (${T.printReady.toLowerCase()}: ${T.noWord})` : ""}`])));
-  },
-  decisions() {
-    const d = B.decisions || [];
-    return [
-      d.length ? h("div", { class: "first" }, rows(d.map((x) => [x.what, h("div", {}, h("div", {}, `${T.decWho}: ${x.who || "?"}, ${T.decBy.toLowerCase()}: ${x.by || "?"}`), x.recommendation ? h("div", { class: "muted" }, `${T.decRec}: ${x.recommendation}`) : null)]))) : null,
-      (B.changelog || []).length ? sub(T.changelog, rows(B.changelog.map((c) => [`${c.version}, ${c.date}`, c.change]))) : null
-    ];
-  }
-};
-
-function dontCard(d, primary) {
-  const st = {};
-  let box = {};
-  if (d.demo === "stretch") st.transform = "scaleX(1.5)";
-  if (d.demo === "squeeze") st.transform = "scaleY(1.5)";
-  if (d.demo === "rotate") st.transform = "rotate(-16deg)";
-  if (d.demo === "shadow") st.filter = "drop-shadow(5px 5px 0 rgba(0,0,0,.45))";
-  if (d.demo === "recolor") st.filter = "hue-rotate(150deg) saturate(3)";
-  if (d.demo === "busy") box = { backgroundImage: `repeating-linear-gradient(45deg, ${(accent || ink || {}).hex || "#888"} 0 10px, ${(bg || {}).hex || "#fff"} 10px 20px)` };
-  return h("figure", { class: "dont" },
-    h("div", { class: "p", style: box }, d.demo ? h("img", { src: asset(primary.file), alt: "", style: st }) : null),
-    h("p", {}, d.rule));
+const at = (x, y, kids, style = {}) => h("div", { class: "abs", style: Object.assign({ left: px(x), top: px(y) }, style) }, kids);
+const inside = (kids, style = {}) => h("div", { class: "abs", style: Object.assign({ left: "40px", top: "34px", right: "40px", bottom: "34px" }, style) }, kids);
+const capOn = (text) => h("p", { class: "cap", style: { color: "inherit", opacity: 0.7 } }, text);
+function head(code, id, title) {
+  return [at(M + 4, 46, h("span", { class: "cap" }, `${code}  ${T.topics[id]}`)), at(M, 70, h("div", { class: "h-slide", style: { width: "1640px" } }, title))];
+}
+function frame(kids, o = {}) {
+  const sl = h("div", { class: "slide" }, kids,
+    o.cap ? h("p", { class: "foot", style: { left: px(M) } }, o.cap) : null,
+    h("p", { class: "foot pno", style: { right: px(M) } }));
+  return h("div", { class: "frame" + (o.frameCls ? ` ${o.frameCls}` : ""), id: o.id || null }, sl);
+}
+function logoImg(v, width, extra = {}) {
+  return v ? h("img", { src: asset(v.file), alt: B.meta.name, "data-logo": "", "data-min-px": v.min_px, style: Object.assign({ width: px(width), height: "auto", display: "block" }, extra) }) : null;
 }
 
-/* Mockups are drawn at their real size and scaled down; data-scale lets render.mjs check the logo against min_px. */
-function mockup(a) {
-  const kinds = {
-    post: { w: 1080, h: 1080, bgId: (ink || {}).id },
-    card: { w: 321, h: 208, bgId: (bg || {}).id, mm: true },
-    email: { w: 600, h: 300, bgId: (bg || {}).id },
-    web: { w: 1440, h: 810, bgId: (bg || {}).id }
-  };
+/* Mockups at their real size, scaled into a box; render.mjs measures the logo's own width (offsetWidth) against min_px. */
+function mockup(a, boxW) {
+  const kinds = { post: { w: 1080, h: 1080, bgId: (ink || {}).id }, card: { w: 321, h: 208, bgId: (bg || {}).id, mm: true }, email: { w: 600, h: 300, bgId: (bg || {}).id }, web: { w: 1440, h: 810, bgId: (bg || {}).id } };
   const k = kinds[a.kind] || kinds.post;
-  const bgc = byId[a.background] || byId[k.bgId] || bg || { hex: "#fff" };
-  const fg = textOn(bgc.hex);
-  const lv = logoFor(bgc.id) || {};
+  const c = byId[a.background] || byId[k.bgId] || bg || { hex: "#ffffff", id: "x" };
+  const lv = logoFor(c.id) || {};
   const minPx = k.mm ? Math.ceil((lv.min_mm || 20) * 3.7795) : (lv.min_px || 96);
   const logoW = Math.max(minPx, Math.round(k.w * (k.mm ? 0.42 : 0.2)));
-  const canvas = h("div", { class: "canvas", style: { width: `${k.w}px`, height: `${k.h}px`, background: bgc.hex, color: fg, padding: `${Math.round(k.w * 0.07)}px`, display: "flex", flexDirection: "column", justifyContent: "space-between", boxSizing: "border-box" } },
+  const s = boxW / k.w;
+  const canvas = h("div", { style: { position: "absolute", left: 0, top: 0, width: px(k.w), height: px(k.h), transform: `scale(${s})`, transformOrigin: "0 0", background: c.hex, color: textOn(c.hex), padding: px(k.w * 0.07), display: "flex", flexDirection: "column", justifyContent: "space-between" } },
     a.image ? h("img", { src: asset(a.image), alt: "", style: { position: "absolute", inset: "0", width: "100%", height: "100%", objectFit: "cover" } }) : null,
-    h("img", { src: asset(lv.file), alt: B.meta.name, "data-logo": "", "data-min-px": minPx, style: { width: `${logoW}px`, height: "auto", position: "relative" } }),
+    h("img", { src: asset(lv.file), alt: B.meta.name, "data-logo": "", "data-min-px": minPx, style: { width: px(logoW), height: "auto", position: "relative" } }),
     h("div", { style: { position: "relative" } },
-      h("div", { style: { fontFamily: "var(--display)", fontWeight: 500, fontSize: `${Math.round(k.w * (k.mm ? 0.07 : 0.08))}px`, lineHeight: 1.04, letterSpacing: "-0.02em" } }, a.headline || ""),
-      a.text ? h("div", { style: { marginTop: `${Math.round(k.w * 0.02)}px`, fontSize: `${Math.round(k.w * (k.mm ? 0.04 : 0.03))}px`, opacity: 0.85 } }, a.text) : null));
-  const holder = h("div", { class: "mock", style: { aspectRatio: `${k.w} / ${k.h}`, outline: !a.image && edge(bgc.hex) ? "1px solid var(--line)" : null, outlineOffset: "-1px" } }, canvas);
-  const fit = () => { const s = holder.clientWidth / k.w; canvas.style.transform = `scale(${s})`; canvas.querySelectorAll("[data-logo]").forEach((el) => el.setAttribute("data-scale", s)); };
-  new ResizeObserver(fit).observe(holder);
-  return h("figure", {}, holder, h("figcaption", {}, a.title || a.kind));
+      h("div", { style: { fontFamily: "var(--display)", fontSize: px(k.w * (k.mm ? 0.07 : 0.085)), lineHeight: 1.02, letterSpacing: "-0.02em" } }, a.headline || ""),
+      a.text ? h("div", { style: { marginTop: px(k.w * 0.02), fontSize: px(k.w * (k.mm ? 0.04 : 0.032)), opacity: 0.85 } }, a.text) : null));
+  return h("div", { style: { position: "relative", width: px(boxW), height: px(k.h * s), borderRadius: "12px", overflow: "hidden", boxShadow: a.image ? null : edge(c.hex) } }, canvas);
 }
 
-/* page */
+/* ---------- slides by section ---------- */
+const sec = B.sections || {};
+const S = {};
+
+S.strategy = (code) => {
+  const s = B.strategy, out = [];
+  const facts = [[T.audience, s.audience], [T.insteadOf, s.instead_of], [T.signature, s.signature]].filter(([, v]) => v);
+  const right = imgSlot("intro");
+  const pair = PAL.filter((c) => c !== feature).slice(0, 2);
+  out.push(frame([
+    at(M + 6, 64, h("div", { style: { display: "flex", gap: "28px" } }, facts.map(([k, v]) => h("div", { style: { width: "330px" } }, h("p", { class: "cap" }, k), h("p", { class: "small", style: { marginTop: "8px" } }, v))))),
+    at(M + 6, 286, h("p", { style: { width: "1040px", font: "400 44px/1.14 var(--display)", letterSpacing: "-0.015em" } }, s.purpose || "")),
+    s.story ? at(M + 6, 520, h("p", { class: "lead", style: { width: "980px", color: "var(--ink-2)" } }, s.story)) : null,
+    h("div", { class: "rule", style: { left: px(M + 6), top: "772px", width: "1040px" } }),
+    s.fact ? [at(M + 2, 794, h("p", { class: "disp", style: { fontSize: "140px", lineHeight: 1 } }, s.fact.value)), at(M + 6, 952, h("p", { class: "cap" }, s.fact.label))]
+      : (s.decision_rules || []).length ? at(M + 6, 800, h("div", { style: { width: "1040px" } }, h("p", { class: "cap" }, T.rules), h("p", { class: "disp", style: { fontSize: "34px", lineHeight: 1.2, marginTop: "10px" } }, s.decision_rules[0]))) : null,
+    right ? tile(1160, M, 720, CH, right.generated ? h("figcaption", { class: "chip" }, right.caption || aiLabel) : null, { img: right.file, alt: right.alt, generated: right.generated, figure: true, pos: right.pos })
+      : [tile(1160, M, 720, 600, h("div", { class: "abs", style: { inset: 0, display: "grid", placeItems: "center" } }, logoImg(featureLogo, 380)), { bg: feature.hex }),
+        ...pair.map((c, i) => tile(1160 + i * (352 + G), M + 600 + G, 352, CH - 600 - G, inside(capOn(c.name)), { bg: c.hex }))]
+  ], { cap: right && right.generated ? aiLabel : T.topics.strategy }));
+  const vals = (s.values || []).slice(0, 4);
+  const rules = s.decision_rules || [], rej = s.rejected || [];
+  if (vals.length || rules.length || rej.length) {
+    const kids = [head(code, "strategy", sec.strategy || T.topics.strategy)];
+    const top = vals.length ? 500 : 0;
+    const w = vals.length ? (CW - (vals.length - 1) * G) / vals.length : CW;
+    vals.forEach((v, i) => {
+      const c = PAL[i % PAL.length] || feature;
+      kids.push(tile(M + i * (w + G), TOP, w, top, [at(40, 34, h("p", { class: "disp", style: { fontSize: "54px", lineHeight: 1.02, width: px(w - 80) } }, v.value)),
+        h("p", { class: "abs body", style: { left: "40px", right: "40px", bottom: "34px", fontSize: "19px" } }, v.behaviour)], { bg: c.hex, text: true }));
+    });
+    if (rules.length || rej.length) kids.push(tile(M, TOP + top + (vals.length ? G : 0), CW, CH2 - top - (vals.length ? G : 0), inside(h("div", { style: { display: "grid", gridTemplateColumns: rules.length && rej.length ? "1.1fr 1fr" : "1fr", gap: "56px" } },
+      rules.length ? h("div", {}, h("p", { class: "cap" }, T.rules), h("ol", { class: "n2", style: { marginTop: "14px", font: "400 22px/1.4 var(--display)" } }, rules.slice(0, 3).map((r) => h("li", {}, r)))) : null,
+      rej.length ? h("div", {}, h("p", { class: "cap" }, T.rejected), h("ul", { class: "d2", style: { marginTop: "14px", font: "400 16px/1.45 var(--text)" } }, rej.slice(0, 3).map((r) => h("li", {}, r)))) : null)), { bg: "var(--panel)", text: true }));
+    out.push(frame(kids, { cap: T.topics.strategy }));
+  }
+  return out;
+};
+
+S.voice = (code) => {
+  const v = B.voice, out = [];
+  const traits = (v.traits || []).slice(0, 4), tone = (v.tone || []).slice(0, 3);
+  const kids = [head(code, "voice", sec.voice || T.topics.voice)];
+  const leftW = tone.length ? 880 : CW;
+  // One before/after pair and a name rule without claims don't fill a slide: they take the bottom row of this one.
+  const ba = (v.before_after || []).slice(0, 2);
+  const fold = tone.length && ba.length <= 1 && !(v.claims || []).length && (ba.length || v.name_rule);
+  const toneH = 560, rowY = TOP + toneH + G, rowH = CH2 - toneH - G;
+  kids.push(tile(M, TOP, leftW, fold ? toneH : CH2, inside(h("div", { style: { display: "grid", gap: "24px" } }, capOn(T.traits),
+    traits.map((t) => h("div", {}, h("p", { class: "disp", style: { fontSize: "48px", lineHeight: 1.05 } }, `${t.is},`),
+      h("p", { class: "disp", style: { fontSize: "29px", lineHeight: 1.2, opacity: 0.72, marginTop: "4px" } }, `${T.isNot} `, h("s", {}, t.is_not)))))), { bg: feature.hex, text: true }));
+  if (tone.length) {
+    const x = M + leftW + G, w = CW - leftW - G, each = (toneH - (tone.length - 1) * G) / tone.length;
+    const tints = PAL.filter((p) => p !== feature);
+    tone.forEach((t, i) => {
+      const c = tints[i % Math.max(tints.length, 1)];
+      kids.push(tile(x, TOP + i * (each + G), w, each, inside([h("p", { class: "cap" }, t.channel),
+        t.example ? h("p", { class: "disp", style: { fontSize: "27px", lineHeight: 1.22, marginTop: "8px" } }, h("q", {}, t.example)) : null,
+        h("p", { class: "small", style: { marginTop: "8px", color: "var(--ink-2)" } }, t.how)], { top: "24px", bottom: "20px" }), { bg: c ? mix(c.hex, 42) : "var(--panel)", fg: "var(--ink)", text: true }));
+    });
+    const words = (o) => inside(h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "32px" } },
+      h("div", {}, h("p", { class: "cap" }, T.wordsUse), h("p", { class: "disp", style: { fontSize: "24px", lineHeight: 1.35, marginTop: "10px" } }, (v.words_use || []).slice(0, 6).join(", "))),
+      h("div", {}, h("p", { class: "cap" }, T.wordsAvoid), h("p", { class: "disp", style: { fontSize: "24px", lineHeight: 1.35, marginTop: "10px", color: "var(--ink-2)" } }, h("s", {}, (v.words_avoid || []).slice(0, 6).join(", "))))), o);
+    if (fold) {
+      const parts = [ba.length ? "ba" : null, v.name_rule ? "name" : null].filter(Boolean);
+      const cw = (CW - parts.length * G) / (parts.length + 1.15);
+      kids.push(tile(M, rowY, cw * 1.15, rowH, words({ top: "28px" }), { bg: "var(--panel)", text: true }));
+      parts.forEach((pt, i) => {
+        const tx = M + cw * 1.15 + G + i * (cw + G);
+        if (pt === "ba") kids.push(tile(tx, rowY, cw, rowH, inside([h("p", { class: "cap" }, T.before), h("p", { class: "disp", style: { fontSize: "21px", lineHeight: 1.25, marginTop: "6px", color: "var(--ink-2)" } }, h("s", {}, ba[0].before)),
+          h("p", { class: "cap", style: { marginTop: "14px" } }, T.after), h("p", { class: "disp", style: { fontSize: "21px", lineHeight: 1.25, marginTop: "6px" } }, ba[0].after)], { top: "28px" }), { bg: mix(feature.hex, 22), fg: "var(--ink)", text: true }));
+        else kids.push(tile(tx, rowY, cw, rowH, inside([h("p", { class: "cap" }, T.nameRule), h("p", { class: "disp", style: { fontSize: "20px", lineHeight: 1.3, marginTop: "8px" } }, v.name_rule)], { top: "28px" }), { bg: mix((PAL[1] || feature).hex, 30), fg: "var(--ink)", text: true }));
+      });
+      out.push(frame(kids, { cap: T.topics.voice }));
+      return out;
+    }
+    kids.push(tile(x, rowY, w, rowH, words({ top: "28px" }), { bg: "var(--panel)", text: true }));
+  }
+  out.push(frame(kids, { cap: T.topics.voice }));
+  if (ba.length || v.name_rule || (v.claims || []).length) {
+    const k2 = [head(code, "voice", T.beforeAfter)];
+    const bh = ba.length ? 470 : 0, hh = ba.length ? (bh - G * (ba.length - 1)) / ba.length : 0;
+    ba.forEach((p, i) => {
+      const y = TOP + i * (hh + G);
+      k2.push(tile(M, y, (CW - G) / 2, hh, inside([h("p", { class: "cap" }, T.before), h("p", { class: "disp", style: { fontSize: "34px", lineHeight: 1.2, marginTop: "10px", color: "var(--ink-2)" } }, h("s", {}, p.before))]), { bg: "var(--panel)", text: true }));
+      k2.push(tile(M + (CW + G) / 2, y, (CW - G) / 2, hh, inside([capOn(T.after), h("p", { class: "disp", style: { fontSize: "34px", lineHeight: 1.2, marginTop: "10px" } }, p.after)]), { bg: feature.hex, text: true }));
+    });
+    const y2 = TOP + (ba.length ? bh + G : 0);
+    k2.push(tile(M, y2, CW, 1040 - y2, inside(h("div", { style: { display: "grid", gridTemplateColumns: (v.claims || []).length ? "1fr 1fr" : "1fr", gap: "56px" } },
+      v.name_rule ? h("div", {}, h("p", { class: "cap" }, T.nameRule), h("p", { class: "disp", style: { fontSize: "26px", lineHeight: 1.3, marginTop: "10px" } }, v.name_rule)) : h("div"),
+      (v.claims || []).length ? h("div", {}, h("p", { class: "cap" }, T.claims), h("ul", { class: "d2", style: { marginTop: "12px", font: "400 16px/1.45 var(--text)" } }, v.claims.slice(0, 4).map((c) => h("li", {}, c.text, c.register_ref ? ` (${T.registerRef}: ${c.register_ref})` : "")))) : null)),
+      { bg: mix((PAL[1] || feature).hex, 30), fg: "var(--ink)", text: true }));
+    out.push(frame(k2, { cap: T.topics.voice }));
+  }
+  return out;
+};
+
+S.applications = (code) => {
+  const out = [], labels = B.labels || [];
+  chunk(labels, 4).forEach((grp, gi) => {
+    const kids = [head(code, "applications", gi === 0 ? (sec.applications || T.products) : `${T.products}, ${T.more}`)];
+    const w = (CW - (grp.length - 1) * G) / grp.length, topH = CH2 - 190 - G;
+    grp.forEach((l, i) => {
+      const x = M + i * (w + G), c = byId[l.colour] || PAL[i % PAL.length] || feature, f = l.format;
+      const ratio = (f.h_mm + 2 * f.bleed_mm) / (f.w_mm + 2 * f.bleed_mm);
+      const lw = Math.min(w - 64, (topH - 220) / ratio);
+      const name = (l.front || {}).name || l.product;
+      kids.push(l.image ? tile(x, TOP, w, topH, h("figcaption", { class: "chip" }, aiLabel), { img: l.image, alt: l.product, generated: l.image_generated !== false, figure: true })
+        : tile(x, TOP, w, topH, [
+          at(32, 30, [h("p", { class: "disp", style: { fontSize: "54px", lineHeight: 1, width: px(w - 64) } }, name), (l.front || {}).net ? h("p", { class: "lead", style: { marginTop: "10px" } }, l.front.net) : null]),
+          h("div", { class: "abs", style: { left: px((w - lw) / 2), bottom: "32px", width: px(lw), height: px(lw * ratio), borderRadius: "6px", overflow: "hidden", boxShadow: "0 10px 30px rgba(0,0,0,.18)" } },
+            h("iframe", { title: l.product, loading: "lazy", src: asset(`labels/${l.id}.html?mode=preview&fit=1`), style: { width: "100%", height: "100%", border: 0, display: "block" } }))
+        ], { bg: c.hex }));
+      kids.push(tile(x, TOP + topH + G, w, 190, inside([h("p", { class: "disp", style: { fontSize: "30px", lineHeight: 1.05 } }, l.product), h("p", { class: "small", style: { marginTop: "8px", color: "var(--ink-2)" } }, (l.front || {}).variant || "")], { top: "26px" }), { bg: mix(c.hex, 38), fg: "var(--ink)", text: true }));
+    });
+    out.push(frame(kids, { cap: labels.some((l) => l.image) ? T.vizMany : T.templateShort }));
+  });
+  (B.applications || []).filter((a) => a.kind === "billboard" && a.image).slice(0, 2).forEach((a) => {
+    out.push(frame([tile(M, M, CW, CH, [
+      h("div", { class: "abs", style: { left: "72px", bottom: "72px", maxWidth: "980px", color: a.text_colour || "#ffffff" } },
+        h("p", { class: "disp", style: { fontSize: "96px", lineHeight: 0.98, textShadow: "0 2px 30px rgba(0,0,0,.25)" } }, a.headline || "")),
+      h("div", { class: "abs", style: { right: "64px", top: "56px" } }, logoImg(logoFor(a.logo_on) || primary, 260)),
+      a.generated !== false ? h("figcaption", { class: "chip", style: { left: "auto", right: "18px" } }, aiLabel) : null
+    ], { img: a.image, alt: a.title || "", generated: a.generated !== false, figure: true, pos: a.pos })], { cap: a.title || T.topics.applications }));
+  });
+  const apps = (B.applications || []).filter((a) => a.kind !== "billboard").slice(0, 3);
+  if (apps.length) {
+    const kids = [head(code, "applications", labels.length ? T.topics.applications : (sec.applications || T.topics.applications))];
+    const cellW = (CW - 80 - (apps.length - 1) * 48) / apps.length;
+    const ratios = { post: 1, card: 208 / 321, email: 0.5, web: 810 / 1440 };
+    kids.push(tile(M, TOP, CW, CH2, h("div", { class: "abs", style: { inset: "40px", display: "flex", gap: "48px", alignItems: "center", justifyContent: "center" } },
+      apps.map((a) => { const boxW = Math.min(cellW, (CH2 - 150) / (ratios[a.kind] || 1)); return h("figure", { style: { width: px(boxW) } }, mockup(a, boxW), h("figcaption", { class: "small", style: { marginTop: "14px", color: "var(--ink-2)" } }, a.title || a.kind)); })),
+      { bg: "var(--panel)" }));
+    out.push(frame(kids, { cap: T.topics.applications }));
+  }
+  return out;
+};
+
+S.imagery = (code) => {
+  const im = B.imagery, out = [];
+  /* Worlds: one colour, one scene, one face per product line or variant (imagery.worlds). */
+  const worlds = (im.worlds || []).filter((w) => w.image).slice(0, 4);
+  if (worlds.length) {
+    const kids = [head(code, "imagery", sec.imagery || T.topics.imagery)];
+    const w = (CW - (worlds.length - 1) * G) / worlds.length, top = CH2 - 170 - G;
+    worlds.forEach((wd, i) => {
+      const c = byId[wd.colour] || PAL[i % PAL.length] || feature;
+      kids.push(tile(M + i * (w + G), TOP, w, top, wd.generated !== false ? h("figcaption", { class: "chip" }, aiLabel) : null, { img: wd.detail || wd.image, alt: wd.name, generated: wd.generated !== false, figure: true, pos: wd.pos_detail || "50% 30%" }));
+      kids.push(tile(M + i * (w + G), TOP + top + G, w, 170, inside([h("p", { class: "disp", style: { fontSize: "40px", lineHeight: 1 } }, wd.name), wd.line ? h("p", { class: "small soft", style: { marginTop: "8px" } }, wd.line) : null], { top: "26px" }), { bg: c.hex, text: true }));
+    });
+    out.push(frame(kids, { cap: T.vizMany }));
+    worlds.forEach((wd, i) => {
+      const c = byId[wd.colour] || PAL[i % PAL.length] || feature;
+      const k = [tile(M, M, 1240, CH, h("figcaption", { class: "chip" }, wd.caption || aiLabel), { img: wd.image, alt: wd.name, generated: wd.generated !== false, figure: true, pos: wd.pos || "50% 50%" })];
+      const rx = M + 1240 + G, rw = CW - 1240 - G;
+      if (wd.detail) k.push(tile(rx, M, rw, 560, wd.generated !== false ? h("figcaption", { class: "chip" }, aiLabel) : null, { img: wd.detail, alt: "", generated: wd.generated !== false, figure: true, pos: wd.pos_detail || "50% 30%" }));
+      const cy = wd.detail ? M + 560 + G : M;
+      k.push(tile(rx, cy, rw, 1040 - cy, [at(40, 34, h("p", { class: "disp", style: { fontSize: "72px", lineHeight: 0.95, width: px(rw - 80) } }, wd.name)),
+        h("div", { class: "abs", style: { left: "40px", right: "40px", bottom: "34px" } }, wd.line ? h("p", { class: "body" }, wd.line) : null, h("p", { class: "cap", style: { color: "inherit", opacity: 0.7, marginTop: "10px" } }, `${c.name || ""} ${c.hex ? c.hex.toUpperCase() : ""}`))], { bg: c.hex, text: true }));
+      out.push(frame(k, { cap: T.vizMany }));
+    });
+  }
+  const mood = images.filter((i) => !["cover", "intro"].includes(i.slot));
+  const chipFor = (i) => h("figcaption", { class: "chip" }, i.generated ? (i.caption || aiLabel) : (i.alt || ""));
+  if (mood.length) {
+    const kids = [head(code, "imagery", worlds.length ? T.topics.imagery : (sec.imagery || T.topics.imagery))];
+    const [a, ...rest] = mood;
+    kids.push(tile(M, TOP, rest.length ? 1100 : CW, CH2, chipFor(a), { img: a.file, alt: a.alt, generated: a.generated, figure: true, pos: a.pos }));
+    const more = rest.slice(0, 2);
+    more.forEach((r, i) => { const hh = (CH2 - (more.length - 1) * G) / more.length; kids.push(tile(M + 1100 + G, TOP + i * (hh + G), CW - 1100 - G, hh, chipFor(r), { img: r.file, alt: r.alt, generated: r.generated, figure: true, pos: r.pos })); });
+    out.push(frame(kids, { cap: mood.some((i) => i.generated) ? T.vizMany : T.topics.imagery }));
+  }
+  const params = Object.keys(T.params).filter((k) => im[k]);
+  if (params.length || im.ai) {
+    const kids = [head(code, "imagery", mood.length || worlds.length ? T.howWe : (sec.imagery || T.howWe))];
+    const pw = (CW - 2 * G) / 3, ph = (520 - G) / 2;
+    params.slice(0, 6).forEach((k, i) => kids.push(tile(M + (i % 3) * (pw + G), TOP + Math.floor(i / 3) * (ph + G), pw, ph, inside([h("p", { class: "cap" }, T.params[k]), h("p", { class: "body", style: { marginTop: "10px", fontSize: "19px" } }, im[k])], { top: "28px" }), { bg: "var(--panel)", text: true })));
+    const by = TOP + 520 + G, bh = CH2 - 520 - G;
+    kids.push(tile(M, by, (CW - G) / 2, bh, inside(h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "28px" } },
+      h("div", {}, h("p", { class: "cap" }, T.doLabel), h("ul", { class: "d2", style: { marginTop: "12px", font: "400 15.5px/1.4 var(--text)" } }, (im.do || []).slice(0, 4).map((x) => h("li", {}, x)))),
+      h("div", {}, h("p", { class: "cap" }, T.dontLabel), h("ul", { class: "d2", style: { marginTop: "12px", font: "400 15.5px/1.4 var(--text)" } }, (im.dont || []).slice(0, 4).map((x) => h("li", {}, x)))))),
+      { bg: mix((PAL[1] || feature).hex, 30), fg: "var(--ink)", text: true }));
+    if (im.ai) kids.push(tile(M + (CW + G) / 2, by, (CW - G) / 2, bh, inside([capOn(T.aiShort),
+      h("p", { class: "small", style: { marginTop: "12px" } }, `${T.aiAllowed}: ${(im.ai.allowed || []).join("; ")}`),
+      h("p", { class: "small", style: { marginTop: "8px" } }, `${T.aiBanned}: ${(im.ai.banned || []).join("; ")}`),
+      h("p", { class: "small", style: { marginTop: "8px" } }, `${T.aiLabel}: „${im.ai.label || T.viz}”. ${T.aiApprover}: ${im.ai.approver || "?"}`)]), { bg: feature.hex, text: true }));
+    out.push(frame(kids, { cap: T.topics.imagery }));
+  }
+  return out;
+};
+
+S.logo = (code) => {
+  const L = B.logo, vs = L.variants || [], out = [];
+  const cs = L.clear_space || {}, ratio = Number(cs.ratio) || 0.5, ch = 110;
+  const kids = [head(code, "logo", sec.logo || T.topics.logo)];
+  kids.push(tile(M, TOP, 900, 500, h("div", { class: "abs", style: { inset: 0, display: "grid", placeItems: "center" } }, logoImg(featureLogo, 420)), { bg: feature.hex }));
+  kids.push(tile(M + 900 + G, TOP, CW - 900 - G, 500, [
+    h("div", { class: "abs", style: { left: 0, right: 0, top: 0, bottom: "90px", display: "grid", placeItems: "center", color: "var(--ink-2)" } },
+      h("span", { class: "clear", style: { padding: px(ch * ratio) } }, h("img", { src: asset(primary.file), alt: "", style: { height: px(ch) } }),
+        ...[["50%", "0"], ["50%", "100%"], ["0", "50%"], ["100%", "50%"]].map(([l, t]) => h("span", { class: "x", style: { left: l, top: t } }, "x")))),
+    h("p", { class: "abs small", style: { left: "40px", right: "40px", bottom: "30px", color: "var(--ink-2)" } }, T.clearText(cs.defined_as || "?", ratio))
+  ], { bg: "var(--panel)", text: true }));
+  const row = vs.slice(0, 4), w = (CW - (row.length - 1) * G) / row.length, y = TOP + 500 + G, hh = CH2 - 500 - G;
+  row.forEach((v, i) => {
+    const c = byId[(v.on || [])[0]] || bg || { hex: "#ffffff" };
+    kids.push(tile(M + i * (w + G), y, w, hh, [h("div", { class: "abs", style: { inset: "0 0 64px 0", display: "grid", placeItems: "center" } }, logoImg(v, Math.min(w * 0.5, 320))),
+      h("p", { class: "abs small", style: { left: "32px", bottom: "26px", right: "32px" } }, h("b", {}, v.name || v.id), `  ${T.minSize.toLowerCase()} ${v.min_px} px / ${v.min_mm} mm`)], { bg: c.hex, text: true }));
+  });
+  out.push(frame(kids, { cap: T.topics.logo }));
+  const donts = (L.dont || []).slice(0, 4);
+  if (donts.length) {
+    const k2 = [head(code, "logo", T.donts)];
+    const dw = (CW - (donts.length - 1) * G) / donts.length;
+    donts.forEach((d, i) => {
+      const st = {};
+      if (d.demo === "stretch") st.transform = "scaleX(1.5)";
+      if (d.demo === "squeeze") st.transform = "scaleY(1.5)";
+      if (d.demo === "rotate") st.transform = "rotate(-16deg)";
+      if (d.demo === "shadow") st.filter = "drop-shadow(6px 6px 0 rgba(0,0,0,.4))";
+      if (d.demo === "recolor") st.filter = "hue-rotate(150deg) saturate(3)";
+      const busy = d.demo === "busy" ? { backgroundImage: `repeating-linear-gradient(45deg, ${(accent || ink || {}).hex || "#888"} 0 14px, ${(bg || {}).hex || "#fff"} 14px 28px)` } : {};
+      k2.push(tile(M + i * (dw + G), TOP, dw, 520, h("div", { class: "abs strike", style: Object.assign({ inset: 0, display: "grid", placeItems: "center", color: "var(--ink-2)" }, busy) },
+        d.demo ? h("img", { src: asset(primary.file), alt: "", style: Object.assign({ width: px(dw * 0.5), height: "auto" }, st) }) : null), { bg: "var(--panel)" }));
+      k2.push(tile(M + i * (dw + G), TOP + 520 + G, dw, 130, inside(h("p", { class: "body" }, d.rule), { top: "24px" }), { bg: mix((PAL[0] || feature).hex, 22), fg: "var(--ink)", text: true }));
+    });
+    const my = TOP + 650 + 2 * G;
+    k2.push(tile(M, my, CW, 1040 - my, h("div", { class: "abs", style: { left: "40px", right: "40px", top: 0, bottom: 0, display: "flex", alignItems: "center", gap: "56px" } },
+      h("p", { class: "cap", style: { width: "200px" } }, T.minSize),
+      vs.map((v) => h("div", { style: { display: "flex", alignItems: "center", gap: "16px" } },
+        h("div", { style: { background: (byId[(v.on || [])[0]] || {}).hex || "transparent", padding: "10px", borderRadius: "8px" } }, logoImg(v, v.min_px)),
+        h("span", { class: "small" }, `${v.min_px} px / ${v.min_mm} mm`))),
+      L.finish && L.finish.type && L.finish.type !== "none" ? h("span", { class: "small", style: { marginLeft: "auto" } }, `${T.finish}: ${L.finish.type}${L.finish.min_mm ? `, min. ${L.finish.min_mm} mm` : ""}`) : null), { bg: "var(--panel)" }));
+    out.push(frame(k2, { cap: T.topics.logo }));
+  }
+  return out;
+};
+
+S.colour = (code) => {
+  const out = [], order = ["background", "text", "accent", "secondary-text", "line", "support"];
+  const sorted = colours.slice().sort((a, b) => order.indexOf(a.role) - order.indexOf(b.role));
+  chunk(sorted, 10).forEach((grp, gi) => {
+    const kids = [head(code, "colour", gi === 0 ? (sec.colour || T.topics.colour) : `${T.palette}, ${T.more}`)];
+    const rowsOf = [grp.slice(0, 5), grp.slice(5)].filter((r) => r.length);
+    const rh = (CH2 - (rowsOf.length - 1) * G) / rowsOf.length, w = (CW - 4 * G) / 5;
+    rowsOf.forEach((row, ri) => row.forEach((c, i) => {
+      const [r, g, b2] = rgbOf(c.hex), cm = c.cmyk || {}, pt = c.pantone || {};
+      const vals = [["HEX", c.hex.toUpperCase()], ["RGB", `${r} ${g} ${b2}`]];
+      if (cm.value) vals.push([`CMYK ${cm.profile || "?"}`, cm.value.join(" ")]);
+      vals.push([T.pantone, [pt.c ? `${pt.c} C` : null, pt.u ? `${pt.u} U` : null].filter(Boolean).join(" / ") || T.toDecide]);
+      kids.push(tile(M + i * (w + G), TOP + ri * (rh + G), w, rh, [
+        at(28, 26, [h("p", { class: "disp", style: { fontSize: "34px", lineHeight: 1 } }, c.name), h("p", { class: "small soft", style: { marginTop: "6px" } }, `${T.roles[c.role] || c.role}${c.share ? `, ${c.share}%` : ""}`)]),
+        h("div", { class: "abs", style: { left: "28px", right: "28px", bottom: "22px" } },
+          h("div", { class: "vals" }, vals.map(([k, v]) => v === T.toDecide ? h("div", {}, h("span", { class: "kk" }, k), h("span", {}, v)) : h("button", { type: "button", onclick: () => copy(v), title: v }, h("span", { class: "kk" }, k), h("span", { class: "v" }, v)))),
+          cm.status && rh > 360 ? h("p", { class: "soft", style: { font: "400 12.5px/1.3 var(--text)", marginTop: "8px" } }, T.cmykStatus[cm.status] || cm.status) : null)
+      ], { bg: c.hex, text: true }));
+    }));
+    out.push(frame(kids, { cap: T.copy }));
+  });
+  const textC = colours.filter((c) => ["text", "secondary-text", "accent", "background"].includes(c.role)).slice(0, 6);
+  const bgC = colours.filter((c) => ["background", "text", "accent", "support"].includes(c.role)).slice(0, 7);
+  const declared = new Set((B.pairs || []).map((p) => `${p.text}|${p.background}`));
+  const mw = 1180, cell = Math.min(132, Math.floor((mw - 230) / Math.max(bgC.length, 1)) - 6), cellH = Math.min(110, Math.floor((CH2 - 120) / Math.max(textC.length, 1)) - 6);
+  const kids = [head(code, "colour", T.matrix)];
+  kids.push(tile(M, TOP, mw, CH2, inside(h("table", { class: "matrix" },
+    h("thead", {}, h("tr", {}, h("th", {}, T.textOn), bgC.map((b) => h("th", { scope: "col" }, b.name)))),
+    h("tbody", {}, textC.map((t) => h("tr", {}, h("th", { scope: "row" }, t.name), bgC.map((b) => {
+      if (t.id === b.id) return h("td", {}, h("div", { class: "cell", style: { width: px(cell), height: px(cellH), placeItems: "center", color: "var(--ink-3)" } }, "–"));
+      const r = contrast(t.hex, b.hex), ok = declared.has(`${t.id}|${b.id}`);
+      return h("td", { class: ok ? "ok" : null }, h("div", { class: "cell", style: { width: px(cell), height: px(cellH), background: b.hex, color: t.hex, boxShadow: ok ? null : edge(b.hex) } }, h("b", {}, "Aa"), h("span", {}, `${fmt(r)} ${T.v[verdict(r)]}`)));
+    }))))), { top: "30px" }), { bg: "var(--panel)" }));
+  const share = colours.filter((c) => Number(c.share));
+  kids.push(tile(M + mw + G, TOP, CW - mw - G, CH2, inside([h("p", { class: "cap" }, T.matrixLead),
+    h("table", { class: "tb", style: { marginTop: "18px" } }, h("tbody", {}, (B.pairs || []).slice(0, 8).map((p) => h("tr", {}, h("td", {}, `${(byId[p.text] || {}).name || p.text} / ${(byId[p.background] || {}).name || p.background}`), h("td", {}, p.use || ""), h("td", {}, fmt(contrast((byId[p.text] || {}).hex || "#000000", (byId[p.background] || {}).hex || "#ffffff"))))))),
+    share.length ? h("div", { class: "abs", style: { left: "40px", right: "40px", bottom: "34px" } }, h("p", { class: "cap" }, T.share), h("div", { style: { display: "flex", height: "54px", marginTop: "10px", borderRadius: "10px", overflow: "hidden" } }, share.map((c) => h("div", { title: `${c.name} ${c.share}%`, style: { flex: `${c.share} 0 0`, background: c.hex, boxShadow: edge(c.hex) } })))) : null]), { bg: "var(--panel)", text: true }));
+  out.push(frame(kids, { cap: T.topics.colour }));
+  return out;
+};
+
+S.type = (code) => {
+  const fs = (B.type.families || []).slice(0, 3), out = [];
+  const sample = B.type.sample || (LANG === "pl" ? "Zażółć gęślą jaźń" : "Sphinx of black quartz, judge my vow");
+  const kids = [head(code, "type", sec.type || T.topics.type)];
+  const w = (CW - (fs.length - 1) * G) / Math.max(fs.length, 1), th = 560;
+  fs.forEach((f, i) => {
+    const wt = (f.weights || [])[(f.weights || []).length - 1] || 500;
+    kids.push(tile(M + i * (w + G), TOP, w, th, [
+      at(36, 18, h("p", { style: { fontFamily: `"${f.family}", var(--text)`, fontWeight: wt, fontSize: "200px", lineHeight: 1, letterSpacing: "-0.03em" }, "data-font": f.family }, "Aa")),
+      h("div", { class: "abs", style: { left: "40px", right: "40px", bottom: "32px" } },
+        h("p", { class: "cap" }, T.famRoles[f.role] || f.role),
+        h("p", { class: "disp", style: { fontSize: "36px", lineHeight: 1.05, marginTop: "4px" } }, f.family),
+        h("p", { style: { fontFamily: `"${f.family}", var(--text)`, fontWeight: wt, fontSize: "24px", lineHeight: 1.2, marginTop: "14px" } }, sample),
+        h("p", { class: "small", style: { marginTop: "12px", color: "var(--ink-2)" } }, f.why || ""),
+        h("p", { class: "cap", style: { marginTop: "10px" } }, [f.licence, f.office_substitute ? `${T.substitute}: ${f.office_substitute}` : null].filter(Boolean).join(". ")))
+    ], { bg: mix((PAL[i] || feature).hex, i === 0 ? 26 : 30), fg: "var(--ink)", text: true }));
+  });
+  const scale = (B.type.scale || []).slice(0, 5);
+  if (scale.length) {
+    const sy = TOP + th + G, sh = CH2 - th - G, rh = (sh - 64) / scale.length;
+    kids.push(tile(M, sy, CW, sh, h("div", { class: "abs", style: { left: "40px", right: "40px", top: "28px" } },
+      scale.map((s) => {
+        const f = (B.type.families || []).find((x) => x.role === s.role) || fs[0] || {};
+        return h("div", { style: { display: "grid", gridTemplateColumns: "280px 1fr", alignItems: "baseline", height: px(rh), borderTop: "1px solid var(--line)", paddingTop: "8px", overflow: "hidden" } },
+          h("p", { class: "small" }, h("b", {}, s.level), `  ${s.px} px${s.pt ? ` / ${s.pt} pt` : ""}, × ${s.line}`),
+          h("p", { style: { fontFamily: `"${f.family}", var(--text)`, fontSize: px(Math.min(s.px, rh * 0.62)), lineHeight: 1.1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" } }, s.use || sample));
+      })), { bg: "var(--panel)" }));
+  }
+  out.push(frame(kids, { cap: T.topics.type }));
+  return out;
+};
+
+S.labels = (code) => (B.labels || []).map((l, li) => {
+  const f = l.format, req = REQUIRED[l.category] || [];
+  const keys = new Set((l.legal || []).filter((x) => x.text).map((x) => x.key));
+  const wide = (f.w_mm + 2 * f.bleed_mm) / (f.h_mm + 2 * f.bleed_mm) > 1.8;
+  const kids = [head(code, "labels", li === 0 ? (sec.labels || T.topics.labels) : `${T.labelSlide}: ${l.product}`)];
+  const area = wide ? { x: M, y: TOP, w: CW, h: 400 } : { x: M, y: TOP, w: 640, h: CH2 };
+  const frameEl = h("iframe", { title: l.product, loading: "lazy", src: asset(`labels/${l.id}.html?mode=preview&fit=1`) });
+  const size = (mode) => {
+    const pad = mode === "guides" ? 16 : 0;
+    const w = f.w_mm + 2 * f.bleed_mm + 2 * pad, hh = f.h_mm + 2 * f.bleed_mm + 2 * pad + (mode === "guides" ? 10 : 0);
+    const iw = Math.min(area.w - 80, (area.h - 110) * w / hh);
+    frameEl.style.width = px(iw); frameEl.style.height = px(iw * hh / w);
+  };
+  size("preview");
+  const modes = h("div", { class: "modes", role: "group" }, ["preview", "guides"].map((m) => h("button", { type: "button", "aria-pressed": m === "preview" ? "true" : "false", onclick: (e) => {
+    for (const b of modes.children) b.setAttribute("aria-pressed", b === e.currentTarget ? "true" : "false");
+    frameEl.src = asset(`labels/${l.id}.html?mode=${m}&fit=1`); size(m);
+  } }, T[m])));
+  kids.push(tile(area.x, area.y, area.w, area.h, [modes, h("a", { class: "lopen", href: asset(`labels/${l.id}.html?mode=guides`), target: "_blank" }, T.openLabel), h("div", { class: "lview" }, frameEl)], { bg: "var(--panel)" }));
+  const front = h("div", {}, h("p", { class: "cap" }, T.front), h("ol", { class: "n2", style: { marginTop: "12px", font: "400 17px/1.4 var(--text)" } }, h("li", {}, T.brandMark), [l.front.name, l.front.variant, l.front.benefit].filter(Boolean).map((x) => h("li", {}, x)), l.front.net ? h("li", {}, `${T.net}: ${l.front.net}`) : null),
+    h("p", { class: "small", style: { marginTop: "16px", color: "var(--ink-2)" } }, `${f.name ? `${f.name}. ` : ""}${f.w_mm} × ${f.h_mm} mm, ${T.bleed} ${f.bleed_mm} mm, ${T.safe} ${f.safe_mm} mm${f.overlap_mm ? `, ${LANG === "pl" ? "zakładka" : "overlap"} ${f.overlap_mm} mm` : ""}.`));
+  const mand = h("div", {}, capOn(T.mandatory), h("div", { style: { marginTop: "12px", columns: req.length > 7 ? 2 : 1, columnGap: "36px" } },
+    req.map((k) => { const item = (l.legal || []).find((x) => x.key === k); return h("div", { class: "chk" }, h("b", { class: keys.has(k) ? null : "miss" }, keys.has(k) ? T.present : T.missingT), h("span", {}, item ? `${item.label}: ${item.text}` : k)); }),
+    l.nutrition_exempt_reason ? h("div", { class: "chk" }, h("b", {}, T.exempt), h("span", {}, l.nutrition_exempt_reason)) : null));
+  const notes = h("div", {}, h("p", { class: "cap" }, T.zones), h("div", { style: { marginTop: "12px" } }, (l.zones || []).map((z) => h("div", { class: "chk" }, h("b", {}, z.id), h("span", {}, `${T.zoneRoles[z.role] || z.role}, ${z.x_mm}–${z.x_mm + z.w_mm} mm`)))),
+    h("p", { class: "small", style: { marginTop: "16px" } }, T.templateNote, B.meta.label_approver ? ` ${T.approver}: ${B.meta.label_approver}.` : ""));
+  const c = byId[l.colour] || feature;
+  if (wide) {
+    const y = TOP + 400 + G, hh = CH2 - 400 - G, w1 = 520, w3 = 520, w2 = CW - w1 - w3 - 2 * G;
+    kids.push(tile(M, y, w1, hh, inside(front, { top: "28px" }), { bg: mix(c.hex, 34), fg: "var(--ink)", text: true }));
+    kids.push(tile(M + w1 + G, y, w2, hh, inside(mand, { top: "28px" }), { bg: feature.hex, text: true }));
+    kids.push(tile(M + w1 + w2 + 2 * G, y, w3, hh, inside(notes, { top: "28px" }), { bg: "var(--panel)", text: true }));
+  } else {
+    const x = M + 640 + G, w = CW - 640 - G, h1 = 330;
+    kids.push(tile(x, TOP, (w - G) / 2, h1, inside(front, { top: "28px" }), { bg: mix(c.hex, 34), fg: "var(--ink)", text: true }));
+    kids.push(tile(x + (w + G) / 2, TOP, (w - G) / 2, h1, inside(notes, { top: "28px" }), { bg: "var(--panel)", text: true }));
+    kids.push(tile(x, TOP + h1 + G, w, CH2 - h1 - G, inside(mand, { top: "28px" }), { bg: feature.hex, text: true }));
+  }
+  return frame(kids, { cap: T.topics.labels });
+});
+
+S.print = (code) => {
+  const p = B.print;
+  const kids = [head(code, "print", sec.print || T.topics.print)];
+  const rowsP = [[T.printer, p.printer || T.notChosen], [T.technology, p.technology], [T.pdf, p.pdf], [T.profile, p.profile], [T.bleedL, p.bleed_mm !== undefined ? `${p.bleed_mm} mm` : null], [T.safeL, p.safe_mm !== undefined ? `${p.safe_mm} mm` : null], [T.smallText, p.small_text], [T.finishes, (p.finishes || []).map((x) => `${x.type}${x.colour ? ` (${x.colour})` : ""}${x.layer ? `, ${x.layer}` : ""}`).join("; ")], [T.proofL, p.proof]].filter(([, v]) => v);
+  kids.push(tile(M, TOP, 1060, CH2, inside(h("table", { class: "tb" }, h("tbody", {}, rowsP.map(([k, v]) => h("tr", {}, h("td", { style: { width: "300px" } }, k), h("td", {}, v))))), { top: "30px" }), { bg: "var(--panel)", text: true }));
+  const steps = LANG === "pl" ? [`Eksport do ${p.pdf || "PDF/X-4"} z profilem ${p.profile || "ustalonym z drukarnią"}.`, `Spad ${p.bleed_mm ?? 3} mm i ${p.safe_mm ?? 3} mm marginesu; potwierdzić z drukarnią.`, "Drobny tekst i kod kreskowy w 100% K z nadrukiem.", "Uszlachetnienia i wykrojnik na osobnych warstwach, jako kolory dodatkowe.", "Wykrojnik od drukarni, nie rysowany na oko.", "Próbny wydruk na docelowym papierze przed zatwierdzeniem koloru."]
+    : [`Export to ${p.pdf || "PDF/X-4"} with the ${p.profile || "printer's"} profile.`, `${p.bleed_mm ?? 3} mm bleed and ${p.safe_mm ?? 3} mm safe margin; confirm with the printer.`, "Small text and barcode in 100% K, overprinting.", "Finishes and dieline on separate layers, as spot colours.", "The dieline from the printer, not drawn by eye.", "A proof on the final paper before the colour is approved."];
+  kids.push(tile(M + 1060 + G, TOP, CW - 1060 - G, CH2, inside([capOn(T.handoff), h("ol", { class: "n2", style: { marginTop: "16px", font: "400 20px/1.4 var(--text)" } }, steps.map((x) => h("li", { style: { marginBottom: "16px" } }, x)))], { top: "30px" }), { bg: feature.hex, text: true }));
+  return [frame(kids, { cap: T.topics.print })];
+};
+
+/* The changelog sits with the files: which version of the book and the files someone is holding. */
+const logTile = (x, w) => tile(x, TOP, w, CH2, inside([capOn(T.changelog), ...(B.changelog || []).slice(-6).reverse().map((c) => h("div", { style: { marginTop: "16px" } }, h("p", { class: "disp", style: { fontSize: "26px" } }, c.version), h("p", { class: "small soft" }, `${c.date}. ${c.change}`)))], { top: "30px" }), { bg: feature.hex, text: true });
+S.files = (code) => {
+  const groups = chunk(B.files || [], 9);
+  if (!groups.length) groups.push([]);
+  return groups.map((grp, gi) => {
+    const showLog = gi === 0 && (B.changelog || []).length;
+    const w = showLog ? CW - 520 - G : CW;
+    const kids = [head(code, "files", gi === 0 ? (sec.files || T.topics.files) : `${T.topics.files}, ${T.more}`),
+      tile(M, TOP, w, CH2, inside(h("table", { class: "tb" }, h("thead", {}, h("tr", {}, h("th", {}, T.filePath), h("th", {}, T.what), h("th", {}, T.printReady))),
+        h("tbody", {}, grp.map((f) => h("tr", {}, h("td", { style: { width: showLog ? "420px" : "520px" } }, h("a", { href: asset(f.path) }, f.path)), h("td", {}, f.what), h("td", { style: { width: "150px" } }, f.print_ready === true ? T.yes : f.print_ready === false ? T.noWord : "–"))))), { top: "30px" }), { bg: "var(--panel)", text: true })];
+    if (showLog) kids.push(logTile(M + w + G, 520));
+    return frame(kids, { cap: T.topics.files });
+  });
+};
+
+/* Decisions fill a slide by their estimated height, not by a fixed count: short ones fit ten to a slide. */
+S.decisions = (code) => {
+  const lines = (t, chars) => Math.max(1, Math.ceil(String(t || "").length / chars));
+  const rowH = (x) => 20 + 23 * Math.max(lines(x.what, 30), lines(x.who, 22), lines(x.recommendation, 118));
+  const groups = [[]];
+  let used = 0;
+  for (const x of B.decisions || []) {
+    const hh = rowH(x);
+    if (used + hh > CH2 - 120 && groups[groups.length - 1].length) { groups.push([]); used = 0; }
+    groups[groups.length - 1].push(x);
+    used += hh;
+  }
+  return groups.map((grp, gi) => frame([head(code, "decisions", gi === 0 ? (sec.decisions || T.topics.decisions) : `${T.topics.decisions}, ${T.more}`),
+    tile(M, TOP, CW, CH2, inside(h("table", { class: "tb" }, h("thead", {}, h("tr", {}, h("th", {}, T.decWhat), h("th", {}, T.decWho), h("th", {}, T.decBy), h("th", {}, T.decRec))),
+      h("tbody", {}, grp.map((x) => h("tr", {}, h("td", { style: { width: "320px" } }, x.what), h("td", { style: { width: "240px" } }, x.who || "?"), h("td", { style: { width: "130px" } }, x.by || "?"), h("td", {}, x.recommendation || ""))))), { top: "30px" }), { bg: "var(--panel)", text: true })], { cap: T.topics.decisions }));
+};
+
+/* ---------- the deck ---------- */
 const main = document.getElementById("main");
-const M = B.meta;
-const primary = ((B.logo || {}).variants || [])[0];
-const coverLogo = logoFor(feature.id) || primary;
-main.append(h("div", { class: "cover", id: "top" },
-  coverLogo ? h("img", { class: "logo", src: asset(coverLogo.file), alt: M.name }) : h("div", { class: "word" }, M.name),
-  B.strategy && B.strategy.purpose ? h("p", { class: "purpose" }, B.strategy.purpose) : null,
-  h("div", { class: "meta" },
-    h("span", {}, `${T.version} ${M.version}, ${M.date}${M.status ? `, ${M.status === "approved" ? T.approved : T.draft}` : ""}`),
-    M.owner ? h("span", {}, `${T.owner}: ${M.owner}${M.contact ? `, ${M.contact}` : ""}`) : null,
-    M.made_by ? h("span", {}, `${T.madeBy}: ${M.made_by}`) : null)));
+const M0 = B.meta, s0 = B.strategy || {};
+const hero = imgSlot("cover");
+const tag = s0.tagline || M0.name;
+const tagSize = tag.length > 60 ? 76 : tag.length > 34 ? 104 : 150;
+main.append(frame([
+  tile(M, M, CW, 690, [
+    h("div", { class: "abs", style: { left: "48px", top: "44px" } }, logoImg(hero ? (logoFor((B.imagery || {}).hero_on) || featureLogo) : featureLogo, 260)),
+    hero ? (hero.generated ? h("figcaption", { class: "chip", style: { left: "auto", right: "18px" } }, hero.caption || aiLabel) : null)
+      : h("div", { class: "abs", style: { right: "44px", bottom: "44px", display: "flex", gap: "12px" } }, PAL.filter((c) => c !== feature).slice(0, 6).map((c) => h("div", { style: { width: "104px", height: "104px", borderRadius: "14px", background: c.hex, boxShadow: contrast(c.hex, feature.hex) < 1.3 ? "inset 0 0 0 1.5px rgba(255,255,255,.4)" : null } })))
+  ], hero ? { img: hero.file, alt: hero.alt, generated: hero.generated, figure: true, pos: hero.pos } : { bg: feature.hex }),
+  at(M - 4, 752, h("p", { class: "h-cover", style: { fontSize: px(tagSize), width: "1840px" } }, tag)),
+  h("p", { class: "abs small", style: { left: px(M), bottom: "44px", color: "var(--ink-2)" } }, `Brandbook ${M0.version}, ${M0.date}, ${M0.status === "approved" ? T.approved : T.draft}${M0.owner ? `. ${T.owner}: ${M0.owner}` : ""}`)
+], { id: "top", frameCls: "cover" }));
 
 const tocItems = [];
+const ORDER = [{ part: 1, items: ["strategy", "voice", "applications", "imagery"] }, { part: 2, items: ["logo", "colour", "type", "labels", "print", "files", "decisions"] }];
+const has = { strategy: !!B.strategy, voice: !!B.voice, applications: (B.labels || []).length > 0 || (B.applications || []).length > 0, imagery: !!B.imagery, logo: !!(B.logo && primary), colour: colours.length > 0, type: !!B.type, labels: (B.labels || []).length > 0, print: !!B.print, files: (B.files || []).length > 0, decisions: true };
 for (const part of ORDER) {
   const items = part.items.filter((id) => has[id]);
   if (!items.length) continue;
-  main.append(h("div", { class: "part", "data-part": part.part },
-    h("p", { class: "no" }, `${T.partWord} ${part.part}`),
-    h("h1", {}, part.part === 1 ? T.part1 : T.part2),
-    h("p", { class: "lead2" }, part.part === 1 ? T.part1Lead : T.part2Lead)));
-  items.forEach((id, i) => {
-    const code = `${part.part}.${i + 1}`;
-    main.append(section(id, code, build[id]()));
-    tocItems.push({ id, code, part: part.part, title: T.topics[id] });
+  if (part.part === 2) main.append(frame([tile(M, M, CW, CH, [
+    h("p", { class: "abs lead", style: { left: "76px", top: "70px", width: "760px", opacity: 0.82 } }, T.rulesLead),
+    h("div", { class: "abs", style: { right: "80px", top: "70px" } }, logoImg(featureLogo, 300)),
+    h("p", { class: "abs disp", style: { left: "70px", bottom: "56px", fontSize: "230px", lineHeight: 0.85 } }, T.part2)], { bg: feature.hex })], { frameCls: "part" }));
+  let n = 0;
+  items.forEach((id) => {
+    const slides = S[id](`${part.part}.${n + 1}`);
+    if (!slides.length) return;
+    n++;
+    main.append(h("section", { class: "s", id, "data-readers": READERS[id].join(" "), "aria-label": T.topics[id] }, slides));
+    tocItems.push({ id, code: `${part.part}.${n}`, part: part.part, title: T.topics[id] });
   });
 }
-main.append(h("footer", { class: "colophon" }, T.colophon(B)));
+main.append(frame([tile(M, M, CW, CH, [
+  h("p", { class: "abs disp", style: { left: "70px", top: "64px", width: "1500px", fontSize: tag.length > 34 ? "110px" : "200px", lineHeight: 0.92 } }, tag),
+  h("div", { class: "abs", style: { right: "80px", bottom: "70px" } }, logoImg(featureLogo, 260)),
+  h("p", { class: "abs small", style: { left: "76px", bottom: "70px", opacity: 0.75 } }, T.colophon(B))], { bg: feature.hex })], { frameCls: "closing" }));
+document.querySelectorAll(".pno").forEach((p, i) => (p.textContent = i + 1));
 
-/* navigation */
-const toc = document.getElementById("toc");
-const menuLinks = document.getElementById("menu-links");
+/* ---------- viewer ---------- */
+const frames = [...document.querySelectorAll(".frame")];
+const fit = (fr) => { fr.firstElementChild.style.transform = `scale(${fr.clientWidth / 1920})`; };
+const ro = new ResizeObserver((es) => es.forEach((e) => fit(e.target)));
+frames.forEach((fr) => { ro.observe(fr); fit(fr); });
+document.addEventListener("keydown", (e) => {
+  if (!["ArrowDown", "ArrowUp", "PageDown", "PageUp"].includes(e.key) || (e.target.closest && e.target.closest("input, textarea"))) return;
+  const visible = frames.filter((f) => f.offsetParent);
+  const tops = visible.map((f) => f.getBoundingClientRect().top);
+  const down = e.key === "ArrowDown" || e.key === "PageDown";
+  const next = down ? visible.find((f, i) => tops[i] > 90) : [...visible].reverse().find((f, i, arr) => tops[visible.indexOf(f)] < 50);
+  if (next) { e.preventDefault(); next.scrollIntoView({ block: "start" }); }
+});
+const toc = document.getElementById("toc"), menuLinks = document.getElementById("menu-links");
 document.getElementById("menu-label").textContent = T.menu;
 document.getElementById("skip").textContent = T.skip;
 let lastPart = 0;
 for (const it of tocItems) {
   if (it.part !== lastPart) { toc.append(h("p", {}, it.part === 1 ? T.part1 : T.part2)); lastPart = it.part; }
-  toc.append(h("a", { href: `#${it.id}`, "data-for": it.id }, h("span", { class: "n" }, it.code), h("span", { class: "t" }, it.title)));
+  toc.append(h("a", { href: `#${it.id}`, "data-for": it.id }, h("span", { class: "n" }, it.code), h("span", { class: "t2" }, it.title)));
   menuLinks.append(h("a", { href: `#${it.id}`, "data-for": it.id, onclick: () => (document.getElementById("menu").open = false) }, `${it.code} ${it.title}`));
 }
-const barBrand = document.getElementById("bar-brand");
-barBrand.append(primary ? h("img", { src: asset(primary.file), alt: M.name, "data-logo": "", "data-min-px": primary.min_px, "data-scale": 1, style: { width: `${primary.min_px || 96}px` } }) : M.name, h("span", {}, `brandbook ${M.version}`));
-
-/* reader filter: a real state, kept in the URL so a link can open the designer's view */
+toc.append(h("p", { class: "keys" }, T.keys));
+document.getElementById("bar-brand").append(primary ? h("img", { src: asset(primary.file), alt: M0.name, "data-logo": "", "data-min-px": primary.min_px, style: { width: px(primary.min_px || 96) } }) : M0.name, h("span", {}, `brandbook ${M0.version}`));
 const readersEl = document.getElementById("readers");
 readersEl.setAttribute("aria-label", T.reader);
 readersEl.append(h("span", { class: "lab" }, T.reader));
 function setReader(r) {
   for (const b of readersEl.querySelectorAll("button")) b.setAttribute("aria-pressed", b.dataset.r === r ? "true" : "false");
   for (const s of main.querySelectorAll("section.s")) s.hidden = r !== "all" && !s.dataset.readers.split(" ").includes(r);
-  for (const p of main.querySelectorAll(".part")) {
-    let n = p.nextElementSibling, any = false;
-    while (n && !n.classList.contains("part") && n.tagName !== "FOOTER") { if (n.matches("section.s") && !n.hidden) any = true; n = n.nextElementSibling; }
-    p.hidden = !any;
-  }
+  const part = main.querySelector(".frame.part");
+  if (part) part.hidden = r !== "all" && ![...main.querySelectorAll("section.s")].some((s) => !s.hidden && ORDER[1].items.includes(s.id));
   for (const a of document.querySelectorAll("[data-for]")) a.hidden = document.getElementById(a.dataset.for).hidden;
   const u = new URL(location.href); if (r === "all") u.searchParams.delete("reader"); else u.searchParams.set("reader", r);
   try { history.replaceState(null, "", u); } catch {}
@@ -771,12 +826,10 @@ function setReader(r) {
 for (const r of Object.keys(T.readers)) readersEl.append(h("button", { type: "button", "data-r": r, onclick: () => setReader(r) }, T.readers[r]));
 const startReader = new URLSearchParams(location.search).get("reader");
 setReader(T.readers[startReader] ? startReader : "all");
-
-/* scrollspy */
 const links = [...toc.querySelectorAll("a")];
 const spy = new IntersectionObserver((entries) => {
   for (const e of entries) if (e.isIntersecting) for (const a of links) a.setAttribute("aria-current", a.dataset.for === e.target.id ? "true" : "false");
-}, { rootMargin: "-20% 0px -70% 0px" });
+}, { rootMargin: "-30% 0px -60% 0px" });
 main.querySelectorAll("section.s").forEach((s) => spy.observe(s));
 window.addEventListener("beforeprint", () => setReader("all"));
 window.__bookReady = document.fonts.ready.then(() => true);
