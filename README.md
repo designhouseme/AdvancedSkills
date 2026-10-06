@@ -65,7 +65,7 @@ Removes the look of AI-made interfaces and replaces each pattern with a design d
 
 Builds a brand book from a brief, the logo and product data. Everything comes from one `brand.json`, so the parts can't drift apart:
 
-- **an interactive deck** of 16:9 slides in one web page, in two parts, the brand and the rules: photo, colour and type tiles, a "reading as" filter (owner, designer, printer, marketing), colour values to copy, a contrast matrix and label previews; the PDF is the same slides, one per page. Photos make part 1: without them it falls back to colour and type;
+- **an interactive deck** of 16:9 slides in one web page, in two parts, the brand and the rules: photo, colour and type tiles, a "reading as" filter (owner, designer, printer, marketing), colour values to copy, a contrast matrix and label previews; the PDF is the same slides, one per page. Photos make part 1: the client's, or photorealistic visualisations made with Codex when it's on the machine (product shots take the label render as a reference and are read letter by letter); without them it falls back to colour and type;
 - **label templates in millimetres** with bleed, safe margin and zones, checked for overflow and for the 1.2 mm x-height of mandatory food text;
 - **colour per medium** with the CMYK profile and the status of every print value (proposed, converted, proofed);
 - **an internal list to verify** before print, and `tokens.css` for `motion-design` and websites.

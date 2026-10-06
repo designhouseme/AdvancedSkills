@@ -292,7 +292,7 @@ def check(brand, root):
     elif len(tagline) > 60:
         warn(f"strategy.tagline has {len(tagline)} characters; the cover sets it large, keep it under about 35")
     if not imagery.get("images") and not imagery.get("worlds") and not any(l.get("image") for l in brand.get("labels") or []):
-        warn("no photographs at all: the deck falls back to colour and type. Ask the client for photos or, with an image tool, generate visualisations (references/images.md)")
+        warn("no photographs at all: the deck falls back to colour and type. Ask the client for photos or generate visualisations; look for an image tool first, e.g. Codex (references/images.md, section 6)")
     if any(i.get("generated") for i in imagery.get("images") or []) and not ai:
         error("the book uses generated images but imagery.ai (allowed, banned, label, approver) is missing")
     for key in ("light", "composition", "casting", "props", "styling", "grading"):

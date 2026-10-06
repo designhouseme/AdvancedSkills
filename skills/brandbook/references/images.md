@@ -9,6 +9,8 @@ Read when you write `imagery` in `brand.json` and before you generate any image.
 3. [The product in a generated image](#3-the-product-in-a-generated-image)
 4. [Prompts, references and logs](#4-prompts-references-and-logs)
 5. [Checking a generated image](#5-checking-a-generated-image)
+6. [Codex as the engine](#6-codex-as-the-engine)
+7. [Placing images in the book](#7-placing-images-in-the-book)
 
 ## 1. Six parameters
 
@@ -59,3 +61,28 @@ The first approved shot becomes the style anchor for the rest: reference it with
 ## 5. Checking a generated image
 
 Before an image goes into the book: the text on every pack letter by letter (including accented letters); hands and fingers; the pack's shape, cap and proportions; the resolution against what the layout needs (a model's 1–2 megapixels is not a billboard); the label version against the current one; no other brand's logo or name. Record the result in the log. Images that fail stay out of the book.
+
+## 6. Codex as the engine
+
+Look for an image tool before you tell the user there is none. Codex has one: the `codex` CLI, or the copy inside the ChatGPT app on a Mac (`/Applications/ChatGPT.app/Contents/Resources/codex-cli/bin/codex`). Check that `codex features list` shows `image_generation` as true. One shot:
+
+```bash
+codex exec -C brand -s workspace-write --skip-git-repo-check --image=images/refs/<id>-front.png \
+  "Use your image generation tool to create the image described in prompts/<shot>.txt: read the file and pass its full content as the prompt. The attached image is a reference input: pass it to the image tool as a reference. Generate exactly one image. Copy the generated PNG to images/gen/<shot>-<n>.png. Reply with only the path of the original generated file." < /dev/null
+```
+
+- `< /dev/null`, or `exec` waits for more input on stdin.
+- `--image=<file>` with the equals sign, once per reference: `-i` takes several values and swallows the prompt.
+- About 40 seconds per image, 1536 × 1024 or 1024 × 1536 (ask for 3:2 or 2:3 in the prompt). Three runs side by side worked. The original stays in `~/.codex/generated_images/<session>/`; write that path into the log.
+- A label reference is the front zone cropped from `out/labels/<id>-preview.png` (the preview includes the bleed, so the zone starts at `x_mm + bleed_mm`). Render the labels again after any change to them, before you crop.
+
+## 7. Placing images in the book
+
+Convert each approved PNG to JPEG for the book and keep the PNG in `images/gen/` as the log's source: a deck of fourteen PNGs is over 30 MB.
+
+```bash
+sips -s format jpeg -s formatOptions 82 images/gen/<shot>-<n>.png --out images/<shot>.jpg
+```
+
+Then fill the slots (`references/data.md`, section 6): `imagery.images[]` with `slot` `cover` (landscape) and `intro` (portrait), the rest into the mood mosaic; `imagery.worlds[]` with a landscape `image` and a portrait `detail` per variant colour; `labels[].image` (portrait product shot); an application of kind `billboard` (landscape, calm space for the headline). Every generated one gets `generated: true`, so the book captions it. When the brand's `imagery.ai` forbids what the book now shows, such as a tin with a label, change the rule and record the decision, never leave the book breaking its own rule.
+

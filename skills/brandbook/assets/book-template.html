@@ -469,10 +469,13 @@ S.applications = (code) => {
     out.push(frame(kids, { cap: labels.some((l) => l.image) ? T.vizMany : T.templateShort }));
   });
   (B.applications || []).filter((a) => a.kind === "billboard" && a.image).slice(0, 2).forEach((a) => {
+    // The headline goes where the photo is calm (headline_at: top or bottom); at the top the logo sits under it, in the same calm area.
+    const top = a.headline_at === "top", ink = byId[a.text_colour] ? byId[a.text_colour].hex : a.text_colour || "#ffffff";
     out.push(frame([tile(M, M, CW, CH, [
-      h("div", { class: "abs", style: { left: "72px", bottom: "72px", maxWidth: "980px", color: a.text_colour || "#ffffff" } },
-        h("p", { class: "disp", style: { fontSize: "96px", lineHeight: 0.98, textShadow: "0 2px 30px rgba(0,0,0,.25)" } }, a.headline || "")),
-      h("div", { class: "abs", style: { right: "64px", top: "56px" } }, logoImg(logoFor(a.logo_on) || primary, 260)),
+      h("div", { class: "abs", style: Object.assign({ left: "72px", maxWidth: top ? "740px" : "980px", color: ink }, top ? { top: "64px" } : { bottom: "72px" }) },
+        h("p", { class: "disp", style: { fontSize: "96px", lineHeight: 0.98, textShadow: contrast(ink, "#ffffff") > 4.5 ? "none" : "0 2px 30px rgba(0,0,0,.25)" } }, a.headline || ""),
+        top ? h("div", { style: { marginTop: "44px" } }, logoImg(logoFor(a.logo_on) || primary, 260)) : null),
+      top ? null : h("div", { class: "abs", style: { right: "64px", top: "56px" } }, logoImg(logoFor(a.logo_on) || primary, 260)),
       a.generated !== false ? h("figcaption", { class: "chip", style: { left: "auto", right: "18px" } }, aiLabel) : null
     ], { img: a.image, alt: a.title || "", generated: a.generated !== false, figure: true, pos: a.pos })], { cap: a.title || T.topics.applications }));
   });

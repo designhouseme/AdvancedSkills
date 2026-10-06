@@ -61,7 +61,7 @@ node $SK/scripts/render.mjs labels brand/labels brand/out/labels
 
 ### 5. Images
 
-Client photos go into `images/` under readable names and into their slots: `imagery.images[]` with `slot` `cover` or `intro` (the rest fill the mood mosaic), `imagery.worlds[]` (`image`, `detail`), `labels[].image`, an application of kind `billboard`. With an image tool, follow `references/images.md`: prompts in `prompts/` with the label version in the `.refs` file, every attempt logged, text on packs checked letter by letter, `generated: true` so the slide carries the caption. Without either, leave the prompts ready, show no fake photos in the book and say so: `check_brand.py` warns that the deck has no photographs.
+Client photos go into `images/` under readable names and into their slots: `imagery.images[]` with `slot` `cover` or `intro` (the rest fill the mood mosaic), `imagery.worlds[]` (`image`, `detail`), `labels[].image`, an application of kind `billboard`. Look for an image tool before you say there is none (Codex has one: `references/images.md`, section 6). With a tool, follow `references/images.md`: prompts in `prompts/` with the label version in the `.refs` file, every attempt logged, `generated: true` so the slide carries the caption. Product shots take the label front from the render as a reference and the exact words in the prompt; zoom into every pack and read it letter by letter before it goes in. Convert to JPEG and fill the slots (`references/images.md`, section 7). Without photos or a tool, leave the prompts ready, show no fake photos in the book and say so: `check_brand.py` warns that the deck has no photographs.
 
 ### 6. Review and PDF
 
