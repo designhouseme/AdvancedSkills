@@ -9,7 +9,7 @@ Writes, next to brand.json:
   book/index.html     the interactive brand book (data embedded, opens from disk, prints to PDF)
   labels/<id>.html    one label template per label, ?mode=preview or ?mode=guides
   tokens.css          @font-face and :root tokens (--background, --ink, --ink-2, --line, --accent, …)
-                      for motion-design, website-build and anyone who builds with the brand
+                      for a website, a video or anyone who builds with the brand
 
 brand.json is the only source. A built file that was edited by hand is not overwritten
 (its checksum no longer matches .build.json); change brand.json instead, or pass --force.

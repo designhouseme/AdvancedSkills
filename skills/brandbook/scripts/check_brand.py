@@ -35,7 +35,7 @@ REQUIRED = {  # keep in sync with REQUIRED in assets/book-template.html
 }
 ROLES = {"background", "text", "secondary-text", "accent", "line", "support"}
 STATUSES = {"proposed", "converted", "proofed"}
-# From ui-without-slop/references/typefaces.md: fine typefaces that models reach for without a reason.
+# references/type.md, section 1: fine typefaces that models reach for without a reason.
 REFLEX = {
     "inter", "roboto", "open sans", "lato", "montserrat", "poppins", "nunito", "raleway", "work sans", "geist",
     "space grotesk", "dm sans", "manrope", "plus jakarta sans", "outfit", "sora", "urbanist", "figtree", "lexend",
@@ -251,7 +251,7 @@ def check(brand, root):
         if not lic or not (root / lic).is_file():
             error(f"typeface {name}: licence file not found ({lic}); keep the licence next to the fonts")
         if name.lower() in REFLEX and not fam.get("reflex_reason"):
-            warn(f"typeface {name} is on the reflex list (ui-without-slop/references/typefaces.md); keep it only with reflex_reason (the brand's or client's font, a tested reason)")
+            warn(f"typeface {name} is on the reflex list (references/type.md); keep it only with reflex_reason (the brand's or client's font, a tested reason)")
         for entry in fam.get("files") or []:
             path = root / (entry["file"] if isinstance(entry, dict) else entry)
             if not path.is_file():
