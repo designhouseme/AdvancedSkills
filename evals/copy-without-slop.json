@@ -1,0 +1,251 @@
+{
+  "skill_name": "copy-without-slop",
+  "description": "Companies, people, numbers and addresses are fictional. Evals 13-15 are one test: run them separately and compare the three outputs (they must not share a template). Run each eval 3 times, with and without the skill.",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "this About paragraph for our accounting firm sounds like ChatGPT wrote it, rewrite it and keep the facts: \"At Example Ledger, we don't just crunch numbers — we empower businesses to thrive. With a meticulous, client-centric approach, we deliver comprehensive, seamless and tailored solutions. Since 2009 we've filed returns for 340 sole traders in Leeds, and our two chartered accountants answer email the same working day. Let's unlock your financial potential together!\"",
+      "expected_output": "A shorter paragraph led by the real facts (since 2009, 340 sole traders in Leeds, two chartered accountants, email answered the same working day), with the slogans cut rather than swapped for synonyms, and the removed phrases listed.",
+      "files": [],
+      "assertions": [
+        "The facts survive unchanged: 2009, 340 sole traders, Leeds, two chartered accountants, same working day",
+        "There is no number, client name, qualification or promise that isn't in the original",
+        "None of: empower, thrive, meticulous, client-centric, comprehensive, seamless, tailored, unlock, and no 'don't just … we …' construction",
+        "None of the usual substitutes either: bespoke, end-to-end, hassle-free, effortless, stress-free, peace of mind, dedicated, passionate, committed to, trusted partner, 'rather than', 'take … to the next level'",
+        "No em dash and no exclamation mark in the rewrite",
+        "The reply lists what was removed and why, instead of rewriting silently"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "popraw sekcję 'o nas' dla piekarni w Poznaniu, brzmi jak z AI: \"W dzisiejszym dynamicznym świecie Piekarnia Przykładowa to nie tylko piekarnia — to miejsce, gdzie tradycja spotyka się z nowoczesnością. Oferujemy kompleksową gamę wypieków najwyższej jakości, tworzonych z pasją i dbałością o każdy detal. Chleb na zakwasie pieczemy codziennie od 5:00, a torty na zamówienie przyjmujemy z 3-dniowym wyprzedzeniem pod numerem 123 456 789. Zapraszamy!\"",
+      "expected_output": "Polish copy built on the facts (sourdough baked daily from 5:00, cakes to order with three days' notice, the phone number), in one form of address, with Polish typography and without the slogans or their substitutes.",
+      "files": [],
+      "assertions": [
+        "The facts are kept: zakwas, codziennie od 5:00, 3 dni wyprzedzenia, 123 456 789",
+        "None of: 'w dzisiejszym dynamicznym świecie', 'to nie tylko', 'tradycja spotyka się z nowoczesnością', 'kompleksow', 'najwyższej jakości', 'z pasją', 'o każdy detal'",
+        "None of the substitutes: 'z sercem', 'z miłością', 'z zaangażowaniem', 'premium', 'bezkompromisow', 'wyjątkow', 'niepowtarzaln', 'magi', 'rzemieśln' used as praise",
+        "No em dash (—); quotation marks, if any, are „…”",
+        "One form of address throughout (ty or Państwo, or none), with no mix",
+        "The closing line is a concrete action with the phone number, not 'Zapraszamy!' alone",
+        "Nothing is added that isn't in the original: no year of founding, no list of breads, no ingredients or method (\"bez sztucznych dodatków\", \"tradycyjna receptura\")"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "review the copy in copy.md before we publish. don't rewrite it, just tell me what to change",
+      "expected_output": "A list of findings with the line, the quoted text and a decision for each; 'Comprehensive Car Insurance' is kept as a product name; the file stays unchanged.",
+      "files": [
+        "evals/fixtures/copy-review-en.md -> copy.md"
+      ],
+      "assertions": [
+        "copy.md is unchanged",
+        "Each finding quotes the text and gives a decision (cut, replace with which fact, or keep and why)",
+        "'Comprehensive' in 'Comprehensive Car Insurance' is kept, with the reason that it names the type of policy",
+        "'Whether you're…', 'passionate about excellence', the em dash and 'isn't just a garage, it's…' are reported",
+        "For 'Fast, friendly and reliable' the reply asks for the fact that would prove one of them, not for a synonym",
+        "The heading 'About us' is reported as a label instead of a statement",
+        "The reply doesn't call the copy AI-generated as a verdict and doesn't quote a detector score"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "write a short About section for an electrician's site. all I have: 'Example Electrical, Bristol, Tom Hale, tel 01632 960456, rewiring flats and houses, EV chargers, does the electrical installation certificate himself'. make it sound human, not like AI",
+      "expected_output": "A short, specific section built only from the notes, with the missing proof (years, area, lead times, reviews) turned into questions for the owner rather than invented.",
+      "files": [],
+      "assertions": [
+        "There is no number, year, price, rating, review, accreditation or insurance claim that isn't in the notes (e.g. no 'years of experience', 'fully insured', 'NICEIC approved')",
+        "The section uses the notes' specifics: flats and houses, EV chargers, Tom does the certificate himself",
+        "The reply lists 2–4 questions for the owner whose answers would add proof",
+        "No 'Whether you're…', no 'look no further', no row of three adjectives",
+        "The text doesn't fake a human voice with invented anecdotes, family details, typos or chatty asides that aren't in the notes"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "to tekst właściciela serwisu rowerowego. popraw literówki i interpunkcję, ale ma dalej brzmieć jak on: \"Rowery naprawiam od 2011, najpierw w piwnicy na Grochowie, teraz na Szembeka 12. Nie sprzedaje nowych rowerów wiec nie bede wam nic wciskał. Przegląd kosztuje 120 zl i trwa zwykle 2 dni, w kwietniu dłużej bo cała Warszawa sobie przypomina o rowerach.\"",
+      "expected_output": "The same sentences with Polish letters and commas fixed, the owner's asides and his 'wy' register kept, nothing added.",
+      "files": [],
+      "assertions": [
+        "Spelling is fixed: sprzedaję, więc, będę, zł",
+        "The aside about April and 'cała Warszawa sobie przypomina o rowerach' is kept",
+        "'nie będę wam nic wciskał' is kept in the 'wy' register, not changed to Państwo or to a neutral phrase",
+        "The word count is within ±15% of the original",
+        "No sentence is added: no greeting, no summary, no 'Zapraszam', no 'pasja', no 'kompleksowy serwis'"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "make these three reviews on the moving company's page sound more professional, they're a bit rough:\n1. \"turned up at 7 like they said, got a sofa round a really tight staircase without a scratch. would use again\" (Dave, Hove)\n2. \"Bit pricier than the cheapest quote but they actually answered the phone. Nothing broken.\" (Priya S.)\n3. \"The lads were quick and careful. Kettle on in the new flat by lunchtime!\" (J. Morris)",
+      "expected_output": "The reviews keep the customers' wording (at most trimmed with an ellipsis); the reply explains why real quotes aren't polished and suggests how to use them.",
+      "files": [],
+      "assertions": [
+        "Each review's wording is unchanged apart from cuts marked with an ellipsis (…)",
+        "No review gains an adjective, a claim or a rating that isn't in the original",
+        "The authors stay as given (Dave, Hove; Priya S.; J. Morris), with no invented surnames, titles or job roles",
+        "The reply explains that polished quotes read as invented and weaken them as proof",
+        "The reply suggests at least one concrete use, e.g. a heading built from 'turned up at 7 like they said' or the price remark answered elsewhere"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "our hero says 'Elevate Your Smile With Comprehensive Dental Care' and the button says 'Learn More'. rewrite both. notes: Example Dental, Norwich, same-week emergency appointments, NHS and private, open until 8pm on Tuesdays and Thursdays, sedation for anxious patients",
+      "expected_output": "An H1 another clinic couldn't use unchanged, built on the patient's situation, and a button whose verb says what happens; the candidates and the choice shown.",
+      "files": [],
+      "assertions": [
+        "The H1 carries at least one fact from the notes about the patient's situation (same-week emergency, evenings until 8pm, sedation for anxious patients)",
+        "The reply says why another clinic couldn't use the H1 after changing the name",
+        "The H1 isn't in Title Case and isn't a slogan without information",
+        "None of: elevate, comprehensive, transform, journey, 'your smile deserves', state-of-the-art, cutting-edge, world-class",
+        "The button names the action, e.g. 'Book an emergency appointment', not 'Learn more', 'Get started' or 'Contact us'",
+        "The reply shows 2–3 H1 candidates and why the chosen one won"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "napisz nagłówek i dwa zdania pod nim dla biura rachunkowego w Krakowie, tylko bez 'kompleksowo', 'profesjonalnie' i 'innowacyjnie'. notatki: Przykładowe Biuro Rachunkowe, 60 klientów, wszystkim wystawiamy e-faktury w KSeF, księgowa odpisuje w ciągu jednego dnia roboczego, obsługujemy JDG i spółki z o.o.",
+      "expected_output": "A Polish headline and two sentences carrying the facts from the notes, with neither the three banned words nor their usual substitutes and without calques from English marketing.",
+      "files": [],
+      "assertions": [
+        "None of the banned words nor these substitutes: całościow, kompletn, 'od A do Z', fachow, rzetel, 'doświadczony zespół', nowoczesn, 'szyte na miarę', 'indywidualne podejście', 'kompleksow'",
+        "No calques: 'Odkryj', 'na wyższy poziom', 'w dzisiejszym dynamicznym świecie', 'rozwiązania dla Twojego biznesu', 'to nie tylko'",
+        "The headline and sentences carry at least two facts from the notes (60 klientów, KSeF, odpowiedź w ciągu dnia roboczego, JDG i spółki z o.o.)",
+        "The headline is in sentence case, not Title Case",
+        "No em dash (—)"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "napisz maila do naszych klientów. Warsztat Samochodowy Przykład z Gdańska, od 3 listopada pracujemy pon.–pt. 7:00–17:00 zamiast 8:00–18:00, w soboty już nie otwieramy. powód: od listopada mamy drugiego mechanika, który zaczyna o 7. wizyty dalej przez telefon 123 456 789 albo formularz na przyklad-warsztat.pl",
+      "expected_output": "A short email whose subject and first sentence state the change and the date, with the facts as given and no invented reasons, discounts or apologies.",
+      "files": [],
+      "assertions": [
+        "The email has a subject line that names the change (new hours from 3 November), not a generic one like 'Ważna informacja' or 'Zmiany w naszym warsztacie'",
+        "The first sentence of the body states what changes and from when",
+        "All facts are kept: 3 listopada, pon.–pt. 7:00–17:00, soboty zamknięte, drugi mechanik, 123 456 789, przyklad-warsztat.pl",
+        "Nothing is invented: no discount, no apology for inconvenience, no promise of shorter waits or better quality",
+        "None of: 'z przyjemnością informujemy', 'z radością', 'w trosce o', 'wychodząc naprzeciw', 'dokładamy wszelkich starań', 'Podsumowując'",
+        "Time ranges use an en dash without spaces (7:00–17:00); no em dash",
+        "One form of address throughout"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "post na fejsa dla serwisu rowerowego, wiosenny przegląd: 120 zł, zwykle 2 dni, w kwietniu dłużej, zapisy przez telefon 123 456 789, Szembeka 12 w Warszawie",
+      "expected_output": "A short post that opens with a fact a reader can act on, with the facts as given, no emoji list and no invented offer.",
+      "files": [],
+      "assertions": [
+        "The first line carries a fact (price, time or the April queue), not a generic opener such as 'Wiosna za pasem!', 'Czy wiesz, że…' or 'Nadszedł czas'",
+        "All facts are kept and nothing is invented: no discount, no deadline, no 'ograniczona liczba miejsc', no list of checks that isn't in the notes",
+        "No emoji used as bullet points and at most two emoji in total",
+        "No 'nie tylko…, ale', no row of three adjectives, no 'Zadbaj o swój rower już dziś!'",
+        "At most three hashtags"
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "write a product description for our online shop. Oak end-grain chopping board, 40 x 30 x 4 cm, 3.2 kg, finished with food-safe mineral oil and beeswax, made in our workshop in Kraków. Hand wash only, re-oil once a month. £89.",
+      "expected_output": "A product description built from the specs, with the care instructions, and without invented claims or kitchen clichés.",
+      "files": [],
+      "assertions": [
+        "All specs are correct: oak end-grain, 40 x 30 x 4 cm, 3.2 kg, mineral oil and beeswax, Kraków workshop, hand wash, re-oil monthly, £89",
+        "Nothing is invented: no warranty, no 'sustainably sourced', no 'knife-friendly' claims with numbers, no 'lasts a lifetime', no customer praise",
+        "None of: 'elevate', 'crafted with love', 'passion', 'perfect for any kitchen', 'Whether you're a home cook or a professional chef', 'timeless', 'must-have'",
+        "The care instructions are included",
+        "No row of three adjectives; no em dash",
+        "Sentences that rest on general knowledge of end-grain boards or on an inferred benefit (\"stays put\", \"big enough for a loaf\") are either left out or named as such in the reply"
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "odpowiedz na tę opinię w Google, jestem właścicielem restauracji, Marek: \"Czekałam 40 minut na stolik mimo rezerwacji, kelner nawet nie przeprosił. Jedzenie ok.\" (Anna K.). tamtej soboty przeciągnęło się przyjęcie dużej grupy. można do mnie dzwonić 123 456 789",
+      "expected_output": "A short reply that names the specific problem, admits it, explains it without excuses and offers a call, without a template opener or an invented compensation.",
+      "files": [],
+      "assertions": [
+        "The reply refers to the specific problem: 40 minutes of waiting despite a reservation and no apology from the waiter",
+        "The reply admits the fault and apologises once, without blaming the guest",
+        "No compensation, discount or free meal is promised (it isn't in the notes)",
+        "None of: 'Dziękujemy za cenną opinię', 'przykro nam, że Pani doświadczenie nie spełniło oczekiwań', 'Pani zadowolenie jest dla nas najważniejsze', 'dokładamy wszelkich starań', 'z poważaniem, Zespół'",
+        "At most five sentences, signed Marek, with the phone number",
+        "The reply makes no promise on Marek's behalf that isn't in the notes (e.g. \"Dopilnuję, żeby stolik był gotowy\"), or offers it only as a suggestion to confirm"
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "napisz nagłówek i dwa zdania pod nim na stronę główną. Pracownia Krawiecka Przykład, Lublin, przeróbki i szycie na miarę, skracanie spodni od ręki w 15 minut, suknie ślubne poprawiamy z 2 przymiarkami w cenie, ul. Przykładowa 3",
+      "expected_output": "A headline and two sentences built on the tailor's facts. Compared with evals 14 and 15, the three outputs don't share a template.",
+      "files": [],
+      "assertions": [
+        "At least two facts from the notes appear (15 minut, 2 przymiarki w cenie, Lublin)",
+        "No 'to nie tylko', no 'z pasją', no 'najwyższej jakości', no 'precyzja i elegancja' style pair of abstract nouns",
+        "Together with evals 14 and 15: the three headlines don't share the same frame (e.g. all 'X w Y. Z.' or all a question, or all 'noun phrase + city')",
+        "Nothing is added that isn't in the notes (no reason why customers come, no promise about quality or waiting)"
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "napisz nagłówek i dwa zdania pod nim na stronę główną. Weterynarz Przykład, Toruń, przyjmujemy psy i koty, dyżur w niedziele 10:00–14:00, USG na miejscu, wizyty domowe dla starszych zwierząt na terenie miasta",
+      "expected_output": "A headline and two sentences built on the vet's facts. Compared with evals 13 and 15, the three outputs don't share a template.",
+      "files": [],
+      "assertions": [
+        "At least two facts from the notes appear (niedzielny dyżur 10:00–14:00, USG na miejscu, wizyty domowe)",
+        "No 'to nie tylko', no 'z pasją', no 'troskliwa opieka' style abstract promise, no 'Twój pupil zasługuje'",
+        "Together with evals 13 and 15: the three headlines don't share the same frame",
+        "Nothing is added that isn't in the notes (e.g. no \"którym trudno znieść dojazd\", no claim about emergencies)"
+      ]
+    },
+    {
+      "id": 15,
+      "prompt": "napisz nagłówek i dwa zdania pod nim na stronę główną. Przykład Okna, Rzeszów, montaż okien PCV i drewnianych, pomiar gratis w ciągu 3 dni, montaż w jeden dzień z obróbką wnęk, 5 lat gwarancji na montaż",
+      "expected_output": "A headline and two sentences built on the window installer's facts. Compared with evals 13 and 14, the three outputs don't share a template.",
+      "files": [],
+      "assertions": [
+        "At least two facts from the notes appear (pomiar w 3 dni, montaż w jeden dzień, 5 lat gwarancji na montaż)",
+        "No 'to nie tylko', no 'kompleksow', no 'najwyższej jakości', no 'ciepło i bezpieczeństwo' style pair of abstract nouns",
+        "Together with evals 13 and 14: the three headlines don't share the same frame",
+        "Nothing is added that isn't in the notes (e.g. no \"bez bałaganu\", no \"od zgłoszenia\" unless named as an assumption)"
+      ]
+    },
+    {
+      "id": 16,
+      "prompt": "popraw ten tekst przed publikacją na stronie: \"Stolarnia Przykład z Wieliczki robi schody, drzwi i zabudowy na wymiar. Pracujemy we trzech: Janek mierzy i projektuje, Tomek i ja składamy w warsztacie przy ul. Przykładowej 4. Na pomiar przyjeżdżamy w ciągu tygodnia od telefonu, a wycenę wysyłamy mailem po 2–3 dniach. Schody robimy zwykle 6–8 tygodni, bo drewno musi poleżeć w warsztacie, zanim je przytniemy. Nie montujemy paneli ani mebli z płyty, pracujemy tylko w litym drewnie. Najprościej złapać nas pod numerem 123 456 789 od 7 do 16.\"",
+      "expected_output": "The text comes back almost unchanged, with the reply saying it already works and why; at most a couple of small fixes.",
+      "files": [],
+      "assertions": [
+        "At most about 10% of the words change",
+        "No sentence is added or removed",
+        "The refusal 'Nie montujemy paneli ani mebli z płyty' and the reason for 6–8 weeks are kept",
+        "The reply says the text already works and names what makes it work (people, times, reason, what they don't do)",
+        "No em dash is introduced and the ranges keep the en dash",
+        "The wording of the sentences stays the same; paragraph breaks are the only structural change allowed"
+      ]
+    },
+    {
+      "id": 17,
+      "prompt": "napisz krótki artykuł na bloga firmy dekarskiej (300-400 słów): kiedy dach trzeba wymienić, a kiedy wystarczy naprawa. notatki od właściciela, Pawła: 'jak dachówka ceramiczna ma ponad 40 lat i pęka przy chodzeniu to nie ma co łatać. jak przecieka w jednym miejscu, to prawie zawsze obróbka komina albo kosz, a nie cały dach. folia pod blachodachówką z lat 90 często się kruszy, to widać od strony strychu. przyjeżdżamy na oględziny za darmo w promieniu 30 km od Nowego Sącza'",
+      "expected_output": "A short article in Paweł's terms that answers the question with his criteria, without invented statistics, a stock introduction or a summary ending.",
+      "files": [],
+      "assertions": [
+        "The article uses Paweł's criteria: 40-year-old ceramic tiles cracking underfoot, single leak usually at the chimney flashing or valley, crumbling underlay from the 90s visible from the attic",
+        "No statistic, price, duration, lifespan figure or study that isn't in the notes, in digits or in words (e.g. no \"w 90% przypadków\", \"setki dachów\", \"kilka godzin pracy\")",
+        "No stock opening ('Dach to jeden z najważniejszych elementów…', 'W dzisiejszych czasach') and no 'Podsumowując' or summary paragraph at the end",
+        "The title is in sentence case and states the question or the answer",
+        "Headings, if any, state theses, and there is at most one per ~120 words",
+        "The ending gives the free inspection within 30 km of Nowy Sącz as the next step",
+        "General explanations (what flashing or a valley is, how to look at the underlay from the attic) are allowed and are named as general knowledge in the reply"
+      ]
+    },
+    {
+      "id": 18,
+      "prompt": "Google Ads dla ślusarza: 3 nagłówki do 30 znaków i 2 opisy do 90 znaków. Ślusarz Przykład, Gdańsk, otwieranie drzwi 24/7, dojazd zwykle w 30 minut na terenie Gdańska, cena podana przez telefon przed wyjazdem, wymiana zamków",
+      "expected_output": "Headlines and descriptions within the character limits, each carrying a fact from the notes, without superlatives the notes don't support.",
+      "files": [],
+      "assertions": [
+        "Every headline has at most 30 characters and every description at most 90, counted with spaces",
+        "At least two headlines carry a fact (24/7, dojazd w 30 minut, Gdańsk, cena przed wyjazdem)",
+        "None of: 'Najlepszy', 'Profesjonalny', 'Najtańszy', 'Gwarancja satysfakcji', 'Nr 1', 'Szybko i tanio' or other claims not in the notes",
+        "The 30-minute arrival is not turned into a guarantee ('zawsze', 'gwarantujemy')"
+      ]
+    }
+  ]
+}

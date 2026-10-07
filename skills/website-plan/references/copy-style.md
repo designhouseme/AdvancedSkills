@@ -4,7 +4,7 @@ Read this when writing the section copy (point 6 in SKILL.md). The rules apply i
 
 ## Tone and sentences
 
-- Calm, competent, unpretentious. The site doesn't shout anything; it shows that the company understands the job and can deliver it.
+- The voice shows the job instead of rating it: it answers the customer's question in the first line, names the work, the place and the next step, and leaves judgements like "reliable" or "careful" to the facts and the reviews. Adjectives describing the tone ("calm", "competent") make models write text that rates itself ("dependable", "steady"), so describe what the copy does.
 - The most important point at the start of the paragraph. One paragraph is one thought, usually 1–3 sentences.
 - An average of 12–18 words per sentence. Split every sentence you have to read twice.
 - Everyday, concrete verbs: we measure, we fit, we repair, we call back.
@@ -40,7 +40,7 @@ Say exactly what happens after a call or a form submission. Don't promise a resp
 
 ## Banned phrases
 
-Remove them or prove them with specifics:
+Read this in the edit pass, after the draft, not before writing: a list of phrases read before drafting pulls the draft towards them. The full catalogue with replacements is in the copy-without-slop skill (`references/patterns.md`). Remove them or prove them with specifics:
 
 - "top quality", "professional service", "tailored approach",
 - "comprehensive services/solutions", "a wide range", "industry leader",

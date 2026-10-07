@@ -67,7 +67,7 @@ The hero has: an H1 (usually 4–12 words, not just the company name, not an emp
 
 ## 6. Section copy
 
-Before writing, read `references/copy-style.md`: tone, sentence length, the offer, contact, FAQ and the list of banned phrases. Keep the order from point 4. If a section turns out empty or repeats another while you write, go back to selection instead of padding it.
+Before writing, read `references/copy-style.md`: tone, sentence length, the offer, contact and FAQ. Its list of banned phrases belongs to the edit pass, after the draft. Write and edit the words with the copy-without-slop skill (its pitfalls, the voice decision and its edit pass), with the research register as the material. Keep the order from point 4. If a section turns out empty or repeats another while you write, go back to selection instead of padding it.
 
 ## 7. Media and visual direction
 

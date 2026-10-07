@@ -204,6 +204,54 @@
     {
       "query": "generate five product photos of our tea tins for Instagram",
       "expected_skill": null
+    },
+    {
+      "query": "this About paragraph for our accounting firm sounds like ChatGPT wrote it, rewrite it and keep the facts: \"At Example Ledger we empower businesses to thrive…\"",
+      "expected_skill": "copy-without-slop"
+    },
+    {
+      "query": "napisz maila do klientów warsztatu, że od 3 listopada otwieramy o 7:00, a w soboty jest nieczynne",
+      "expected_skill": "copy-without-slop"
+    },
+    {
+      "query": "write a product description for our oak chopping board: 40 x 30 x 4 cm, oiled, made in our workshop, £89",
+      "expected_skill": "copy-without-slop"
+    },
+    {
+      "query": "przejrzyj ten tekst przed publikacją, nie przepisuj go, tylko powiedz, co zmienić",
+      "expected_skill": "copy-without-slop"
+    },
+    {
+      "query": "reply to this Google review of my restaurant, the guest waited 40 minutes despite booking",
+      "expected_skill": "copy-without-slop"
+    },
+    {
+      "query": "3 headlines up to 30 characters and 2 descriptions for a Google Ads campaign for a locksmith in Leeds",
+      "expected_skill": "copy-without-slop"
+    },
+    {
+      "query": "post na fejsa o wiosennym przeglądzie roweru, 120 zł, zwykle 2 dni",
+      "expected_skill": "copy-without-slop"
+    },
+    {
+      "query": "translate our website copy into German",
+      "expected_skill": null
+    },
+    {
+      "query": "write the API documentation for this endpoint",
+      "expected_skill": null
+    },
+    {
+      "query": "write a short story about a dragon who runs a bakery",
+      "expected_skill": null
+    },
+    {
+      "query": "check this essay with an AI detector and tell me the score",
+      "expected_skill": null
+    },
+    {
+      "query": "the landing page looks AI-made, gradient text and dots everywhere",
+      "expected_skill": "ui-without-slop"
     }
   ]
 }

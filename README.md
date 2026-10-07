@@ -34,6 +34,7 @@ You don't have to name a skill. Describe the task and the agent picks the right 
 | code a site from an approved plan | "build the site from the plan" | `website-build` |
 | get an honest score for a finished site | "review this site before we show it to the client" | `website-review` |
 | make an interface stop looking AI-made | "it looks generated: dots everywhere, Inter and Lucide again" | `ui-without-slop` |
+| write or fix a text so it doesn't read as AI-made | "this About section sounds like ChatGPT, rewrite it and keep the facts" | `copy-without-slop` |
 | make a video or an animation from code | "a 20-second promo for our app, also as a 9:16 reel" | `motion-design` |
 | get a brand book the owner, the designer and the printer can each use | "a brand book for our herbal teas, the designer needs clear label rules" | `brandbook` |
 
@@ -60,6 +61,18 @@ Removes the look of AI-made interfaces and replaces each pattern with a design d
 - **text hierarchy:** reading order, jumps in size and weight, a headline set as one lockup;
 - **icons:** when a place needs one at all, and how to choose a set instead of Lucide by default;
 - **component kits:** shadcn/ui and Magic UI restyled, with their keyboard behaviour kept.
+
+### Text: `copy-without-slop`
+
+Writes, edits and reviews any text people will read (a website, an email, a post, an ad, a product description, a reply to a review, an article) so it sounds like someone who knows the business wrote it. It works from the facts and the customers' own words, decides the voice before drafting, and only then edits out the patterns that make text read as generated, each replaced with a fact or cut. It covers:
+
+- **invented details:** numbers, years, promises and benefits that aren't in the notes, including numbers written as words;
+- **patterns:** contrast with a claim nobody made, reflexive threes, "-ing" tails, ad words, stock openers and closers, polished testimonials, and the substitutes models reach for after a ban;
+- **someone else's text:** the smallest change that fixes it, and a text that already works comes back almost unchanged;
+- **Polish:** calques, nominal style, ty or Państwo, „…”, dashes;
+- **a check script** that lists candidates for a decision and checks numbers against the notes.
+
+`website-plan` uses it for the words of a site.
 
 ### Brand book: `brandbook`
 
