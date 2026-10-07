@@ -42,6 +42,20 @@ def main():
                 x, y, w, h = max(found, key=lambda b: b[2] * b[3])
                 raw.append({"t": round(a0 + k * a.step, 3), "x": int(x) * 2, "y": int(y) * 2, "w": int(w) * 2, "h": int(h) * 2})
     raw.sort(key=lambda r: r["t"])
+    # The cascade sometimes takes a fist or a sweater sleeve for the largest face; one such sample
+    # pushes a whole segment's captions above the head. Drop samples whose centre is over 120 px
+    # from the median centre of the samples within ±1.2 s.
+    cx = lambda r: (r["x"] + r["w"] / 2, r["y"] + r["h"] / 2)
+    kept = []
+    for r in raw:
+        near = [cx(q) for q in raw if abs(q["t"] - r["t"]) <= 1.2]
+        mx, my = np.median([c[0] for c in near]), np.median([c[1] for c in near])
+        x, y = cx(r)
+        if ((x - mx) ** 2 + (y - my) ** 2) ** 0.5 <= 120:
+            kept.append(r)
+    if len(kept) < len(raw):
+        print(f"dropped {len(raw) - len(kept)} outlier detections (hands, sleeves)")
+    raw = kept
     out = []
     for i, r in enumerate(raw):                      # median of 3 neighbours, per coordinate
         win = raw[max(0, i - 1): i + 2]

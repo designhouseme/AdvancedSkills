@@ -259,7 +259,7 @@ def page_times(pages, cfg):
             start = max(start, seg_start[p[0]["seg"]])
         nxt = pages[n + 1][0]["start"] - 0.08 if n + 1 < len(pages) else None
         if nxt is not None and seg_start and pages[n + 1][0]["seg"] != p[0]["seg"]:
-            nxt = seg_start[pages[n + 1][0]["seg"]]
+            nxt = seg_start[pages[n + 1][0]["seg"]] - 0.01   # libass truncates 24.60 s to 24599 ms
         end = p[-1]["end"] + 0.6 if nxt is None else min(nxt, p[-1]["end"] + 0.6)
         if nxt is None and cfg.get("_total"):
             end = min(end, cfg["_total"] - 0.2)  # the last frame shows the speaker, not a caption
@@ -351,7 +351,7 @@ def write_pills(pages, cfg, W, H, lines):
     accent = set(cfg.get("accent_words", []))
     padx, pady, line_h = 0.42 * size, 0.17 * size, 0.98 * size
     hp, bh, br = 0.16 * size, 0.94 * size, 0.24 * size          # the active-word box
-    pill_pop = r"\fscx92\fscy92\alpha&HFF&\t(0,60,\alpha&H00&)\t(0,150,0.6,\fscx100\fscy100)"
+    pill_pop = r"\fscx92\fscy92\t(0,150,0.6,\fscx100\fscy100)"   # no alpha fade: text and pill share frame 1
     text_pop = ""          # the text doesn't scale: the word boxes are placed at its final size
     for p in pages:
         words, times = p["words"], p["times"]
@@ -375,7 +375,7 @@ def write_pills(pages, cfg, W, H, lines):
         path = pill_path(w, h, r)
         a = pc.get("shadow_alpha", "B8")
         lines.append(f"Dialogue: 0,{t0},{t1},Pill,,0,0,0,,{{\\an5\\pos({W // 2},{y + 9})\\1c&H000000&\\1a&H{a}&"
-                     f"\\blur9{pill_pop.replace('alpha&H00&', f'alpha&H{a}&')}\\p1}}{path}")
+                     f"\\blur9{pill_pop}\\p1}}{path}")
         lines.append(f"Dialogue: 1,{t0},{t1},Pill,,0,0,0,,{{\\an5\\pos({W // 2},{y})\\1c{fill}{pill_pop}\\p1}}{path}")
 
         # Where each word sits: rows are centred; a word's x comes from the measured prefix string.
@@ -536,8 +536,10 @@ def place_inserts(E, segs, warn):
             sys.exit(f"insert at source {ins['src_at']} is outside every segment")
         sg = segs[k]
         src_at = max(ins["src_at"], sg["in"])
-        t0 = sg["out_start"] + src_at - sg["in"]
-        d = min(ins["dur"], sg["out_start"] + sg["out"] - sg["in"] - t0)
+        fps = E.get("_fps", 25)
+        t0 = round((sg["out_start"] + src_at - sg["in"]) * fps) / fps     # on the frame grid, or the frame
+        end = min(t0 + ins["dur"], sg["out_start"] + sg["out"] - sg["in"])  # before the cut shows the face
+        d = round((end - t0) * fps) / fps
         if d < ins["dur"] - 0.02:
             warn.append(f"insert {Path(ins['src']).name} cut to {d:.2f} s to end with its segment")
         sg.setdefault("inserts", []).append([round(t0, 3), round(t0 + d, 3), ins["src"]])
@@ -566,6 +568,7 @@ def main():
     work = Path(a.work); work.mkdir(parents=True, exist_ok=True)
     src = E["src"]
     W, H, fps, src_tc = probe(src)
+    E["_fps"] = fps
     fx, fy = E.get("focus", [0.5, 0.4])
 
     # 1. snap
@@ -618,7 +621,7 @@ def main():
                      "out_start": round(t_out, 3)})
         for w in ws:
             raw = w["word"]
-            bare = raw.strip(".,?!…")
+            bare = raw.strip(".,?!…:;")
             if cap_cfg.get("case", "lower") == "lower" and not any(c.isdigit() for c in bare):
                 bare = bare.lower()
             text = fixes.get(bare, bare) + ("?" if raw.endswith("?") else "")
@@ -654,7 +657,7 @@ def main():
 
     # 4. loudness pass 1
     target = E.get("audio", {})
-    I, TP = target.get("lufs", -14), target.get("tp", -1.5)
+    I, TP = target.get("lufs", -14), target.get("tp", -1.5) - 0.5   # AAC overshoots the limiter
     r = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-i", src, "-filter_complex",
                         graph(segs, W, H, fx, fy, with_video=False) + f";[ac]loudnorm=I={I}:TP={TP}:LRA=11:print_format=json[x]",
                         "-map", "[x]", "-f", "null", "-"], capture_output=True, text=True)
