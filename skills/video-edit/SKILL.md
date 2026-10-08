@@ -27,18 +27,20 @@ Goal: a short that a viewer takes for the work of an editor, made from the speak
 
 ### 0. Setup (once per machine)
 
-Needs ffmpeg with libass, Python 3, `uv`, and for speed an NVIDIA GPU (CPU works with `--device cpu`, several times slower). About 3.6 GB for the environment and 4.1 GB of models (Whisper large-v3 2.9 GB, the Polish aligner 1.2 GB); check free disk first.
+Needs ffmpeg with libass, Python 3, `uv`, and for speed an NVIDIA GPU (CPU works with `--device cpu`, several times slower). About 4 GB for the environment and 4.1 GB of models (Whisper large-v3 2.9 GB, the Polish aligner 1.2 GB, the hand model 8 MB); check free disk first.
 
 ```bash
 uv venv --python 3.12 ~/.cache/video-edit/venv
 VP=~/.cache/video-edit/venv/bin/python
 uv pip install --python $VP faster-whisper nvidia-cublas-cu12 "nvidia-cudnn-cu12==9.*" numpy pillow "opencv-python-headless<5"
 uv pip install --python $VP torch --index-url https://download.pytorch.org/whl/cpu   # CPU build: the PyPI one pulls 5+ GB of CUDA
-uv pip install --python $VP transformers
+uv pip install --python $VP transformers mediapipe svgelements
+mkdir -p ~/.cache/video-edit/models && curl -so ~/.cache/video-edit/models/hand_landmarker.task \
+  https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/latest/hand_landmarker.task
 PY=$VP; SK=<this skill's folder>/scripts
 ```
 
-Pillow measures caption widths with the caption's own font file (libass size 100 = Pillow size 83.3). OpenCV 4.x ships the Haar face cascade `faces.py` uses (5.x doesn't). torch + transformers run the forced aligner (`align.py`, `jonatasgrosman/wav2vec2-large-xlsr-53-polish`, Apache-2.0).
+Pillow measures caption widths with the caption's own font file (libass size 100 = Pillow size 83.3). OpenCV 4.x ships the Haar face cascade `faces.py` uses (5.x doesn't). torch + transformers run the forced aligner (`align.py`, `jonatasgrosman/wav2vec2-large-xlsr-53-polish`, Apache-2.0). MediaPipe's hand landmarker (Apache-2.0) tracks the fingers for `hands.py`; svgelements turns icon SVGs into caption-layer drawings. Inter Display Bold and Black (OFL) are in `assets/fonts/` (plus Inter SemiBold/Black).
 
 Polish: Whisper large-v3 (not turbo) had the lowest Polish WER we found (4.74% on FLEURS). Newer models with Polish (Cohere Transcribe 03-2026, VibeVoice-ASR, Nemotron 3.5) don't give verified word-level times, which cutting needs.
 
@@ -73,9 +75,19 @@ python3 $SK/cut.py --words edit/words.json --audio edit/audio.json --runs 120-18
     {"in": 195.40, "out": 197.6, "zoom": 1.14, "hold": 0.35, "text": "to link masz w przypiętym komentarzu."}
   ],
   "inserts": [{"src": "inserts/out1/ins1.mp4", "src_at": 107.80, "dur": 3.18}],
-  "captions": {"font": "Fira Sans", "weight": "bold", "size": 76, "y": 1250, "case": "as_written", "wrap_chars": 20,
-               "accent_words": ["134", "1500"], "keep_together": ["134 tysiące", "1500 Elo"],
-               "pill": {"fill": "#F5F0E8", "text": "#17120E", "accent_fill": "#F2B544"}},
+  "captions": {"style": "words", "font": "Inter Display Bold", "font_emph": "Inter Display Black", "size": 96,
+               "spacing": -4, "emph_spacing": -8, "emph_scale": 1.9, "color": "#F2EFE9", "case": "as_written",
+               "y": 1250, "shadow": {"dy": 4, "blur": 7, "alpha": "98"},
+               "font_file": "<skill>/assets/fonts/InterDisplay-Bold.ttf", "font_emph_file": "<skill>/assets/fonts/InterDisplay-Black.ttf"},
+  "angles": {"max_shot": 2.6, "min_shot": 1.1, "close": 1.3},
+  "framing": {"mode": "face", "face_y": 0.40},
+  "ending": {"word": "pracowników", "zoom": 1.32},
+  "fx": [
+    {"type": "hand_icon", "icon": "googlemaps", "label": "Google Maps", "word": "Google", "seg": 6},
+    {"type": "burst", "word": "branding", "seg": 1},
+    {"type": "icon", "icon": "facebook", "word": "Facebooku", "seg": 15},
+    {"type": "list", "header": "Przygotowujemy:", "seg": 6, "until_seg": 7,
+     "items": [{"word": "wizytówkę", "text": "Wizytówka Google", "icon": "googlemaps"}]}],
   "audio": {"lufs": -14, "tp": -1.5}
 }
 ```
@@ -83,16 +95,30 @@ python3 $SK/cut.py --words edit/words.json --audio edit/audio.json --runs 120-18
 - `in`/`out`: points you chose in the pauses (source seconds); the script trims them to the pads and lands them on frames. `hold`: picture kept after the last word (a look, a smile); end on the speaker, not on a caption.
 - `focus`: the centre of every punch-in as fractions of the frame. Keep y at ~0.5: a punch-in anchored higher (0.4) crops from the top, the chin drops ~250 px at 1.24× and lands in the captions.
 - `text`: the approved sentence with its punctuation, and `|` where a new caption page starts. You set the pages by meaning ("Amerykańscy naukowcy | skopiowali 1 do 1 | mózg muszki owocówki"), never by the clock; without `|` the sentence is one page. A page longer than `wrap_chars` breaks into two balanced lines, never inside a `keep_together` pair.
-- Captions: a pill under each page (the drawing is sized from the text), one accent fill with one meaning (here: pages with a number), a soft shadow under the pill, inside the TikTok safe area (x 60-920, y 200-1450). Without `pill`, the captions fall back to white text with a soft dark halo.
-- The word being said: one box behind it (amber on a cream pill, cream on an amber pill) that slides to the next word in 90 ms and stretches to its width; words not yet said are dimmed and come up as they are said. One mechanism only: no bounce, no colour cycling. Word times come from `align.py` (forced alignment of the approved text, ~20 ms letters); without the aligner they fall back to a syllable spread that was off by ~150 ms on average and up to 0.57 s.
+- Captions, `style: words` (the house style since 8.10.2026, from a reference edit the user chose): one word on screen at a time, swapped on its aligned start and held until the next; short words lead into the next content word, at most two words a page (three if ≤14 characters): "w 2026 roku?", "żeby Ci | to ułatwić", "Bo to | na początku". A comma, a sentence end, a cut or an emphasised word closes a page. Inter Display Bold 96 px at -4 px tracking in off-white with a light soft drop shadow (measured against the reference: same ink and x-height; Inter SemiBold 80 px was 30% too small and half as heavy); `*słowo*` in `text` marks an emphasised word: Inter Display Black at ~1.9x, 3-4 per minute at most. No box, no highlight, no pop: the hierarchy and the swap rhythm are the motion. (Inter is on the generic-look list in ui-without-slop and motion-design; here it is the user's explicit choice, not a default.)
+- Captions, `pill` (the earlier style, still supported): a pill under each phrase page (`|` in `text`), one accent fill for pages with a number, and a box under the word being said that slides to the next word. It read as too fast and too busy in review.
+- Word times come from `align.py` (forced alignment of the approved text, ~20 ms letters); without the aligner they fall back to a syllable spread that was off by ~150 ms on average and up to 0.9 s.
+- `framing: face`: every shot is framed on the face the way an operator frames: centred across, the face centre at `face_y` (0.40) of the height, from the median face position over the shot. Rendered with ffmpeg `perspective` (a source rectangle per frame into a constant frame). Never scale(eval=frame)+crop: crop keeps its first frame's size and pins every zoom to the top-left corner; in review that read as "the zoom flies into the window".
+- `ending` (and `punches`): a cut-in to a close-up on a word, the payoff or the CTA verb, with the shot before forced wide so the cut reads; give the last segment a `hold` of ~0.5 s on his face (check the frames: the hold must end before he resets for the next take). An ending that just stops on the last word read as weak.
+- `angles`: one camera, the feel of several. A segment longer than `max_shot` switches framing at a phrase start (its own framing ↔ a `close` close-up) without cutting the audio, so shots run ~2 s (the reference edit's median was 2.1 s with three cameras). Cap the close-up at ~1.3x on a 1080p source.
+- `fx`, effects on the picture, in the caption layer, anchored to a word (`word`, optionally `seg`), never to a second:
+  - `hand_icon`: when he counts on his fingers or points while naming something, the icon (and a short `label`) pops above the raised fingers with a burst of lines, follows the hand and leaves when the next one comes. Positions come from `hands.json` through each segment's zoom; no close-up angle starts while one is up, because the crop could cut the hand away and leave the icon floating. `side` restricts it to one hand, but MediaPipe names hands as if the picture were a mirrored selfie: on a normal recording "Left" is his right hand.
+  - `burst`: a short burst of lines at the index fingertip, for a point or a beat.
+  - `icon`: a glyph above the caption word that names it.
+  - `hand_stack`: words he lists ("kwaśna, ciepła, gorzka") pop one by one beside the gesturing hand in Inter Display Black and stack, the earlier ones dimmed; those words leave the bottom captions meanwhile.
+  - `list`: a header in Inter Black with items swapping under it ("THE LESS: scripting / hooks"), captions hidden while it is up.
+  Icons are Simple Icons (CC0 data; brands' marks belong to their owners: show one only when he names the platform) or built-ins (`web`). White glyphs with the caption shadow, never coloured badges.
+- Where his hands do something, put something there. `hands.py --summary` prints the gesture timeline next to the words ("320.88-321.78 point … na Google Maps", "321.88-322.88 count 2 … Facebook i Instagram"); read it before writing `fx`. Effects that sit at the bottom like a second row of captions read as boring in review.
 - Caption height comes from the face track (`faces.py`): the pill top stays 30 px under the chin in every frame it is up, through each segment's zoom; one height for the whole film when it fits, else per segment, else above the head. `check.py` reports the smallest clearance.
-- `inserts`: full-screen clips over the voice, anchored to the source time of the first word they cover (`src_at`), so re-snapping the cuts keeps them on the same words; one that would run past its segment is shortened. Render them from an HTML composition with `motion-design/scripts/render.mjs` at the edit's frame rate (`--fps 25 --params "scene=1&dur=3.18"`), check stills first.
+- `inserts`: full-screen clips over the voice, anchored to the source time of the first word they cover (`src_at`), so re-snapping the cuts keeps them on the same words; one that would run past its segment is shortened. Render them from an HTML composition with `motion-design/scripts/render.mjs` at the edit's frame rate (`--fps 25 --params "scene=1&dur=3.18"`), check stills first. `skip` drops seconds from the clip's head (when its first frames are nearly empty); it shortens the insert, so move `src_at` later by the same amount if the insert has to end on the cut.
 
 ### 4. Draft, check, look
 
 ```bash
 $PY $SK/cut.py --edit edit.json --words edit/words.json --audio edit/audio.json --work edit --out draft.mp4 --draft
 $PY $SK/faces.py --src "$SRC" --cuts edit/cuts.json --out edit/faces.json        # after the cuts exist; rerun when they change
+$PY $SK/hands.py --src "$SRC" --cuts edit/cuts.json --out edit/hands.json
+$PY $SK/hands.py --hands edit/hands.json --words edit/words.json --summary          # gestures next to the words: plan fx here
 $PY $SK/cut.py --edit edit.json --words edit/words.json --audio edit/audio.json --work edit --out draft.mp4 --draft
 python3 $SK/check.py --film draft.mp4 --work edit --max 60
 ```

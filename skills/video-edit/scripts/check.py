@@ -73,12 +73,14 @@ def main():
     for w in cuts.get("warnings", []):
         res.append(("WARNING", w))
 
+    words_mode = "Style: W," in (work / "captions.ass").read_text(encoding="utf-8") if (work / "captions.ass").exists() else False
+    flash = 0.1 if words_mode else 0.35       # one word at a time follows the speech: 0.2-0.3 s is normal
     for pg in pages:
         d = pg["end"] - pg["start"]
         text = " ".join(pg["words"])
-        if d < 0.35:
+        if d < flash:
             res.append(("WARNING", f"caption '{text}' on screen {d:.2f} s"))
-        if len(text) / max(d, 0.01) > 25 and d < 0.5:      # synced 1-3 word pages follow speech pace
+        if not words_mode and len(text) / max(d, 0.01) > 25 and d < 0.5:   # synced pages follow speech pace
             res.append(("WARNING", f"caption '{text}' at {len(text) / d:.0f} chars/s"))
     res.append(("OK", f"{len(pages)} caption pages"))
     clear = [(pg["clearance"], " ".join(pg["words"])) for pg in pages if pg.get("clearance") is not None]

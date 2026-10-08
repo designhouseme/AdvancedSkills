@@ -55,7 +55,7 @@ def spell(n):
 
 
 def spoken(token):
-    t = token.lower().strip(".,?!…:;\"'()")
+    t = token.lower().strip(".,?!…:;\"'()*_")      # *emphasis* markers are not spoken
     if re.fullmatch(r"\d+", t):
         return spell(int(t)).split()
     t = re.sub(r"[^a-ząćęłńóśźż]", "", t)
