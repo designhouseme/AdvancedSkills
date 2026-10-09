@@ -4,7 +4,7 @@ description: Codes a short business website from the approved plan in brief/02-p
 license: CC-BY-4.0
 metadata:
   author: Design House
-  version: "1.4"
+  version: "1.5"
 ---
 
 # Website build
@@ -33,7 +33,9 @@ The hero accounts for most of the first impression. Build it first, take screens
 
 - **One plan section is one `section` with one `h2`**, in the plan's order. Menu anchors offset for the sticky header.
 - **CTAs are real links** (`tel:`, `mailto:`, booking). A form only when the plan sets it as the main channel.
+- **Forms follow the plan's lead goal.** Collect only fields needed for the next step or justified qualification. Reuse available visitor data instead of asking for it again, and retain entered values after validation errors. Show a sent confirmation only after a successful submission response; a demo or form without a configured backend must clearly say it does not send. The confirmation explains the completed action and the next step specified in the plan.
 - **Design mobile separately**, don't just collapse desktop into one column: the order, image size and CTA placement may differ.
+- **Make the evidence readable when scanning.** Headings, meaningful images, captions and CTAs carry the plan's argument; keep proof visibly connected to the claim it supports. Follow planned layout variation at important points to renew attention without making the reading order unclear or adding motion for its own sake.
 - **Typography and colours follow the visual direction in the plan.** Fonts self-hosted as WOFF2 with the language's accented letters, not loaded from Google's servers at runtime. Icons: the project's own set if it has one; otherwise first check whether the place needs an icon at all, then choose the set as the ui-without-slop skill describes, not Lucide by reflex. Never hand-drawn or Unicode characters.
 - **Photos stored locally in the project**, no hotlinking. Record origin and licences in `brief/media.md`, not on the site. The logo always comes from the company's original file, never recreated with a font.
 - **Motion only where it explains something** (feedback, a change of state, where something came from), not the same fade-up on every section. About 100 ms for feedback, 200–300 ms for a panel or modal, under 500 ms for anything; exits shorter than entrances. Animate only `transform` and `opacity`: the browser moves them without recalculating the layout, so they stay smooth when the page is busy.
@@ -47,11 +49,11 @@ Copy this list into your reply and tick it off:
 ```md
 - [ ] lint and build pass (if the stack has them); no console errors
 - [ ] full-page screenshots at 375×812 and 1440×900 in brief/screenshots/ (also 768 and 1024 for layouts with absolute or sticky elements or large SVGs)
-- [ ] the H1, H2s and CTAs alone in the screenshots make the same argument as the scan test in the plan
+- [ ] the H1, H2s, meaningful images/captions and CTAs alone in the screenshots make the same argument as the scan test in the plan
 - [ ] the strongest proof is before the halfway point of the page
 - [ ] numbers in tel: and addresses in mailto: match the plan
 - [ ] no horizontal scrolling; anchors don't hide under the header; the mobile menu works with a keyboard
-- [ ] real content and states: the longest heading and the email address fit at 375 px; the form (if any) has an error state and a sent confirmation
+- [ ] real content and states: the longest heading and the email address fit at 375 px; the form (if any) retains input after errors and shows a truthful success or demo state with the planned next step
 - [ ] one h1; every image has alt (empty if decorative), width and height; the hero image isn't lazy-loaded
 - [ ] text contrast at least 4.5:1; visible focus; form fields have labels
 - [ ] lang, title and meta description from the plan; Open Graph

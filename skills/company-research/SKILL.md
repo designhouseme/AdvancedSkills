@@ -4,7 +4,7 @@ description: Produces verifiable research on a specific company. Confirms its id
 license: CC-BY-4.0
 metadata:
   author: Design House
-  version: "1.1"
+  version: "1.2"
 ---
 
 # Company research
@@ -53,9 +53,13 @@ Go through 10–30 of the most recent substantive reviews from at least two sour
 
 Give frequency as `frequent / several times / isolated` unless you counted a full sample. A handful of reviews is not a statistic.
 
+Describe the audience's situation before the purchase and the result they value, using their actual words where available. Record brand voice from the user's guidance and sourced examples of the company's language; distinguish it from customer language and mark any inferred tone as an assumption.
+
 ## 5. Proof
 
 Separate: projects (job, place, result), reviews with author and link, photos of the work, team and premises, qualifications and certificates, and published prices, response times and guarantees, as long as they are confirmed.
+
+Look for concrete methods, recipes, materials, named suppliers and people responsible, and evidence of why those choices matter to the customer. Record how cooperation actually works: steps, customer preparation and effort, first and final result timings, and relevant limits. Where the offer includes packages, bonuses, guarantees or promotions, establish their contents, conditions, dates and real availability. Collect what is relevant; missing detail is a gap, not permission to invent it.
 
 Each entry gets a status: `verified`, `needs-confirmation` or `do-not-use`. Distinguish the company's own claims from independent confirmation, and establish the company's exact role in each project.
 
@@ -93,6 +97,7 @@ Save the report to `brief/01-research.md` unless the user named another location
 ## Scope and audience matrix
 ## The offer through the customer's eyes
 ## Customer voice: jobs, worries, language, outcomes
+## Brand voice: guidance, examples, assumptions
 ## Proof
 ## Claims register
 | ID | claim | URL/source | access date | status | limitation |

@@ -52,6 +52,8 @@ You don't have to name a skill. Describe the task and the agent picks the right 
 
 Each stage also works on its own, e.g. research before a sales meeting or a review of a client's current site.
 
+The chain follows **proof over promise**: concrete methods, people, materials and documented results support the customer's decision. The plan defines what the hero, a quick scan and a full read should communicate, including the 5/15/30-second priorities, the result, time, effort and next steps. Forms follow the actual process; bonuses, deadlines and guarantees appear only when supported by the offer.
+
 ### Interfaces: `ui-without-slop`
 
 Removes the look of AI-made interfaces and replaces each pattern with a design decision. It works on any interface, not only on sites from the chain above (`website-build` runs it before handing over). It covers:

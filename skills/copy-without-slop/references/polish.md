@@ -19,12 +19,12 @@ First-person pronouns are never capitalised mid-sentence: „nasz zespół”, �
 „Jesteś zainteresowany?”, „Zapisałeś się”, „Gotowy na zmianę?” assume a man. Use the present or future tense and questions without an adjective: „Chcesz…?”, „Masz pytanie?”, „Zapiszesz się w 2 minuty”. No slashes like „zainteresowany/a”.
 
 ### Sentences
-Most sentences 8–18 words, rarely over 20 (the Polish plain-language standard says about 20 at most). More verbs than nouns. The doer visible: „wykonaliśmy”, not „wykonano”. One paragraph, one thought, 1–5 sentences.
+Mix short factual sentences with longer explanations. Don't force every sentence into a word-count band; split where a reader loses the thought. More verbs than nouns. The doer visible: „wykonaliśmy”, not „wykonano”. One paragraph, one thought; its length follows the content.
 
 ### Typography
-- **typography.em-dash**: no pauza (U+2014). The dash between clauses is a spaced półpauza ( – ), and readers now notice that too: **typography.dash-count** allows one per section; prefer a period, comma or colon.
+- **typography.em-dash**: no pauza (U+2014). Prefer a period, comma, colon or parentheses.
+- **typography.dash-style**: if a sentence needs a dash, use a standard hyphen with spaces ( - ). This is the house style requested for the copy, not the conventional Polish półpauza ( – ). Keep the wording of direct quotes.
 - **typography.range**: ranges take an unspaced półpauza: 8–16, 7:00–17:00, pon.–pt., 2–3 dni. A hyphen (8-16) is wrong; postcodes (00-950) keep theirs.
-- **typography.hyphen-as-dash**: a hyphen never stands between words with spaces („Wycena - bezpłatna” → „Wycena: bezpłatna”).
 - **typography.quotes**: „…”, nested »…«. Never "…" or “…”. A period after the closing quote: „…tak”.
 - **typography.ellipsis**: … as one character.
 - Headings and titles in sentence case: „Nasze usługi remontowe”, not „Nasze Usługi Remontowe”.

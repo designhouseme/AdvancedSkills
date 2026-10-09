@@ -4,7 +4,7 @@ description: Runs the whole process of creating a short website for a local busi
 license: CC-BY-4.0
 metadata:
   author: Design House
-  version: "1.1"
+  version: "1.2"
 ---
 
 # Business website (orchestrator)
@@ -17,6 +17,7 @@ This skill does no substantive work itself. It sets the order of the stages, loo
 - **State lives in files, not in the conversation's memory.** That way the process can be interrupted, compacted or resumed in a new session.
 - **Contact details come from the user only**, never from the internet without confirmation.
 - **Don't invent facts, reviews, clients or numbers.** Mark missing data and move on.
+- **Proof over promise.** Carry concrete evidence through copy, section order and images. Outcomes and persuasion must stay within what the company can substantiate.
 - **No purchases and no publishing.** Don't register domains, deploy to a server or send anything without an explicit request.
 
 ## Handoff files
@@ -46,7 +47,7 @@ At the start, write this to `brief/progress.md` and tick it off as you go:
 
 ## Flow
 
-0. **Input.** Save the user's text to `brief/00-input.md`. Ask only when the business can't be identified unambiguously, contact details are missing, or it's unclear what the site should achieve (calls, a form, bookings). Work out the rest yourself and mark your assumptions. The site's language is the language of the business's customers; if that's unclear, use the language of the user's input and record it as an assumption.
+0. **Input.** Save the user's text to `brief/00-input.md`. Ask only when the business can't be identified unambiguously, contact details are missing, or it's unclear what the site should achieve (calls, a form, bookings). Carry the audience, brand voice, main concerns and lead goal (volume, qualification or their balance) through research and planning. Infer missing preferences from the available material and mark assumptions rather than blocking work. The site's language is the language of the business's customers; if that's unclear, use the language of the user's input and record it as an assumption.
 1. **Research.** Run the company-research skill. Output: `brief/01-research.md`.
 2. **Plan and copy.** Run the website-plan skill. Output: `brief/02-plan.md`.
 3. **Checkpoint.** Show the user the H1, the list of sections (headings and CTAs) and the open gaps, and wait for approval. Skip this step only when the user asked for work with "no questions"; in that case record it in `progress.md`.

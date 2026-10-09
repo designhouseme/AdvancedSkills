@@ -8,6 +8,7 @@ Keep it in a working note (a file or your own reasoning), not in the reply; the 
 
 ```md
 Reader and moment: who, coming from where, wanting to know what
+Desired outcome and doubts: result, credibility, timing, effort
 Facts: what / where / for whom / how it works / what happens after contact / what they don't do
 Numbers: each with where it comes from
 Customers' words: verbatim phrases from reviews, emails, calls
@@ -39,7 +40,7 @@ Describe the voice by what it does, with values the draft can be checked against
 
 - who speaks: "we", "I", a named person, the company in the third person;
 - address: you; in Polish ty or Państwo (`references/polish.md`), the same everywhere including buttons and forms;
-- sentence length: e.g. mostly 8–18 words, none over 25 (Polish 20);
+- rhythm: short facts mixed with longer explanations and conditions; the thought sets the sentence length, and rereading signals a possible split;
 - 3–5 words the customers use for the thing (from reviews, not from the industry);
 - 3–5 words this business would never say;
 - a stance: who it's not for, what it doesn't do, a method it chose. Only from the owner. A refusal ("we don't fit laminate, only solid wood") gives a text more character than any adjective.

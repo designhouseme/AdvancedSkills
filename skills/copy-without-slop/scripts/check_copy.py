@@ -16,7 +16,7 @@ TEXT is a .md, .txt or .html file, or - for standard input.
 Levels:
   ERROR      typography and template residue that are wrong in any text, numbers missing
              from --facts. Fix them.
-  WARNING    Polish typography and register that are almost always wrong. Fix them or say why not.
+  WARNING    House style, Polish typography and register to check. Fix them or say why not.
   CANDIDATE  a pattern from references/patterns.md or references/polish.md (the name after the
              level is the heading there). Not a failure: give each one a decision in the reply,
              e.g. cut, replace with which fact, or keep because…
@@ -193,6 +193,10 @@ def check(lines, lang, facts=None):
     for no, text, heading in lines:
         if "—" in text:
             add("ERROR", "typography.em-dash", no, text, "use a period, comma, colon or parentheses; in Polish a range takes an unspaced en dash")
+        for m in re.finditer(r"(?<=\s)–(?=\s)", text):
+            if outside_quotes(text, m.start()):
+                add("WARNING", "typography.dash-style", no, text, "house style uses a standard hyphen (-) for a sentence dash; prefer a period, comma or colon")
+                break
         if re.search(r"\[(?:company name|nazwa firmy|name|imię|xx+)\]|lorem ipsum|\{\{|\bTODO\b|\bXXX\b", text, re.I):
             add("ERROR", "template.residue", no, text, "a placeholder left in the text")
         if "..." in text:
@@ -200,8 +204,6 @@ def check(lines, lang, facts=None):
         if lang == "pl":
             if re.search(r'"[^"\n]+"|“[^”\n]+”', text):
                 add("ERROR", "typography.quotes", no, text, "Polish quotation marks are „…”, nested »…«")
-            if re.search(r"\S - \S", text):
-                add("WARNING", "typography.hyphen-as-dash", no, text, "a dash between words is an en dash with spaces ( – ), never a hyphen")
             for m in re.finditer(r"(?<![\d-])(\d{1,2}(?::\d{2})?)-(\d{1,2}(?::\d{2})?)(?![\d-])", text):
                 if not re.fullmatch(r"\d{2}-\d{3}", text[m.start():m.end() + 1].strip()):
                     add("WARNING", "typography.range", no, m.group(0), "a range takes an unspaced en dash: 8–16, 7:00–17:00")
@@ -230,10 +232,6 @@ def check(lines, lang, facts=None):
 
     full = "\n".join(t for _, t, _ in lines)
     if lang == "pl":
-        dashes = len(re.findall(r" – ", full))
-        sections = max(1, sum(h for _, _, h in lines))
-        if dashes > sections:
-            add("WARNING", "typography.dash-count", 0, f"{dashes} spaced en dashes, {sections} section(s)", "at most one per section; prefer a period, comma or colon")
         if len(re.findall(r"\bwarto\b", full, re.I)) > 1:
             add("CANDIDATE", "importance", 0, "„warto” more than once", "keep at most one per text")
         formal = re.search(r"\b(?:Państw\w*|Pan\b|Pani\b)", full)

@@ -4,7 +4,7 @@ description: Performs an independent review of a finished business website based
 license: CC-BY-4.0
 metadata:
   author: Design House
-  version: "1.3"
+  version: "1.4"
 ---
 
 # Website review
@@ -32,13 +32,17 @@ Before you read the plan, look at the hero at both widths and write down, as som
 
 The order is deliberate. Whoever knows the author's reasoning starts seeing the intention instead of the effect.
 
+Then scan the page's headings, images, captions and CTAs. Record what a visitor would learn after roughly 15 and 30 seconds, and finally read the complete page. Treat these as attention priorities, not measured viewing times: the hero, scan and full reading should each communicate a coherent offer, with more detail at each level.
+
 ## 2. Comparison with the plan and the truth
 
-- **Scan:** do the H1, H2s and CTAs on the render alone make the same argument as the scan test in the plan?
+- **Scan:** do the H1, H2s, meaningful images/captions and CTAs on the render alone make the same argument as the scan test in the plan?
 - **Proof:** is the strongest proof before the halfway point of the page and close to the claim it supports?
-- **Truth:** every strong claim can be traced to a fact in the research. Reviews, numbers, prices and lead times aren't invented. Stock doesn't pose as projects or the team.
+- **Truth:** every strong claim can be traced to a fact in the research. Reviews, numbers, prices, lead times, bonus contents or values, guarantees, deadlines and limited availability aren't invented. Stock doesn't pose as projects or the team.
+- **Value and concerns:** can the visitor understand the outcome, why it is credible, how long it takes and what effort or preparation it requires? Answers use available evidence and acknowledge relevant limits; unknowns are gaps, not an instruction to add a promise. Are the main worries answered where they arise, in the customer's language?
 - **Motion**, if you open the render: the first screen isn't waiting for an entrance animation, nothing moves on its own for more than 5 s without a pause, and scrolling isn't taken over. A problem here goes to website-build.
 - **Contact:** phone, email and address match the data from the user. The contact section says what happens next, and the FAQ is directly below it.
+- **Forms, where present:** do the fields and steps serve the lead goal without asking for known data again? Check retained input after errors and truthful confirmation with the planned next step if the flow is available. A demo must not claim to have sent a request. State when submission behavior could not be checked.
 
 ## 3. Scores
 
@@ -58,7 +62,7 @@ For each dimension write: `section/viewport → observation → score → what's
 - Default font, equal cards and generic stock unrelated to the company: design at most 6.
 - Decorative dots, pills and eyebrows that carry no information, gradient text or a purple gradient unrelated to the brand (list in the ui-without-slop skill): character at most 6.
 - Years in business, headcount or awards with their own section and no consequence for the customer: selection at most 6.
-- An invented review, number, or stock labelled as a project: truth 1, which means automatic `NEEDS_CHANGES`.
+- An invented review, number, offer condition (including urgency, bonuses or guarantees), or stock labelled as a project: truth 1, which means automatic `NEEDS_CHANGES`.
 
 **Threshold:** each of the three columns averages at least **8**, and no dimension falls below **7**.
 
