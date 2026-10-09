@@ -504,6 +504,9 @@ def write_words(pages, cfg, W, H, lines):
 # ---------- fx: icons and list lockups drawn in the caption layer ----------
 
 BUILTIN_ICONS = {
+    # a stopwatch: ring (outer clockwise, inner counter-clockwise), crown and a hand
+    "timer": "M12 4a9 9 0 1 1 0 18a9 9 0 1 1 0-18zM12 6.4a6.6 6.6 0 1 0 0 13.2a6.6 6.6 0 1 0 0-13.2z"
+             "M9.6 0.8h4.8v2.2h-4.8zM11.1 8.2h1.8v5.6h-1.8z",
     # a browser window (frame with a cut-out and a title bar), 24-unit box like Simple Icons
     "web": "M3 3h18a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM3 8v11h18V8z",
 }
@@ -769,6 +772,44 @@ def fx_lines(E, cw, segs, pages, cap, W, H, work):
     return out, hide
 
 
+def hook_lines(E, cap, W, H):
+    """`hook`: a short line at the top that tells the viewer what they get if they stay ("Marketing
+    lokalnej firmy / plan na 2026 w minutę"). Not the big title that was rejected: at most two lines
+    and ~6 words, 64-72 px, words popping in one after another, gone by ~4 s (slides up and fades)."""
+    hk = E["hook"]
+    lines_txt = hk["text"].split("\n")[:2]
+    fs = hk.get("size", 70)
+    fn = hk.get("font", cap.get("font_emph", "Inter Display Black"))
+    t0, t1 = hk.get("from", 0.0), hk.get("to", 4.0)
+    y0 = hk.get("y", 300)
+    sh = cap.get("shadow", {})
+    sdy, sblur, salpha = sh.get("dy", 4), sh.get("blur", 7), sh.get("alpha", "98")
+    out, k = [], 0
+    dur_ms = int((t1 - t0) * 1000)
+    # a soft dark band behind it: the top of a phone video is often a bright window or sky
+    band_h = y0 + len(lines_txt) * fs * 1.08 + 90
+    band = f"m 0 -80 l {W} -80 l {W} {band_h:.0f} l 0 {band_h:.0f}"
+    out.append(f"Dialogue: 7,{ass_time(t0)},{ass_time(t1)},W,,0,0,0,,{{\\an7\\pos(0,0)\\1c&H000000&\\1a&H{hk.get('band_alpha', '88')}&"
+               f"\\bord0\\shad0\\blur70\\fad(200,300)\\p1}}{band}")
+    for li, line in enumerate(lines_txt):
+        y = y0 + li * fs * 1.08
+        words = line.split()
+        anim_parts = []
+        for w in words:
+            d = 90 * k + 80
+            anim_parts.append(f"{{\\alpha&HFF&\\t({d},{d + 90},\\alpha&H00&)}}{w}")
+            k += 1
+        txt = " ".join(anim_parts)
+        leave = f"\\t({dur_ms - 260},{dur_ms},1.5,\\fscx92\\fscy92\\alpha&HFF&)"
+        mv = f"\\move({W // 2},{y:.0f},{W // 2},{y - 36:.0f},{dur_ms - 260},{dur_ms})"
+        mvs = f"\\move({W // 2},{y + sdy:.0f},{W // 2},{y - 36 + sdy:.0f},{dur_ms - 260},{dur_ms})"
+        a, b = ass_time(t0), ass_time(t1)
+        out.append(f"Dialogue: 8,{a},{b},W,,0,0,0,,{{\\an5{mvs}\\fn{fn}\\fs{fs}\\fsp-4\\1c&H000000&\\1a&H{salpha}&"
+                   f"\\blur{sblur}{leave}}}" + txt.replace("\\alpha&H00&", f"\\alpha&H{salpha}&"))
+        out.append(f"Dialogue: 9,{a},{b},W,,0,0,0,,{{\\an5{mv}\\fn{fn}\\fs{fs}\\fsp-4{leave}}}{txt}")
+    return out
+
+
 def write_ass(pages, cfg, title, W, H, path):
     font, size = cfg.get("font", "Fira Sans"), cfg.get("size", 78)
     col, acc = ass_color(cfg.get("color", "#FFFFFF")), ass_color(cfg.get("accent", "#F5B942"))
@@ -1027,8 +1068,9 @@ def plan_angles(segs, cw, cfg, keep_wide=()):
         s["shots"] = shots
 
 
-def graph(segs, W, H, fx, fy, with_video=True):
+def graph(segs, W, H, fx, fy, with_video=True, lut=None):
     parts, labels = [], []
+    look = f"lut3d=file='{lut}':interp=tetrahedral," if lut else ""   # the footage only, before framing
     for n, s in enumerate(segs):
         d = s["out"] - s["in"]
         a = (f"[0:a]atrim=start={s['in']:.3f}:end={s['out']:.3f},asetpts=PTS-STARTPTS,"
@@ -1049,7 +1091,7 @@ def graph(segs, W, H, fx, fy, with_video=True):
                 R, B = f"({L}+W/{Z})", f"({TOP}+H/{Z})"
                 frame = (f"perspective=x0='{L}':y0='{TOP}':x1='{R}':y1='{TOP}':x2='{L}':y2='{B}':x3='{R}':y3='{B}'"
                          f":interpolation=cubic:eval=frame,")
-            v = (f"[0:v]trim=start={s['in']:.3f}:end={s['out']:.3f},setpts=PTS-STARTPTS,{frame}setsar=1[v{n}]")
+            v = (f"[0:v]trim=start={s['in']:.3f}:end={s['out']:.3f},setpts=PTS-STARTPTS,{look}{frame}setsar=1[v{n}]")
             parts.append(v)
             labels.append(f"[v{n}][a{n}]")
         else:
@@ -1216,6 +1258,8 @@ def main():
                         kept.append(dict(p, words=[p["words"][i] for i in keep], times=[p["times"][i] for i in keep],
                                          emph=[p["emph"][i] for i in keep]))
                 pages = kept
+    if E.get("hook"):
+        extra += hook_lines(E, cap, W, H)
     if hide:                                   # a list lockup replaces the word captions while it is up
         pages = [p for p in pages if not any(a - 0.02 <= p["start"] < b for a, b in hide)]
     json.dump(pages, open(work / "captions.json", "w"), ensure_ascii=False, indent=1)
@@ -1227,15 +1271,91 @@ def main():
     # 3. EDL
     write_edl(segs, src, fps, src_tc, work / "edit.edl", E.get("name", "EDIT"))
 
-    # 4. loudness pass 1
+    # 4. transitions, sound effects, music: where they fall in the film
+    FXH = Path.home() / ".cache/video-edit"
+    trans_t = []
+    for tr in E.get("transitions", []):
+        if "cut" in tr:
+            t = segs[tr["cut"]]["out_start"]
+        else:
+            t0i, di = placed[tr["insert"]][:2]
+            t = t0i if tr.get("edge", "in") == "in" else t0i + di
+        trans_t.append(round(t * fps) / fps)
+    burn = FXH / "fx" / f"burn_{W}x{H}_{fps}.mp4"
+    sfx_dir = Path(E.get("audio", {}).get("sfx_dir", FXH / "sfx"))
+    if trans_t and not burn.exists():
+        subprocess.run([sys.executable, str(Path(__file__).parent / "fxassets.py"), "--size", f"{W}x{H}",
+                        "--fps", str(fps)], check=True, capture_output=True)
+    aud = E.get("audio", {})
+    missing = set()
+
+    def sound(name):
+        """A recorded sound from the library by name (shutter.wav, whoosh.mp3...) or a path; None if absent."""
+        if "/" in name:
+            return Path(name) if Path(name).exists() else missing.add(name)
+        hits = [p for p in sorted(sfx_dir.glob(f"{name}.*")) if p.suffix.lower() in (".wav", ".flac", ".mp3", ".ogg", ".aif", ".aiff")]
+        return hits[0] if hits else missing.add(name)
+
+    sfx = []                                  # (file, time the sound starts, gain dB)
+    for t in trans_t:                         # the whoosh peaks (whoosh_peak s in) on the cut, the shutter clicks on it
+        if aud.get("transition_sfx", True):
+            sfx.append((sound("whoosh"), t - aud.get("whoosh_peak", 0.30), aud.get("whoosh_db", -4)))
+            sfx.append((sound("shutter"), t - 0.004, aud.get("shutter_db", -3)))
+    if aud.get("icon_pop", True):
+        for f in E.get("fx", []):
+            if f["type"] in ("hand_icon", "icon"):
+                w = find_word(cw, f["word"], seg=f.get("seg"))
+                sfx.append((sound("pop"), w["start"] - 0.02, aud.get("pop_db", -6)))
+    for e_ in aud.get("sfx", []):             # explicit: {"file": "whoosh"|path, "word"/"cut"/"at", "gain"}
+        if "word" in e_:
+            t = find_word(cw, e_["word"], seg=e_.get("seg"))["start"]
+        elif "cut" in e_:
+            t = segs[e_["cut"]]["out_start"]
+        else:
+            t = e_["at"]
+        sfx.append((sound(e_["file"]), t + e_.get("offset", 0.0), e_.get("gain", -6)))
+    sfx = [s for s in sfx if s[0]]            # no recorded file, no sound: never a synthesised stand-in
+    for name in sorted(missing):
+        warn.append(f"no sound '{name}' in {sfx_dir}: those moments are silent (add a recorded file, see SKILL.md)")
+    music = aud.get("music")
+
+    def audio_graph(first_input):
+        """Voice [ac] + music ducked under it + sound effects -> [mix]. Inputs start at first_input."""
+        ins, parts, labels, k = [], [], ["[vox]"], first_input
+        parts.append("[ac]aformat=sample_rates=48000:channel_layouts=stereo,asplit=2[vox][vsc]")
+        if music:
+            ins += ["-stream_loop", "-1", "-ss", str(music.get("offset", 0)), "-i", music["file"]]
+            fo = music.get("fade_out", 1.0)
+            parts.append(f"[{k}:a]aformat=sample_rates=48000:channel_layouts=stereo,atrim=duration={t_out:.3f},"
+                         f"asetpts=PTS-STARTPTS,afade=t=in:d={music.get('fade_in', 0.5)},"
+                         f"afade=t=out:st={t_out - fo:.3f}:d={fo},"
+                         f"loudnorm=I={music.get('bed_lufs', -22)}:TP=-3:LRA=11,"     # every track sits at the same level
+                         f"aresample=48000,volume={music.get('gain', 0)}dB[mus]")
+            parts.append("[mus][vsc]sidechaincompress=threshold=0.03:ratio=12:attack=15:release=350[mduck]")
+            labels.append("[mduck]")
+            k += 1
+        else:
+            parts.append("[vsc]anullsink")
+        for j, (f_, t, g) in enumerate(sfx):
+            ins += ["-i", str(f_)]
+            ms = max(0, int(round(t * 1000)))
+            parts.append(f"[{k}:a]aformat=sample_rates=48000:channel_layouts=stereo,adelay={ms}|{ms},volume={g}dB[s{j}]")
+            labels.append(f"[s{j}]")
+            k += 1
+        parts.append("".join(labels) + f"amix=inputs={len(labels)}:normalize=0:duration=first[mix]")
+        return ins, ";".join(parts)
+
+    # 5. loudness pass 1, on the whole mix
     target = E.get("audio", {})
     I, TP = target.get("lufs", -14), target.get("tp", -1.5) - 0.5   # AAC overshoots the limiter
-    r = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-i", src, "-filter_complex",
-                        graph(segs, W, H, fx, fy, with_video=False) + f";[ac]loudnorm=I={I}:TP={TP}:LRA=11:print_format=json[x]",
+    a_ins, a_fg = audio_graph(1)
+    r = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-i", src, *a_ins, "-filter_complex",
+                        graph(segs, W, H, fx, fy, with_video=False) + ";" + a_fg +
+                        f";[mix]loudnorm=I={I}:TP={TP}:LRA=11:print_format=json[x]",
                         "-map", "[x]", "-f", "null", "-"], capture_output=True, text=True)
     m = json.loads(r.stderr[r.stderr.rindex("{"):r.stderr.rindex("}") + 1])
 
-    # 5. render
+    # 6. render
     ln = (f"loudnorm=I={I}:TP={TP}:LRA=11:measured_I={m['input_i']}:measured_TP={m['input_tp']}:"
           f"measured_LRA={m['input_lra']}:measured_thresh={m['input_thresh']}:offset={m['target_offset']}:linear=true")
     ass = str(work / "captions.ass").replace(":", r"\:").replace("'", r"\'")
@@ -1246,10 +1366,35 @@ def main():
                      f"scale={W}:{H},setsar=1[ins{n}];[{vlab}][ins{n}]overlay=enable='between(t,{t0:.3f},"
                      f"{t0 + d - 0.001:.3f})':eof_action=pass[vi{n}]")
         vlab = f"vi{n}"
-    fg = (graph(segs, W, H, fx, fy) + "".join(";" + c for c in chain) + f";[{vlab}]subtitles='{ass}':fontsdir='{cap.get('fontsdir', FONTS)}',format=yuv420p,"
+    if trans_t:                               # film burn + shutter: a black track with the burns, screen-blended
+        base = 1 + len(placed)
+        chain.append(f"color=c=black:s={W}x{H}:r={fps}:d={t_out:.3f}[fxb0]")
+        for j, t in enumerate(trans_t):
+            ins_in += ["-i", str(burn)]
+            chain.append(f"[{base + j}:v]setpts=PTS-STARTPTS+{max(0, t - 8 / fps):.3f}/TB[bn{j}];"
+                         f"[fxb{j}][bn{j}]overlay=eof_action=pass:repeatlast=0[fxb{j + 1}]")
+        chain.append(f"[{vlab}]format=gbrp[vmg];[fxb{len(trans_t)}]format=gbrp[vfg];"
+                     f"[vmg][vfg]blend=all_mode=screen,format=yuv420p[vtr]")
+        vlab = "vtr"
+    a_ins, a_fg = audio_graph(1 + len(ins_in) // 2)
+    # grading is opt-in: applied only with "enabled": true, never because a LUT is listed
+    lut = E.get("grade", {}).get("lut") if E.get("grade", {}).get("enabled") is True else None
+    fg = (graph(segs, W, H, fx, fy, lut=lut) + "".join(";" + c for c in chain) + ";" + a_fg +
+          f";[{vlab}]subtitles='{ass}':fontsdir='{cap.get('fontsdir', FONTS)}',format=yuv420p,"
           "setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv[vo];"
-          f"[ac]{ln},aresample=48000[ao]")
-    json.dump({"fps": fps, "duration": round(t_out, 3), "segments": segs, "warnings": warn},
+          f"[mix]{ln},aresample=48000[ao]")
+    ins_in += a_ins
+    firsts = [t0 for t0, *_ in placed]
+    for f in E.get("fx", []):
+        if "word" in f:
+            firsts.append(find_word(cw, f["word"], seg=f.get("seg"))["start"])
+        elif f.get("seg") is not None and f["type"] == "list":
+            firsts.append(segs[f["seg"]]["out_start"])
+    firsts += [pg["start"] for pg in pages if any(pg.get("emph", []))]
+    first_motion = round(min(firsts), 2) if firsts else None
+    json.dump({"fps": fps, "duration": round(t_out, 3), "segments": segs, "warnings": warn,
+               "first_motion": first_motion, "transitions": trans_t,
+               "sfx": [[str(f_), round(t, 3), g] for f_, t, g in sfx], "music": music},
               open(work / "cuts.json", "w"), ensure_ascii=False, indent=1)
     enc = (["-preset", "veryfast", "-crf", "24"] if a.draft else ["-preset", "slow", "-crf", "18", "-profile:v", "high"])
     cmd = ["ffmpeg", "-hide_banner", "-v", "error", "-stats", "-y", "-i", src, *ins_in, "-filter_complex", fg,

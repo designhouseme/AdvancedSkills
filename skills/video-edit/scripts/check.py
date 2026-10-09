@@ -63,6 +63,9 @@ def main():
     res.append(("OK" if abs(I - a.lufs) <= 1 else "ERROR", f"loudness {I:.1f} LUFS (target {a.lufs})"))
     res.append(("OK" if TP <= a.tp + 0.3 else "ERROR", f"true peak {TP:.1f} dBTP (limit {a.tp})"))
 
+    fm = cuts.get("first_motion")
+    if fm is not None:      # an insert, an effect or an emphasised word: something moves early
+        res.append(("OK" if fm <= 5 else "WARNING", f"first animation at {fm:.1f} s (needs to be within 5 s)"))
     n_cuts = len(cuts["segments"]) - 1
     rate = n_cuts / dur
     res.append(("OK" if 0.19 <= rate <= 0.52 else "WARNING",
