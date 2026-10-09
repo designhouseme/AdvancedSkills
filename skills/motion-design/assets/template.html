@@ -643,6 +643,9 @@
       }
 
       window.__DURATION = DURATION;
+      // Hard cuts only, in output seconds (divide authored times by SPEED).
+      // Do not list overlaps here: blur may sample both scenes during an overlap.
+      window.__CUTS = [];
       window.__SUB = SUB;
       window.__SIZE = { w: W, h: H };
       window.__render = render;

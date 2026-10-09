@@ -28,7 +28,8 @@ FADE = 0.015                    # audio fade at every join (s)
 
 
 def load(p):
-    return json.load(open(p, encoding="utf-8"))
+    with open(p, encoding="utf-8") as stream:
+        return json.load(stream)
 
 
 # ---------- snapping ----------
@@ -1102,29 +1103,85 @@ def graph(segs, W, H, fx, fy, with_video=True, lut=None):
     return ";".join(parts)
 
 
+def segment_id_index(segs):
+    """Optional stable IDs identify edit occurrences, including repeated source ranges."""
+    ids = {}
+    for k, sg in enumerate(segs):
+        if "id" not in sg:
+            continue
+        sid = sg["id"]
+        if not isinstance(sid, str) or not sid.strip() or sid != sid.strip():
+            sys.exit(f"segment {k} id must be a non-empty string without leading/trailing whitespace")
+        if sid in ids:
+            sys.exit(f"duplicate segment id {sid!r} on segments {ids[sid]} and {k}; use unique IDs")
+        ids[sid] = k
+    return ids
+
+
 def place_inserts(E, segs, warn):
     """Inserts: full-screen motion graphics over the speaker's voice, anchored to the SOURCE time of
     the words they cover ("src_at"), so re-snapping a cut keeps them on the same words; an insert
-    never runs past its segment into the next shot."""
+    never runs past its segment into the next shot. `segment_id` selects one occurrence when
+    source time is reused; without it an ambiguous source anchor is an error."""
     placed = []
-    for ins in E.get("inserts", []):
-        k = next((j for j, s in enumerate(segs) if s["in"] - 0.3 <= ins["src_at"] < s["out"]), None)
-        if k is None:
-            sys.exit(f"insert at source {ins['src_at']} is outside every segment")
+    ids = segment_id_index(segs)
+    for n, ins in enumerate(E.get("inserts", [])):
+        for field, default in (("src_at", None), ("dur", None), ("skip", 0.0)):
+            value = ins.get(field, default)
+            if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+                sys.exit(f"insert {n} {field} must be a finite number")
+        if ins["dur"] <= 0:
+            sys.exit(f"insert {n} dur must be positive")
+        skip = ins.get("skip", 0.0)
+        if skip < 0:
+            sys.exit(f"insert {n} skip must not be negative")
+        candidates = [j for j, s in enumerate(segs) if s["in"] - 0.3 <= ins["src_at"] < s["out"]]
+        if "segment_id" in ins:
+            sid = ins["segment_id"]
+            if not isinstance(sid, str) or not sid.strip() or sid != sid.strip():
+                sys.exit(f"insert {n} segment_id must be a non-empty string without leading/trailing whitespace")
+            if sid not in ids:
+                sys.exit(f"insert {n} unknown segment_id {sid!r}; set a matching id on the intended edit segment")
+            k = ids[sid]
+            if k not in candidates:
+                sys.exit(f"insert {n} source {ins['src_at']} does not match segment_id {sid!r} "
+                         f"(accepted source range {segs[k]['in'] - 0.3:.3f} <= src_at < {segs[k]['out']:.3f})")
+        elif not candidates:
+            sys.exit(f"insert {n} at source {ins['src_at']} is outside every segment")
+        elif len(candidates) > 1:
+            matches = ", ".join(f"{j} (id={segs[j].get('id')!r})" for j in candidates)
+            sys.exit(f"insert {n} at source {ins['src_at']} is ambiguous: matches segments {matches}; "
+                     "add unique segment id values and set this insert's segment_id")
+        else:
+            k = candidates[0]
         sg = segs[k]
         src_at = max(ins["src_at"], sg["in"])
         fps = E.get("_fps", 25)
         t0 = round((sg["out_start"] + src_at - sg["in"]) * fps) / fps     # on the frame grid, or the frame
         end = min(t0 + ins["dur"], sg["out_start"] + sg["out"] - sg["in"])  # before the cut shows the face
         d = round((end - t0) * fps) / fps
-        if ins.get("skip"):                    # skipping the head leaves less clip: say so in cuts.json
-            r = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0",
-                                ins["src"]], capture_output=True, text=True)
-            d = min(d, math.floor((float(r.stdout) - ins["skip"]) * fps) / fps)
+        if skip:                               # skipping the head leaves less clip: say so in cuts.json
+            try:
+                r = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0",
+                                    ins["src"]], capture_output=True, text=True)
+            except OSError as exc:
+                sys.exit(f"insert {n}: cannot probe {ins['src']!r}: {exc}")
+            if r.returncode:
+                sys.exit(f"insert {n}: ffprobe failed for {ins['src']!r}; check that the clip exists and is readable")
+            try:
+                clip_duration = float(r.stdout.strip())
+            except (ValueError, TypeError):
+                sys.exit(f"insert {n}: ffprobe returned no usable duration for {ins['src']!r}")
+            if not math.isfinite(clip_duration) or clip_duration <= 0:
+                sys.exit(f"insert {n}: ffprobe returned no usable duration for {ins['src']!r}")
+            d = min(d, math.floor((clip_duration - skip) * fps) / fps)
+        if d <= 0:
+            sys.exit(f"insert {n} has no positive duration after frame rounding, segment clipping or skip; "
+                     "move src_at earlier, increase dur or reduce skip")
         if d < ins["dur"] - 0.02:
             warn.append(f"insert {Path(ins['src']).name} cut to {d:.2f} s to end with its segment")
         sg.setdefault("inserts", []).append([round(t0, 3), round(t0 + d, 3), ins["src"]])
-        placed.append((t0, d, ins["src"], ins.get("skip", 0.0)))
+        placed.append((t0, d, ins["src"], skip))
     return placed
 
 
@@ -1146,6 +1203,7 @@ def main():
         print_runs(env, words, lo, hi)
         return
     E = load(a.edit)
+    segment_id_index(E["segments"])
     work = Path(a.work); work.mkdir(parents=True, exist_ok=True)
     src = E["src"]
     W, H, fps, src_tc = probe(src)
@@ -1200,6 +1258,8 @@ def main():
         z = [float(z), float(z)] if not isinstance(z, list) else [float(z[0]), float(z[1])]
         segs.append({"in": round(i0, 3), "out": round(o0, 3), "zoom": z, "note": s.get("note", ""), "_fps": fps,
                      "out_start": round(t_out, 3)})
+        if "id" in s:
+            segs[-1]["id"] = s["id"]
         for w in ws:
             raw = w["word"]
             emph = "*" in raw                        # *słowo*: the model's emphasis mark
@@ -1212,8 +1272,9 @@ def main():
                        "start": t_out + max(0, w["start"] - i0),
                        "end": t_out + min(o0, w["end"]) - i0})
         t_out += o0 - i0
-    json.dump({"fps": fps, "duration": round(t_out, 3), "segments": segs, "warnings": warn},
-              open(work / "cuts.json", "w"), ensure_ascii=False, indent=1)
+    with open(work / "cuts.json", "w", encoding="utf-8") as stream:
+        json.dump({"fps": fps, "duration": round(t_out, 3), "segments": segs, "warnings": warn},
+                  stream, ensure_ascii=False, indent=1)
     for w in warn:
         print("WARNING", w)
 

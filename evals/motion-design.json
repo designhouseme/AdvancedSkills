@@ -66,6 +66,35 @@
         "check_film.py --composition gives no warning about the template's demo palette or font",
         "The order of the scenes and the film's length are unchanged; the demo's motifs may give way to the brand's"
       ]
+    },
+    {
+      "id": 5,
+      "prompt": "Use assets/film.example.json and assets/timeline-example.html as a technical demo. Make the middle scene one second longer, keep the overlap and hard cut, then render at speed 0.75. Keep the Polish text and local fonts. Do not redesign it. Verify the final film and give the reproduction command.",
+      "expected_output": "An edited source manifest, separately compiled timeline, a rendered MP4 and diagnostic/review evidence for that exact artifact. Scene and cue times follow the single generated contract; no second speed transform is applied.",
+      "files": [
+        "skills/motion-design/assets/film.example.json",
+        "skills/motion-design/assets/timeline-example.html",
+        "skills/motion-design/assets/fonts/"
+      ],
+      "assertions": [
+        "The source manifest is preserved separately from timeline.generated.json and compiled using --speed 0.75",
+        "The renderer is passed --timeline, and neither --speed nor a speed query parameter retimes it again",
+        "Generated durationFrames, actual decoded frame count and review artifact SHA-256 agree",
+        "Preflight and sampled frame repeatability pass; the final review is complete and any visual warnings are inspected rather than automatically dismissed",
+        "Polish text and the supplied scene order remain unchanged; no new concept approval is requested for this technical change"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Our generated film has a blank for one frame between two storyboard samples. Investigate the exported MP4, preserve intentional hard cuts and a long still title, and report what you actually checked. A contact sheet once a second looked fine.",
+      "expected_output": "An all-frame scan of the actual encoded film, evidence for candidate anomalies and a targeted source fix only where a fault is confirmed. A final report identifies the checked artifact and unverified checks.",
+      "files": [],
+      "assertions": [
+        "The agent uses review_frames.py on the final MP4 rather than treating the HTML preview or sparse sheet as sufficient evidence",
+        "Suspicious frames are inspected at full resolution and intentional cuts/holds are distinguished from faults",
+        "A fresh review follows any render or re-encode; the report hash matches the delivered artifact",
+        "Heuristic warnings and exit 0 are not presented as automatic visual approval; OCR, audio listening and flash safety are not claimed without separate checks"
+      ]
     }
   ]
 }

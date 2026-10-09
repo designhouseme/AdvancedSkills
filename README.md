@@ -36,6 +36,8 @@ You don't have to name a skill. Describe the task and the agent picks the right 
 | make an interface stop looking AI-made | "it looks generated: dots everywhere, Inter and Lucide again" | `ui-without-slop` |
 | write or fix a text so it doesn't read as AI-made | "this About section sounds like ChatGPT, rewrite it and keep the facts" | `copy-without-slop` |
 | make a video or an animation from code | "a 20-second promo for our app, also as a 9:16 reel" | `motion-design` |
+| add or fix motion inside a website or app | "make the cart panel animate smoothly even when I close and reopen it quickly" | `ui-motion` |
+| edit a recorded talking-head video | "cut repeats and pauses, add captions and a motion insert at this sentence" | `video-edit` |
 | get a brand book the owner, the designer and the printer can each use | "a brand book for our herbal teas, the designer needs clear label rules" | `brandbook` |
 
 ### A website: four stages in one request
@@ -91,7 +93,17 @@ It needs Python 3, Node 22+ and Chromium or Chrome on your machine. It flags lab
 
 Motion design from code in the brand's colours, fonts and logo: a showreel, a product promo, a logo intro, 9:16 reels. You get an MP4, a version small enough to send and an animated WebP for a README. It needs Node 22+, Python 3, ffmpeg and Chromium or Chrome on your machine.
 
-Tests are in the `evals/` folder.
+An optional `film.json` compiles scene timing, cues and hard cuts into one frame-aligned timeline. The renderer checks local assets, can compare captured pixels across reordered seeks, awaits async frame work and keeps short audio from truncating the video. The final-film review scans every decoded frame and produces timestamped sheets and a report tied to the artifact's hash. Visual judgement and audio listening remain separate checks.
+
+### Interface motion: `ui-motion`
+
+Works with an existing interface and its animation stack: CSS or WAAPI for small interactions, Motion for React state/layout, and GSAP for timelines or scroll scenes. It covers interruption, repeated input, component cleanup, keyboard and touch behavior, dynamic reduced-motion preferences and visible static content. It integrates existing Lottie assets; creating them or rendering a standalone film is outside its scope.
+
+### Recorded video: `video-edit`
+
+Edits talking-head footage from a transcript while keeping cuts and motion inserts tied to source timestamps. Repeated source ranges can have segment IDs so an insert targets the intended occurrence. `motion-design` creates a requested insert; `video-edit` places it in the footage. Use its existing transcription and subtitle tooling rather than a second motion renderer.
+
+Behavioral evaluation briefs and routing cases are in `evals/`. Runtime regression tests are in `tests/`; run `python3 -m unittest discover -s tests -v`. Renderer tests require local Chromium, Node 22+, FFmpeg and ffprobe. Evaluation briefs are specifications, not proof that every scenario has been executed.
 
 ## License
 

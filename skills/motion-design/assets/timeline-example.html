@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="pl">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Timeline preview</title>
+<style>
+  @font-face { font-family: Urbanist; font-style: normal; font-weight: 100 900; src: url("fonts/urbanist-latin-ext.woff2") format("woff2"); }
+  @font-face { font-family: Urbanist; font-style: normal; font-weight: 100 900; src: url("fonts/urbanist-latin.woff2") format("woff2"); unicode-range: U+0000-00FF; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #14181c; color: #f6f7f8; font-family: Urbanist, sans-serif; }
+  #stage { position: relative; overflow: hidden; isolation: isolate; }
+  .scene { position: absolute; inset: 0; display: grid; place-content: center; padding: 7%; }
+  .title { max-width: 17ch; margin: 0; font-size: clamp(24px, 6vw, 84px); line-height: 1.1; font-weight: 600; }
+  .line { width: 17%; height: 5px; margin-top: 36px; background: currentColor; transform-origin: left; }
+  #controls { position: fixed; left: 20px; bottom: 20px; padding: 12px; background: #14181c; color: white; }
+  #controls button, #controls input { margin: 4px; }
+  [hidden] { display: none !important; }
+</style>
+<div id="stage" aria-label="Animation preview"></div>
+<div id="controls">
+  <label>Open the compiled timeline JSON <input id="file" type="file" accept="application/json,.json"></label>
+  <button id="play" type="button" hidden>Play / pause</button>
+  <input id="seek" type="range" min="0" value="0" step="0.01" aria-label="Preview time" hidden>
+  <output id="time"></output>
+</div>
+<script>
+(() => {
+  const capture = new URLSearchParams(location.search).has('capture');
+  const stage = document.querySelector('#stage');
+  const controls = document.querySelector('#controls');
+  const seek = document.querySelector('#seek');
+  const play = document.querySelector('#play');
+  const output = document.querySelector('#time');
+  controls.hidden = capture;
+  let timeline, layers = [], current = 0, playing = false, clock = 0;
+  let resolveReady, rejectReady;
+  window.__ready = new Promise((resolve, reject) => { resolveReady = resolve; rejectReady = reject; });
+  const clamp = (x) => Math.max(0, Math.min(1, x));
+  function render(t) {
+    current = Math.max(0, Math.min(t, timeline.duration));
+    for (let i = 0; i < layers.length; i++) {
+      const {scene, node, title, line, cue, accent} = layers[i];
+      const active = current >= scene.start && current < scene.end;
+      node.hidden = !active;
+      const previous = timeline.scenes[i - 1];
+      const overlap = previous?.transition?.type === 'overlap' ? previous.end - scene.start : 0;
+      const alpha = overlap ? clamp((current - scene.start) / overlap) : 1;
+      node.style.opacity = String(alpha);
+      const localFrame = (current - scene.start) * timeline.fps;
+      const rise = 1 - Math.pow(1 - clamp(localFrame / 12), 3);
+      title.style.transform = `translateY(${(1 - rise) * 36}px)`;
+      title.hidden = !cue || current < cue.t || (cue.d !== undefined && current >= cue.t + cue.d);
+      const accentTime = accent?.t ?? scene.start;
+      line.style.transform = `scaleX(${0.2 + 0.8 * clamp((current - accentTime) * 2)})`;
+    }
+    if (!capture) {
+      seek.value = String(current);
+      output.textContent = `${current.toFixed(2)} / ${timeline.duration.toFixed(2)} s`;
+    }
+  }
+  async function init(data) {
+    if (data.version !== 1 || !Number.isInteger(data.durationFrames) || !data.scenes?.length)
+      throw new Error('Choose the compiled timeline, not the source film manifest.');
+    timeline = data;
+    window.__TIMELINE = timeline;
+    window.__SIZE = {w: timeline.size.width, h: timeline.size.height};
+    window.__DURATION = timeline.duration;
+    window.__CUES = timeline.cues;
+    window.__CUTS = timeline.cuts;
+    stage.style.width = timeline.size.width + 'px';
+    stage.style.height = timeline.size.height + 'px';
+    stage.replaceChildren();
+    layers = timeline.scenes.map((scene, i) => {
+      const node = document.createElement('section'); node.className = 'scene';
+      node.style.background = i % 2 ? '#edf0f3' : '#14181c';
+      node.style.color = i % 2 ? '#14181c' : '#edf0f3';
+      const title = document.createElement('h1'); title.className = 'title';
+      title.style.fontSize = Math.round(timeline.size.width * 0.055) + 'px';
+      const cue = timeline.cues.find((c) => c.scene === scene.id && c.text);
+      const accent = timeline.cues.find((c) => c.id === scene.id + '.accent');
+      title.textContent = cue?.text ?? '';
+      const line = document.createElement('div'); line.className = 'line';
+      node.append(title, line); stage.append(node);
+      return {scene, node, title, line, cue, accent};
+    });
+    await document.fonts.load('600 48px Urbanist', 'Zażółć gęślą jaźń');
+    await document.fonts.ready;
+    window.__render = render;
+    seek.max = String(Math.max(0, timeline.duration - 1 / timeline.fps));
+    seek.hidden = play.hidden = false;
+    render(0); resolveReady();
+  }
+  document.querySelector('#file').addEventListener('change', async (event) => {
+    try { playing = false; await init(JSON.parse(await event.target.files[0].text())); }
+    catch (error) { output.textContent = error.message; }
+  });
+  play.addEventListener('click', () => { playing = !playing; clock = performance.now() - current * 1000; });
+  seek.addEventListener('input', () => { playing = false; render(Number(seek.value)); });
+  if (!capture) {
+    const tick = (now) => { if (playing && timeline) render(((now - clock) / 1000) % timeline.duration); requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+  }
+  if (window.__TIMELINE) init(window.__TIMELINE).catch(rejectReady);
+  else if (capture) rejectReady(new Error('The renderer must inject window.__TIMELINE before this page loads.'));
+})();
+</script>
+</html>

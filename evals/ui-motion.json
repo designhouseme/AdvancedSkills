@@ -1,0 +1,90 @@
+{
+  "skill_name": "ui-motion",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "In evals/fixtures/broken-site/index.html, add restrained hover and press feedback to the existing contact CTA. Keep the words, destination, layout and fonts as they are. This is a plain HTML page; it should work with JavaScript disabled and on a phone.",
+      "expected_output": "A local CSS interaction change using the existing link, with visible keyboard focus, a usable touch state, and no new runtime or redesign.",
+      "files": ["evals/fixtures/broken-site/index.html -> index.html"],
+      "assertions": [
+        "The CTA text and href remain unchanged and activation still follows the original link",
+        "The CTA and main page content are visible and usable with JavaScript disabled",
+        "Keyboard focus is visible and Enter activates the link; touch activation does not require a prior hover",
+        "Rapid pointer enter/leave and press/release return the CTA to its correct current state without queued animation",
+        "Reduced motion removes unnecessary movement without removing feedback or the link",
+        "No animation library, build system or unrelated visual redesign is introduced"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Make a small standalone HTML reproduction and fix this disclosure bug. The page has a real button with aria-expanded, a panel with two links, and an open boolean. openPanel creates a new 300 ms WAAPI opacity/translate animation; closePanel creates another animation and its finished callback sets panel.hidden=true. Click open, close halfway, then reopen: the old callback hides the open panel. Keep a smooth optional transition but make the last requested state win, including when reduced motion changes mid-animation. No packages.",
+      "expected_output": "A runnable disclosure whose state, focus and animation lifetime remain coherent under interrupted open/close requests.",
+      "files": [],
+      "assertions": [
+        "Open, close before completion, then reopen settles with the panel visible and aria-expanded=true",
+        "The inverse sequence settles closed; closed links are not keyboard-focusable",
+        "Closing while a panel link is focused moves focus to a sensible surviving control",
+        "Cancellation produces no unhandled rejection and an obsolete callback cannot change the newer state",
+        "Switching reduced motion on during playback settles to the requested state without leaving an intermediate transform",
+        "Repeated toggles do not accumulate active animation handles or duplicate listeners"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Our React app already uses motion/react and an accessible dialog primitive. Add a restrained enter/exit to the account-settings dialog. It has an email field and a Save button. Keep the primitive's keyboard behavior. Users sometimes close and reopen during exit, and navigate away while it is open. Work within the existing stack, show the integration at the primitive's documented presence boundary, and test the lifecycle rather than replacing the dialog.",
+      "expected_output": "A Motion integration around the existing primitive with correct presence ownership, stable identity and cleanup, preserving the field and focus behavior.",
+      "files": [],
+      "assertions": [
+        "The established dialog primitive remains responsible for semantics, Escape, focus containment and return focus",
+        "Tab reaches the email field and Save, and Escape closes with focus restored appropriately",
+        "Close/reopen during exit ends with one usable dialog and no stale callback hiding it",
+        "Unrelated rerenders do not remount the email field or erase entered text",
+        "Navigating away and back, including React development setup/cleanup cycles, leaves no old overlay, scroll lock or duplicate listener",
+        "Reduced motion preserves the dialog, labels and actions while removing unnecessary travel",
+        "No second animation package or blanket conversion of server-rendered pages to client components is introduced"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "An existing GSAP ScrollTrigger product walkthrough breaks after navigation back: two pin spacers appear and scroll jumps. On mobile it hides step three, and changing to reduced motion leaves all steps stacked at opacity zero. Fix lifecycle and responsive behavior in the existing scene. Images load after mount and can change its height. Preserve the walkthrough's content and normal anchor navigation.",
+      "expected_output": "A scoped GSAP scene with cleanup, responsive/reduced alternatives and correct geometry after asynchronous content changes.",
+      "files": [],
+      "assertions": [
+        "After navigating away and back twice there is only the intended live scene and no orphaned pin spacer",
+        "Teardown does not kill unrelated GSAP animations or ScrollTriggers elsewhere in the app",
+        "Every step is readable at the mobile breakpoint, including step three",
+        "Reduced motion at load and toggled during the scene produces a readable static flow with no stuck pin",
+        "Loaded images and breakpoint changes result in correct trigger geometry without a refresh loop on every scroll frame",
+        "Keyboard scrolling and anchor links still reach the intended content",
+        "The underlying page content remains readable when animation JavaScript is unavailable"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "We have a supplied Lottie loader already playing through our app's existing player. It repeats beside an Uploading status for as long as the upload takes. Make playback accessible and stop wasting work after leaving this route. The final Done or Failed label must remain useful even if the asset fails to load. Integrate this asset only; don't redraw it or change our upload logic.",
+      "expected_output": "The existing asset/player has appropriate pause, reduced-motion, fallback and cleanup behavior, while upload status stays in the DOM and follows the actual operation.",
+      "files": [],
+      "assertions": [
+        "Uploading, Done and Failed remain readable DOM states driven by the actual upload result, independent of animation completion",
+        "Asset loading failure leaves a meaningful static fallback and functional upload controls",
+        "Where the automatic loop falls under the pause criterion, its pause/stop control works with keyboard and touch",
+        "Reduced motion yields a meaningful nonmoving state, including when changed during playback",
+        "Returning from a hidden tab or viewport does not undo the user's explicit pause",
+        "Unmount destroys or releases the owned player and subscriptions; remount does not duplicate them",
+        "The implementation preserves the supplied asset and does not claim HTML-to-Lottie conversion or install a second player unnecessarily"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Animate our supplied logo into a 12-second 9:16 launch video and deliver an MP4 under 10 MB. This is for Instagram, not an animation inside our website. We already supplied the name, colours and final copy.",
+      "expected_output": "The request routes to motion-design rather than ui-motion; existing website components and animation dependencies are not changed.",
+      "files": [],
+      "assertions": [
+        "The work is classified as standalone generated video and uses the motion-design workflow when available",
+        "No hover, scroll or React presence implementation is substituted for the requested MP4",
+        "The website is not changed and no UI animation dependency is installed for this request",
+        "Already supplied identity and copy are used without an unnecessary UI-motion questionnaire"
+      ]
+    }
+  ]
+}

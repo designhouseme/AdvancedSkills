@@ -127,7 +127,7 @@
     },
     {
       "query": "add a smooth hover animation to the product cards in the shop",
-      "expected_skill": null
+      "expected_skill": "ui-motion"
     },
     {
       "query": "edit the drone footage from the wedding into one video with music",
@@ -252,6 +252,38 @@
     {
       "query": "the landing page looks AI-made, gradient text and dots everywhere",
       "expected_skill": "ui-without-slop"
+    },
+    {
+      "query": "the cart drawer closes after I already reopened it; fix the interrupted animation and preserve keyboard focus",
+      "expected_skill": "ui-motion"
+    },
+    {
+      "query": "fix our React modal exit animation and make reduced motion work when the preference changes",
+      "expected_skill": "ui-motion"
+    },
+    {
+      "query": "the GSAP pinned section breaks after resizing and route navigation; keep the existing layout and fix the motion lifecycle",
+      "expected_skill": "ui-motion"
+    },
+    {
+      "query": "integrate this existing Lottie loading animation with pause and reduced-motion behavior in our dashboard",
+      "expected_skill": "ui-motion"
+    },
+    {
+      "query": "author a new editable Lottie animation from scratch for our mobile onboarding",
+      "expected_skill": null
+    },
+    {
+      "query": "montaż nagrania talking-head: usuń powtórzenia i ciszę z wywiadu, dodaj napisy na podstawie transkrypcji",
+      "expected_skill": "video-edit"
+    },
+    {
+      "query": "the same sentence occurs twice in my footage edit; place the supplied insert over only its second occurrence",
+      "expected_skill": "video-edit"
+    },
+    {
+      "query": "make a short generated animation explaining this statistic for an insert into my recorded interview",
+      "expected_skill": "motion-design"
     }
   ]
 }

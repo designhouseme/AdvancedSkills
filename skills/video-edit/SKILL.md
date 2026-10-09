@@ -4,12 +4,14 @@ description: Edits recorded footage into a short that looks cut by a human edito
 license: CC-BY-4.0
 metadata:
   author: Design House
-  version: "0.1"
+  version: "0.2"
 ---
 
 # Editing recorded footage
 
 Goal: a short that a viewer takes for the work of an editor, made from the speaker's own best takes, saying only what they said, with every cut where an editor would put it. The model reads; scripts measure and cut. You can't hear the audio or watch the video, so everything about sound and motion comes from a tool's output, never from impression.
+
+This workflow centres on recorded talking heads and interview excerpts. For an animated insert, use [motion-design](../motion-design/SKILL.md) to create and render that clip, then return here for source-time placement, voice, captions and edit checks. A standalone generated promo, intro or logo animation belongs to motion-design; this skill does not promise a general-purpose nonlinear editor.
 
 ## Rules that always apply
 
@@ -71,10 +73,10 @@ python3 $SK/cut.py --words edit/words.json --audio edit/audio.json --runs 120-18
   "name": "TITLE", "src": "/path/source.mp4", "language": "pl", "focus": [0.52, 0.50],
   "segments": [
     {"in": 40.41, "out": 45.3, "zoom": [1.0, 1.04], "text": "Amerykańscy naukowcy | skopiowali 1 do 1 | mózg muszki owocówki,"},
-    {"in": 107.82, "out": 113.5, "zoom": [1.13, 1.16], "text": "czyli 134 tysiące neuronów | zrobione w formie komputerowej."},
+    {"id": "explanation", "in": 107.82, "out": 113.5, "zoom": [1.13, 1.16], "text": "czyli 134 tysiące neuronów | zrobione w formie komputerowej."},
     {"in": 195.40, "out": 197.6, "zoom": 1.14, "hold": 0.35, "text": "to link masz w przypiętym komentarzu."}
   ],
-  "inserts": [{"src": "inserts/out1/ins1.mp4", "src_at": 107.80, "dur": 3.18}],
+  "inserts": [{"src": "inserts/out1/ins1.mp4", "src_at": 107.80, "dur": 3.18, "segment_id": "explanation"}],
   "captions": {"style": "words", "font": "Inter Display Bold", "font_emph": "Inter Display Black", "size": 96,
                "spacing": -4, "emph_spacing": -8, "emph_scale": 1.9, "color": "#F2EFE9", "case": "as_written",
                "y": 1250, "shadow": {"dy": 4, "blur": 7, "alpha": "98"},
@@ -93,6 +95,7 @@ python3 $SK/cut.py --words edit/words.json --audio edit/audio.json --runs 120-18
 ```
 
 - `in`/`out`: points you chose in the pauses (source seconds); the script trims them to the pads and lands them on frames. `hold`: picture kept after the last word (a look, a smile); end on the speaker, not on a caption.
+- Segment `id` is optional: a unique non-empty string without leading/trailing whitespace, preserved in `cuts.json`. An insert's `segment_id` selects that edit occurrence; `src_at` must still match its source range. Without a selector, one match works as before; multiple matches fail with the candidate segments instead of choosing the first. Read [motion-inserts.md](references/motion-inserts.md) when placing inserts, especially if a source phrase appears in both the hook and the explanation. Existing numeric `seg` fields for captions/effects retain their meaning.
 - `focus`: the centre of every punch-in as fractions of the frame. Keep y at ~0.5: a punch-in anchored higher (0.4) crops from the top, the chin drops ~250 px at 1.24× and lands in the captions.
 - `text`: the approved sentence with its punctuation, and `|` where a new caption page starts. You set the pages by meaning ("Amerykańscy naukowcy | skopiowali 1 do 1 | mózg muszki owocówki"), never by the clock; without `|` the sentence is one page. A page longer than `wrap_chars` breaks into two balanced lines, never inside a `keep_together` pair.
 - Captions, `style: words` (the house style since 8.10.2026, from a reference edit the user chose): one word on screen at a time, swapped on its aligned start and held until the next; short words lead into the next content word, at most two words a page (three if ≤14 characters): "w 2026 roku?", "żeby Ci | to ułatwić", "Bo to | na początku". A comma, a sentence end, a cut or an emphasised word closes a page. Inter Display ExtraBold 96 px at -4 px tracking in off-white with a light soft drop shadow (Bold matched the reference's ink, but read as "too thin" in review on a phone; SemiBold 80 px was 30% too small and half as heavy); `*słowo*` in `text` marks an emphasised word: Inter Display Black at ~1.65x. One emphasised word per phrase (12-16 per minute): four in a minute read as "the thick one was used twice". No box, no highlight, no pop: the hierarchy and the swap rhythm are the motion. (Inter is on the generic-look list in ui-without-slop and motion-design; here it is the user's explicit choice, not a default.)
@@ -115,7 +118,7 @@ python3 $SK/cut.py --words edit/words.json --audio edit/audio.json --runs 120-18
   Icons are Simple Icons (CC0 data; brands' marks belong to their owners: show one only when he names the platform) or built-ins (`web`). White glyphs with the caption shadow, never coloured badges.
 - Where his hands do something, put something there. `hands.py --summary` prints the gesture timeline next to the words ("320.88-321.78 point … na Google Maps", "321.88-322.88 count 2 … Facebook i Instagram"); read it before writing `fx`. Effects that sit at the bottom like a second row of captions read as boring in review.
 - Caption height comes from the face track (`faces.py`): the pill top stays 30 px under the chin in every frame it is up, through each segment's zoom; one height for the whole film when it fits, else per segment, else above the head. `check.py` reports the smallest clearance.
-- `inserts`: full-screen clips over the voice, anchored to the source time of the first word they cover (`src_at`), so re-snapping the cuts keeps them on the same words; one that would run past its segment is shortened. Render them from an HTML composition with `motion-design/scripts/render.mjs` at the edit's frame rate (`--fps 25 --params "scene=1&dur=3.18"`), check stills first. `skip` drops seconds from the clip's head (when its first frames are nearly empty); it shortens the insert, so move `src_at` later by the same amount if the insert has to end on the cut.
+- `inserts`: full-screen clips over the voice, anchored to the source time of the first word they cover (`src_at`), never to output seconds. Give motion-design the explanatory content, caption palette/typeface, output dimensions, measured edit frame rate and available duration; it returns the rendered insert clip. Check its stills before integration. Placement keeps the existing frame rounding and trims at the selected segment's end. `skip` is time into the insert clip; a nonzero skip probes and limits its remaining duration. Recheck the visible first frame and actual end after trimming. See [motion-inserts.md](references/motion-inserts.md) for matching tolerance, selectors and errors.
 
 ### 4. Draft, check, look
 

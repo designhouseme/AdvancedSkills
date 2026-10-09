@@ -4,7 +4,7 @@ description: Removes and prevents the typical look of AI-generated interfaces, t
 license: CC-BY-4.0
 metadata:
   author: Design House
-  version: "1.4"
+  version: "1.5"
 ---
 
 # UI without slop
@@ -61,6 +61,8 @@ General rule: **if a dot needs explaining, a text label was the right choice. If
 | cards with a coloured left stripe, cards inside cards | no stripe, one level of container; separation through spacing and typography |
 | invented numbers, a "Trusted by" row without real clients | real data only; without it, no section |
 | em dash (—) in interface copy | a period, comma, colon or parentheses |
+
+When the change involves interaction, interruption, layout transitions or scroll choreography, use `ui-motion` for implementation and browser checks. Keep the visual decision here; preserve keyboard, touch and reduced-motion behavior while removing decoration.
 
 ## 3. The second wave: templates the model escapes into after a ban
 

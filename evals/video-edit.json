@@ -1,0 +1,56 @@
+{
+  "skill_name": "video-edit",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Configure an existing motion insert for my talking-head edit, without rendering or downloading models. The processed segment is {\"id\":\"explanation\",\"in\":40.0,\"out\":44.0,\"out_start\":8.0}; the edit is 25 fps. The insert is inserts/result.mp4, covers the source phrase beginning at 41.0 seconds and should last 2.0 seconds. Produce the insert entry and use the real place_inserts function to verify its output placement. Reordering earlier sentences must not change which source phrase it covers.",
+      "expected_output": "An insert entry using src_at=41.0 and segment_id=explanation, verified at output time 9.0 for 2.0 seconds with the real placement function.",
+      "files": [],
+      "assertions": [
+        "The insert keeps src_at=41.0 as source time and selects explanation by segment_id",
+        "Actual place_inserts output starts at 9.0 and lasts 2.0 seconds on the supplied processed timeline",
+        "A changed out_start moves output placement without rewriting the source anchor or selector",
+        "No media render, model download or transcription is started for this configuration-only request"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Our insert appears on the hook instead of the explanation. Both processed segments reuse source 40.0 to 44.0, with out_start 0.0 and 8.0. The existing insert is {\"src\":\"result.mp4\",\"src_at\":41.0,\"dur\":2.0}. The graphic belongs only to the second occurrence. Reproduce the ambiguity with place_inserts, then fix the config using the supported stable selector and verify it again. No full video render.",
+      "expected_output": "The original config fails actionably for ambiguity; unique segment IDs and a selector place the graphic only over the intended explanation.",
+      "files": [],
+      "assertions": [
+        "Actual place_inserts rejects the original repeated source ranges rather than returning the first match",
+        "The failure identifies multiple candidates and explains how to select an occurrence",
+        "The corrected segments have unique IDs and the insert's segment_id selects the second occurrence",
+        "The corrected placement starts at output 9.0 and does not annotate the hook with an insert",
+        "The source timestamp is not falsified to force a different match and numeric caption/effect seg indexes are not reinterpreted as IDs"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Check these insert configs against the real place_inserts function, without rendering: processed segments are hook (source 10.0–14.0, output start 0.0) and explanation (source 20.0–24.0, output start 4.0), each with that string as id; fps=25. Case A uses src_at=11.0, dur=2.0, segment_id=explanation. Case B uses src_at=23.0, dur=3.0, segment_id=explanation. Case C uses src_at=23.999, dur=1.0, segment_id=explanation. All use supplied.mp4. Explain the result of each and keep the established frame-rounding rules.",
+      "expected_output": "A selector/source mismatch error for A, a one-second insert ending at the chosen cut for B, and a nonpositive-placement error for C.",
+      "files": [],
+      "assertions": [
+        "Case A fails for source/selector mismatch instead of silently falling back to hook",
+        "Case B starts at output 7.0 and is shortened to 1.0 second, ending at output 8.0",
+        "Case C fails after its anchor rounds onto the cut; no empty or negative-duration insert is returned",
+        "The answer reports actual function results and does not change timing math to make the cases pass"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "I'm editing a supplied talking-head recording and need a two-second animated number diagram over the explanation. The number and wording are already approved from the speaker's transcript. This source sentence also opens the film as a hook, but the graphic belongs only in its later explanatory occurrence. Keep the speaker's voice and existing captions. Prepare the handoff and edit config; don't render yet. The final video is 1080×1920 at 25 fps, with the supplied caption font and palette.",
+      "expected_output": "A scoped handoff to motion-design for the generated insert and a video-edit configuration anchored to the selected explanatory occurrence.",
+      "files": [],
+      "assertions": [
+        "Motion-design owns authoring/rendering the generated insert; video-edit owns footage selection, source-time placement, voice, captions and edit checks",
+        "The handoff includes the approved explanatory content, caption font/palette, 1080×1920 dimensions, 25 fps and two-second available duration",
+        "The repeated sentence receives distinct segment IDs and the insert selects the explanatory occurrence",
+        "If the exact source timestamp or insert path is unavailable, the handoff marks it as pending rather than inventing a verified anchor or completed file",
+        "The speaker's claim is preserved and no synthetic voice, general NLE replacement or completed-render claim is introduced",
+        "The explicit instruction not to render is respected"
+      ]
+    }
+  ]
+}

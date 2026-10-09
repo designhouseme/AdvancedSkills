@@ -1,10 +1,10 @@
 ---
 name: motion-design
-description: Makes motion design videos and animations from code, in the brand's colours, fonts and logo, built on a clear idea instead of a template, plus a version small enough to send and an animation for a README. Use when someone asks for a video, an animation, "motion graphics", a showreel, a product or app promo, an intro or animated logo, kinetic typography, an Instagram or TikTok reel, a GIF or animated WebP, including changes to such a video (pace, name, scene, format, file size). Not for animation inside a website or app interface (for a site built from a plan, that's website-build), editing recorded footage, or generating images.
+description: Makes motion design videos and animations from code, in the brand's colours, fonts and logo, built on a clear idea instead of a template, plus a version small enough to send and an animation for a README. Use when someone asks for a video, an animation, "motion graphics", a showreel, a product or app promo, an intro or animated logo, kinetic typography, an Instagram or TikTok reel, a GIF or animated WebP, including changes to such a video (pace, name, scene, format, file size). Interface animation belongs to ui-motion (website-build owns sites built from a plan); editing recorded footage belongs to video-edit. Not for generating images or authoring Lottie assets.
 license: CC-BY-4.0
 metadata:
   author: Design House
-  version: "1.1"
+  version: "1.2"
 ---
 
 # Motion design from code
@@ -19,11 +19,13 @@ Goal: a video with an idea nobody else would have had, in the brand's real colou
 - **The name is one parameter, and you flag a suspicious spelling straight away.** Use it exactly as in the brief (`NAME`); another case, such as a lowercase wordmark, is a proposal you show, not a silent change. If it looks like a typo ("RewievLink" instead of "ReviewLink"), ask in your first message. A late question cost a full render.
 - **The brand comes from the project's files, not from memory.** Colours from the CSS, the font from local files, the logo from the original SVG, app screens rebuilt from the app's CSS (no `iframe`, because a live app has its own timers). When the brand has no logo, build the mark from the name plus one shape from the product's verb; record this as an assumption.
 - **Colour and type are decisions, not defaults.** The model's usual look (Inter or its substitutes, a purple gradient, a neon glow, cream with a serif and terracotta, black with an acid accent) makes a video look generated before anything moves. Use the brand's values; without them, choose the palette and typeface with `references/look.md` and write down why. The template's grey palette and Urbanist only let the demo render.
-- **Every frame is a pure function of time.** `window.__render(t)` sets the whole state; no CSS animations, `setTimeout`, `Date.now()` or `Math.random()`. Only then do rendering in several browsers at once, a still from any second and a change of pace give the same frames.
+- **Every frame is a pure function of time.** `window.__render(t)` sets the whole state, including on a backward seek; no CSS animation clocks, timers, `Date.now()` or unseeded `Math.random()` drive capture. It may return a Promise for deterministic work; the renderer awaits it. Put asset loading in `__ready`. Verify repeatability with `--check-frames` before a full render.
 - **Frames first, then the render.** A still costs a second, a full render several minutes.
 - **No sound unless someone asks.** You can't hear the result, so you can't judge it. Sound is best supplied by the user (`--audio`). Say which platform expects it: TikTok and Reels play with sound, while in Facebook and LinkedIn feeds many people watch muted, so every spoken line also has to be on screen.
 
 ## Workflow
+
+For a targeted change to an existing film, inspect its source and approved direction, then change and verify the affected scenes. Repeat the concept stage only when the request changes the concept. Existing approval covers that direction; do not ask for it again.
 
 ### 1. Brief
 
@@ -51,10 +53,13 @@ Show the user the three directions, your choice, the storyboard in a few lines a
 ```bash
 SK=<this skill's folder>; F=<the film's folder, e.g. design/film in the project's repository>
 mkdir -p $F && cp $SK/assets/template.html $F/index.html && cp -r $SK/assets/fonts $F/ \
-  && cp $SK/scripts/render.mjs $SK/scripts/export.sh $SK/scripts/check_film.py $F/
+  && cp $SK/scripts/render.mjs $SK/scripts/export.sh $SK/scripts/check_film.py \
+    $SK/scripts/compile_timeline.py $SK/scripts/review_frames.py $F/
 ```
 
 Requirements: Node 22+, ffmpeg, Python 3 and Chromium or Chrome; no npm packages. In `index.html` set for good: `W` and `H` (format), `TIMELINE` (length in seconds), `NAME`, the `:root` block with the brand's tokens, `@font-face` and `FAMILY`. Set `WT` (weights by role) to the weights your `@font-face` declares. The grey palette, Urbanist, the demo's copy and `NAME` are placeholders; `check_film.py` warns while they're still there. With the brand's font or the face you chose, put its files and licence in `fonts/` and delete `urbanist-*.woff2` and the demo's `OFL.txt`. The demo scenes show moves from the concept file; delete them or rework them. In a repository, check `.gitignore`: if the film folder is ignored, the sources won't reach the repo, so tell the user.
+
+For films with linked cues, repeated retiming or multiple scenes, use the optional [project timeline](references/project-contract.md): `film.json` → `compile_timeline.py` → `timeline.generated.json`. Start from `assets/timeline-example.html` instead of the legacy template, and pass `--timeline timeline.generated.json` to every render/still/check command. The generated file owns scene times, cuts, cues and integer fps. Keep simple existing HTML films working without migration. Compiled metadata is never replaced with the renderer's legacy `cues.json`.
 
 ### 5. Scenes
 
@@ -70,6 +75,15 @@ node render.mjs --src index.html --still 0,1.5,3.6,5.2     # out/stills/, cleare
 Offer a live preview: `index.html` opened in a browser plays the video (space, arrow keys, `?t=`). It's the cheapest round of feedback.
 
 ### 6. Review and render
+
+Run these before the first full render and after a change to assets or frame logic. Add the same `--timeline`, parameters, fps and subframe settings as the intended render. Read [rendering](references/render.md) for the capture contract, diagnostic artifacts and scope of these checks.
+
+```bash
+node render.mjs --src index.html --preflight
+node render.mjs --src index.html --check-frames
+```
+
+Preflight rejects failed local assets, remote requests and page errors. The frame check compares raw captured pixels across reordered seeks, a second browser and fresh pages. It checks sampled times, not every frame or another machine. Declare hard cuts in `window.__CUTS` (output seconds); generated timelines provide them. Motion blur must not sample the scene before a cut. Overlaps remain continuous transitions.
 
 Go through "Review before the render" (`references/storyboard.md`, section 3) on the stills. Then render two short passages with the default number of workers and look at 1–2 frames of each, because motion blur and stepping only show in the video:
 
@@ -90,20 +104,21 @@ The full render runs as a separate process because it survives the end of the se
 
 ```bash
 python3 check_film.py --composition index.html --film out/film.mp4 --length 30 --format 1920x1080 --audio no
-./export.sh sheet out/film.mp4 out/sheet.png
+python3 review_frames.py --film out/film.mp4 --cues out/cues.json --outdir out/review
 ```
 
-Fix every `ERROR`. Fix every `WARNING` or explain it in the reply. Then copy this into the reply and tick it off:
+Use `--timeline timeline.generated.json` instead of `--cues` for a compiled project. For a fragment, omit the full-film contract. The [frame review](references/review.md) decodes every final frame, flags candidate blanks and temporal outliers, and builds timestamped sheets. Its heuristics require judgement: exit 0 can include warnings, and OCR, audio listening and visual approval remain unchecked. Open the sheets listed in `review.json`; inspect suspicious frames at full resolution. Fix every `ERROR`. Fix every `WARNING` or explain it in the reply. Then copy this into the reply and tick it off:
 
 ```md
 - [ ] concept: verb, three rejected obvious ideas, the chosen direction passes the swap test
 - [ ] look: the brand's colours and font, or a palette and typeface chosen with a written reason; no look warning left unexplained
-- [ ] contact sheet of the finished MP4 (one frame per second) viewed in full, 2–3 key frames at full resolution
+- [ ] sheets of the finished MP4 from review.json viewed in full, flagged frames and 2–3 key frames at full resolution
 - [ ] the brand font visible on a frame with accented letters; no clipped letters, overlaps or empty frames
 - [ ] every piece of text stays on screen for at least words × 0.3 s + 1 s
 - [ ] every sentence and number on screen is backed by the product or clearly marked as an example
 - [ ] the name in the spelling the user confirmed
 - [ ] check_film.py without errors
+- [ ] preflight and sampled frame repeatability passed with the final settings; frame review complete, warnings resolved or explained
 ```
 
 ### 8. Derived versions
@@ -120,8 +135,8 @@ If the film folder has no scripts (someone else's film, an older project), copy 
 
 | Request | Change |
 |---|---|
-| "25% slower" | `--speed 0.75` and a new render, not stretching the finished video; state your reading: speed 0.75, the video gets a third longer |
-| "cut that thread" | delete the scene and set `shift` to the length of the cut before the later scenes, instead of rewriting every time |
+| "25% slower" | compile the source manifest with `--speed 0.75`, or use renderer `--speed 0.75` for a legacy HTML film; never both. State that the video gets a third longer. Supplied audio keeps its original tempo and needs a separate retiming decision |
+| "cut that thread" | remove the scene from `film.json` and recompile; for a legacy film, delete the scene and set `shift` before later scenes |
 | "change the name" | `NAME` (or `--name` for a one-off); the letters measure themselves, look at a still with the logo |
 | "not creative enough" | go back to the concept: a different verb or a different world, not more effects in the same scene |
 | "looks generic", "the colours and fonts are slop" | go back to `references/look.md`: three rejected looks, then a palette and typeface with a reason; change the tokens and the font first, then the demo's own motifs (the star and rounded-square mark, the grid, the square wipe) for ones from the brand; keep the copy unless you have the product's lines |
@@ -144,5 +159,6 @@ If the film folder has no scripts (someone else's film, an older project), copy 
 ## Output
 
 - The film folder (e.g. `design/film/`): `index.html`, which also plays in a browser, `fonts/` and the scripts.
-- `out/film.mp4` (master at 60 fps, crf 17), the requested derived versions and `out/sheet.png`.
+- `out/film.mp4` (master, integer fps; default 60 without a manifest, crf 17), the requested derived versions and the current review sheets.
+- Reproduction evidence: the optional source/compiled timeline, `environment.json`, `frame-check.json`, `film.mp4.render.json` and `review/review.json`. Their hashes identify the inputs and artifact actually checked; re-run relevant checks after edits.
 - In the reply: the chosen direction and why; the palette and typeface and where they come from; the list of scenes, one sentence each; the readings you assumed (storyline, pace, spelling of the name); length and file sizes; what wasn't checked (e.g. nobody listened to the sound); one command to render again; what needs committing.

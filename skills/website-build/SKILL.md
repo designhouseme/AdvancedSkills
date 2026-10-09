@@ -4,7 +4,7 @@ description: Codes a short business website from the approved plan in brief/02-p
 license: CC-BY-4.0
 metadata:
   author: Design House
-  version: "1.5"
+  version: "1.6"
 ---
 
 # Website build
@@ -38,8 +38,8 @@ The hero accounts for most of the first impression. Build it first, take screens
 - **Make the evidence readable when scanning.** Headings, meaningful images, captions and CTAs carry the plan's argument; keep proof visibly connected to the claim it supports. Follow planned layout variation at important points to renew attention without making the reading order unclear or adding motion for its own sake.
 - **Typography and colours follow the visual direction in the plan.** Fonts self-hosted as WOFF2 with the language's accented letters, not loaded from Google's servers at runtime. Icons: the project's own set if it has one; otherwise first check whether the place needs an icon at all, then choose the set as the ui-without-slop skill describes, not Lucide by reflex. Never hand-drawn or Unicode characters.
 - **Photos stored locally in the project**, no hotlinking. Record origin and licences in `brief/media.md`, not on the site. The logo always comes from the company's original file, never recreated with a font.
-- **Motion only where it explains something** (feedback, a change of state, where something came from), not the same fade-up on every section. About 100 ms for feedback, 200–300 ms for a panel or modal, under 500 ms for anything; exits shorter than entrances. Animate only `transform` and `opacity`: the browser moves them without recalculating the layout, so they stay smooth when the page is busy.
-- **Motion that respects the visitor.** Content and CTAs are visible without JavaScript and without waiting for an entrance animation; an element at `opacity: 0` doesn't count as the page's main content (LCP) until it appears. With `prefers-reduced-motion`, swap movement for a short fade instead of removing state changes. Anything that moves on its own for more than 5 s (a marquee, an auto-rotating carousel, a looping video) needs a pause control, as WCAG 2.2.2 requires. Don't take over scrolling, and don't use parallax as decoration.
+- **Motion only where it explains something** (feedback, a change of state, where something came from), not the same fade-up on every section. About 100 ms for feedback and 200–300 ms for a panel are starting points; choose timing from the task and travel distance. Prefer `transform` and `opacity`, then measure the affected path; compositing alone does not guarantee smoothness. Use `ui-motion` for substantial interaction, layout or scroll choreography while this skill keeps ownership of the approved site's build.
+- **Motion that respects the visitor.** Content and CTAs are visible without JavaScript and without waiting for an entrance animation; an element at `opacity: 0` doesn't count as the page's main content (LCP) until it appears. With `prefers-reduced-motion`, keep the same state changes while removing unnecessary travel and loops; an immediate update or small fade may fit. Handle preference changes while the page is open. Auto-started moving content that lasts over 5 s alongside other content needs a pause, stop or hide mechanism unless essential, as WCAG 2.2.2 requires. Don't take over scrolling, and don't use parallax as decoration.
 - **JSON-LD `LocalBusiness` with data 1:1 from the user.** Opening hours only if you know them.
 
 ## 4. Verification before handoff
@@ -59,7 +59,7 @@ Copy this list into your reply and tick it off:
 - [ ] lang, title and meta description from the plan; Open Graph
 - [ ] no em dash (—) in visible copy
 - [ ] run the ui-without-slop skill: no decorative dots, pills above headings, eyebrows, gradient text, identical cards, decorative icons or a component kit at its default theme
-- [ ] motion: only `transform` and `opacity`; a `prefers-reduced-motion` rule; nothing moves on its own for more than 5 s without a pause; the hero isn't hidden behind an entrance animation
+- [ ] motion: repeated input and interruptions settle in the correct state; reduced motion works at load and when changed; long automatic motion has a pause where required; the hero remains visible without animation JavaScript
 - [ ] LCP and CLS without obvious problems (if you have a measuring tool)
 ```
 

@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "fps": 30,
+  "size": {"width": 1280, "height": 720},
+  "scenes": [
+    {
+      "id": "intro",
+      "hold": 2,
+      "transition": {"type": "overlap", "duration": 0.4},
+      "cues": [
+        {"id": "title", "t": 0.2, "d": 1.6, "text": "Ruch ma swój rytm", "source": "Illustrative demo copy"}
+      ]
+    },
+    {
+      "id": "detail",
+      "hold": 2.5,
+      "transition": {"type": "cut", "duration": 0},
+      "cues": [
+        {"id": "title", "t": 0.4, "d": 1.7, "text": "Jeden moment. Wspólny czas.", "source": "Illustrative demo copy"},
+        {"id": "accent", "ref": "detail.title", "offset": 0.2}
+      ]
+    },
+    {
+      "id": "outro",
+      "hold": 2,
+      "cues": [
+        {"id": "title", "t": 0.1, "d": 1.7, "text": "Zażółć gęślą jaźń", "source": "Polish glyph preview, not product copy"}
+      ]
+    }
+  ]
+}
