@@ -1384,10 +1384,14 @@ def main():
           "setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv[vo];"
           f"[mix]{ln},aresample=48000[ao]")
     ins_in += a_ins
-    firsts = [t0 for t0, *_ in placed]
+    firsts = [t0 for t0, *_ in placed] + trans_t
+    if E.get("hook"):                         # its first word pops in 80 ms after it starts
+        firsts.append(E["hook"].get("from", 0.0) + 0.08)
     for f in E.get("fx", []):
         if "word" in f:
             firsts.append(find_word(cw, f["word"], seg=f.get("seg"))["start"])
+        elif f.get("items"):
+            firsts.append(find_word(cw, f["items"][0]["word"], seg=f.get("seg"))["start"])
         elif f.get("seg") is not None and f["type"] == "list":
             firsts.append(segs[f["seg"]]["out_start"])
     firsts += [pg["start"] for pg in pages if any(pg.get("emph", []))]
